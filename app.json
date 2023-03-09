@@ -1,0 +1,41 @@
+{
+  "expo": {
+    "name": "Player Native",
+    "slug": "player-native",
+    "version": "2",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "package": "com.ittrainbow.playernative",
+      "versionCode": "2"
+    },
+    "androidNavigationBar": {
+      "backgroundColor": "#373b42"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "20f62a0b-950a-4c99-8191-41bf68d74db7"
+      }
+    },
+    "owner": "ittrainbow"
+  }
+}
