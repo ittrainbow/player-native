@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import { StyleSheet, Alert, View, Text } from 'react-native'
 import * as MediaLibrary from 'expo-media-library'
+import { DataProvider } from 'recyclerlistview'
 
 export const AudioContext = React.createContext()
 
@@ -10,7 +11,8 @@ class AudioProvider extends Component {
 
     this.state = {
       audioFiles: [],
-      permissionError: false
+      permissionError: false,
+      dataProvider: new DataProvider((r1, r2) => r1 !== r2)
     }
   }
 
@@ -32,6 +34,8 @@ class AudioProvider extends Component {
   }
 
   getFiles = async () => {
+    const { dataProvider, audioFiles } = this.state
+
     let media = await MediaLibrary.getAssetsAsync({
       mediaType: 'audio'
     })
@@ -41,18 +45,23 @@ class AudioProvider extends Component {
       first: media.totalCount
     })
 
+    const data = [...audioFiles, ...media.assets]
+
+    // console.log(data)
+
     this.setState({
       ...this.state,
-      audioFiles: media.assets
+      dataProvider: dataProvider.cloneWithRows(data),
+      audioFiles: data
     })
 
-    console.log(media.assets.length)
+    // console.log(media.assets.length)
   }
 
   getPermission = async () => {
     // {"canAskAgain": true, "expires": "never", "granted": false, "status": "undetermined"}
     const permission = await MediaLibrary.getPermissionsAsync()
-    const {granted, canAskAgain} = permission
+    const { granted, canAskAgain } = permission
 
     if (granted) {
       this.getFiles()
@@ -90,14 +99,18 @@ class AudioProvider extends Component {
   }
 
   render() {
-    return this.state.permissionError ? (
-      <View style={styles.audioProviderError}>
-        <Text style={styles.audioProviderErrorText}>
-          Выдайте разрешение на доступ к файловой системе, может потребоваться переустановка приложения
-        </Text>
-      </View>
-    ) : (
-      <AudioContext.Provider value={{ audioFiles: this.state.audioFiles }}>
+    const { audioFiles, dataProvider, permissionError } = this.state
+    if (permissionError)
+      return (
+        <View style={styles.audioProviderError}>
+          <Text style={styles.audioProviderErrorText}>
+            Выдайте разрешение на доступ к файловой системе, может потребоваться переустановка
+            приложения
+          </Text>
+        </View>
+      )
+    return (
+      <AudioContext.Provider value={{ audioFiles, dataProvider }}>
         {this.props.children}
       </AudioContext.Provider>
     )

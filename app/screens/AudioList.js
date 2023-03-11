@@ -1,24 +1,42 @@
 import React, { Component } from 'react'
-import { Text, ScrollView, StyleSheet } from 'react-native'
+import { Dimensions, StyleSheet, Text, View } from 'react-native'
 import { AudioContext } from '../context/AudioProvider'
+import { RecyclerListView, LayoutProvider } from 'recyclerlistview'
+import AudioListItem from '../components/AudioListItem'
+
+import { color } from '../misc/color'
+const { BG } = color
 
 export class AudioList extends Component {
   static contextType = AudioContext
+  layoutProvider = new LayoutProvider(
+    (index) => 'audio',
+    (type, dim) => {
+      dim.width = Dimensions.get('window').width
+      dim.height = 73
+    }
+  )
+
+  rowRenderer = (type, item) => {
+    const { filename, duration } = item
+    return <AudioListItem filename={filename} duration={duration} />
+  }
 
   render() {
     return (
-      <ScrollView contentContainerStyle={styles.container}>
-        {this.context.audioFiles.map((item) => {
-          const { id, filename } = item
-          const trackname = filename.split('.mp3')[0]
+      <AudioContext.Consumer>
+        {({ dataProvider }) => {
           return (
-            <Text style={styles.song} key={id}>
-              {trackname}
-            </Text>
+            <View style={styles.container}>
+              <RecyclerListView style={styles.view}
+                dataProvider={dataProvider}
+                layoutProvider={this.layoutProvider}
+                rowRenderer={this.rowRenderer}
+              />
+            </View>
           )
-        })}
-        <Text>Audio List</Text>
-      </ScrollView>
+        }}
+      </AudioContext.Consumer>
     )
   }
 }
@@ -28,12 +46,10 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'pink'
   },
-  song: {
-    backgroundColor: 'white',
-    borderRadius: 15,
-    padding: 15,
-    margin: 2
+  view: {
+    width: Dimensions.get('window').width,
+    marginBottom: 95,
+    backgroundColor: BG,
   }
 })

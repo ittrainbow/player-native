@@ -14,16 +14,17 @@ const Navigator = () => {
         tabBarStyle: {
           position: 'absolute',
           elevation: 0,
-          bottom: 15,
-          left: 15,
-          right: 15,
+          bottom: 12,
+          left: 12,
+          right: 12,
           borderRadius: 15,
           height: 75
         }
       }}
     >
       <Tab.Screen
-        name="AudioList"
+        style={{ backgroundColor: 'red' }}
+        name="AudioList1"
         component={AudioList}
         options={{
           tabBarIcon: ({ size, color }) => {
@@ -32,7 +33,7 @@ const Navigator = () => {
         }}
       />
       <Tab.Screen
-        name="Player"
+        name="Player2"
         component={Player}
         options={{
           tabBarIcon: ({ size, color }) => {
@@ -41,7 +42,7 @@ const Navigator = () => {
         }}
       />
       <Tab.Screen
-        name="Playlist"
+        name="Playlist3"
         component={Playlist}
         options={{
           tabBarIcon: ({ size, color }) => {

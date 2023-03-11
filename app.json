@@ -25,6 +25,12 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "20f62a0b-950a-4c99-8191-41bf68d74db7"
+      }
+    },
+    "owner": "ittrainbow"
   }
 }
