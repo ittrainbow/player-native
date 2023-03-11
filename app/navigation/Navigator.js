@@ -18,13 +18,13 @@ const Navigator = () => {
           left: 12,
           right: 12,
           borderRadius: 15,
-          height: 75
+          height: 75,
+          backgroundColor: '#eee'
         }
       }}
     >
       <Tab.Screen
-        style={{ backgroundColor: 'red' }}
-        name="AudioList1"
+        name="Track List"
         component={AudioList}
         options={{
           tabBarIcon: ({ size, color }) => {

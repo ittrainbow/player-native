@@ -9,23 +9,24 @@ const { FONT, FONT_MEDIUM, FONT_LIGHT } = color
 {
   /* <MaterialIcons name="play-circle-fill" size={24} color="black" /> */
 }
-{
-  /* <Entypo name="dots-three-vertical" size={24} color="black" /> */
+
+const getListItemText = (filename) => {
+  const letterNum = /[a-zA-Zа-яА-Я]/i.exec(filename).index
+
+  const letter = filename.charAt(letterNum).toUpperCase()
+  const trackname = filename.replace('.mp3', '').substring(letterNum)
+
+  return { letter, trackname }
 }
 
-const title2 = 'abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde'
-const duration2 = '02:47'
-
-const AudioListItem = ({ filename, duration }) => {
-  const letterNum = /[a-zA-Zа-яА-Я]/i.exec(filename).index
-  const letter = filename.charAt(letterNum).toUpperCase()
-  
-  const trackname = filename.replace('.mp3', '').substring(letterNum)
+const getListItemTime = (duration) => {
   const minutes = Math.floor(duration / 60)
   const seconds = Math.floor(duration) - 60 * minutes
-  const leadZero = (val) => val < 9 ? '0' : ''
-  const time = `${leadZero(minutes)}${minutes}:${leadZero(seconds)}${seconds}`
+  const leadZero = (val) => (val < 9 ? '0' : '')
+  return `${leadZero(minutes)}${minutes}:${leadZero(seconds)}${seconds}`
+}
 
+const AudioListItem = ({ letter, trackname, time, onPress }) => {
   return (
     <View style={styles.container}>
       <View style={styles.leftContainer}>
@@ -40,7 +41,7 @@ const AudioListItem = ({ filename, duration }) => {
         </View>
       </View>
       <View style={styles.rightContainer}>
-        <Entypo name="dots-three-vertical" size={20} color={FONT_MEDIUM} />
+        <Entypo name="dots-three-vertical" size={20} color={FONT_MEDIUM} onPress={onPress} />
       </View>
     </View>
   )
@@ -53,7 +54,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignSelf: 'center',
     width: width - 24,
-    backgroundColor: 'white',
+    backgroundColor: '#eee',
     padding: 10,
     marginTop: 10,
     borderRadius: 10
@@ -79,7 +80,7 @@ const styles = StyleSheet.create({
   },
   thumbnail: {
     fontSize: 22,
-    color: FONT,
+    color: FONT
   },
   titleContainer: {
     paddingLeft: 10,
