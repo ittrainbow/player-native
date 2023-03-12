@@ -2,15 +2,28 @@ import React, { Component } from 'react'
 import { Dimensions, StyleSheet, Text, View } from 'react-native'
 import { AudioContext } from '../context/AudioProvider'
 import { RecyclerListView, LayoutProvider } from 'recyclerlistview'
+import * as NavigationBar from 'expo-navigation-bar'
 
-import AudioListItem from '../components/AudioListItem'
-import Screen from '../components/Screen'
+// import Screen from '../components/Screen'
+import { AudioListItem } from '../components/AudioListItem'
 import { color } from '../misc/color'
-import PlaylistModal from '../components/PlaylistModal'
+import { getListItemText, getListItemTime } from '../helpers/audioListItemHelpers'
+import { PlaylistModal } from '../components/PlaylistModal'
+
 const { BG } = color
 
-export class AudioList extends Component {  
+export class AudioList extends Component {
   static contextType = AudioContext
+
+  constructor(props) {
+    super(props)
+    this.state = {
+      modalVisible: false,
+      currentItem: null,
+      currentTrackName: null
+    }
+  }
+
   layoutProvider = new LayoutProvider(
     (index) => 'audio',
     (type, dim) => {
@@ -19,33 +32,29 @@ export class AudioList extends Component {
     }
   )
 
-  getListItemText(filename) {
-    const letterNum = /[a-zA-Zа-яА-Я]/i.exec(filename).index
-
-    const letter = filename.charAt(letterNum).toUpperCase()
-    const trackname = filename.replace('.mp3', '').substring(letterNum)
-
-    return { letter, trackname }
+  onModalOpen(trackname) {
+    NavigationBar.useVisibility('hidden')
+    // NavigationBar.setBackgroundColorAsync(BG)
+    this.setState({ ...this.state, modalVisible: true, currentTrackName: trackname })
   }
 
-  getListItemTime(duration) {
-    const minutes = Math.floor(duration / 60)
-    const seconds = Math.floor(duration) - 60 * minutes
-    const leadZero = (val) => (val < 9 ? '0' : '')
-    const time = `${leadZero(minutes)}${minutes}:${leadZero(seconds)}${seconds}`
-
-    return time
+  onModalClose = () => {
+    this.setState({ ...this.state, modalVisible: false, currentTrackName: null })
   }
 
   rowRenderer = (type, item) => {
     const { filename, duration } = item
-    const { letter, trackname } = this.getListItemText(filename)
-    const time = this.getListItemTime(duration)
+    const { letter, trackname } = getListItemText(filename)
+    const time = getListItemTime(duration)
 
-    const onPress = () => {
-      console.log('onPress')
-    }
-    return <AudioListItem letter={letter} trackname={trackname} time={time} onPress={onPress} />
+    return (
+      <AudioListItem
+        letter={letter}
+        trackname={trackname}
+        time={time}
+        onPress={() => this.onModalOpen(trackname)}
+      />
+    )
   }
 
   render() {
@@ -60,7 +69,12 @@ export class AudioList extends Component {
                 layoutProvider={this.layoutProvider}
                 rowRenderer={this.rowRenderer}
               />
-              <PlaylistModal visible={false} />
+              <PlaylistModal
+                currentItem={this.state}
+                visible={this.state.modalVisible}
+                trackname={this.state.currentTrackName}
+                onClose={this.onModalClose}
+              />
             </>
           )
         }}
@@ -77,7 +91,7 @@ const styles = StyleSheet.create({
   },
   view: {
     width: Dimensions.get('window').width,
-    marginBottom: 95,
+    marginBottom: 50,
     backgroundColor: BG
   }
 })

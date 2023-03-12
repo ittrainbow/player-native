@@ -1,5 +1,5 @@
 import React from 'react'
-import { View, StyleSheet, Text, Dimensions } from 'react-native'
+import { View, StyleSheet, Pressable, Text, Dimensions } from 'react-native'
 import { MaterialIcons } from '@expo/vector-icons'
 import { Entypo } from '@expo/vector-icons'
 import { color } from '../misc/color'
@@ -10,38 +10,22 @@ const { FONT, FONT_MEDIUM, FONT_LIGHT } = color
   /* <MaterialIcons name="play-circle-fill" size={24} color="black" /> */
 }
 
-const getListItemText = (filename) => {
-  const letterNum = /[a-zA-Zа-яА-Я]/i.exec(filename).index
-
-  const letter = filename.charAt(letterNum).toUpperCase()
-  const trackname = filename.replace('.mp3', '').substring(letterNum)
-
-  return { letter, trackname }
-}
-
-const getListItemTime = (duration) => {
-  const minutes = Math.floor(duration / 60)
-  const seconds = Math.floor(duration) - 60 * minutes
-  const leadZero = (val) => (val < 9 ? '0' : '')
-  return `${leadZero(minutes)}${minutes}:${leadZero(seconds)}${seconds}`
-}
-
-const AudioListItem = ({ letter, trackname, time, onPress }) => {
+export const AudioListItem = ({ letter, trackname, time, onPress }) => {
   return (
     <View style={styles.container}>
+      <View style={styles.thumbnailContainer}>
+        <Text style={styles.thumbnail}>{letter}</Text>
+      </View>
       <View style={styles.leftContainer}>
-        <View style={styles.thumbnailContainer}>
-          <Text style={styles.thumbnail}>{letter}</Text>
-        </View>
         <View style={styles.titleContainer}>
           <Text numberOfLines={1} style={styles.title}>
             {trackname}
           </Text>
           <Text style={styles.duration}>{time}</Text>
         </View>
-      </View>
-      <View style={styles.rightContainer}>
-        <Entypo name="dots-three-vertical" size={20} color={FONT_MEDIUM} onPress={onPress} />
+        <View style={styles.rightContainer}>
+          <Entypo name="dots-three-vertical" size={20} onPress={onPress} color={FONT_MEDIUM} />
+        </View>
       </View>
     </View>
   )
@@ -53,6 +37,7 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignSelf: 'center',
+    alignItems: 'center',
     width: width - 24,
     backgroundColor: '#eee',
     padding: 10,
@@ -66,7 +51,7 @@ const styles = StyleSheet.create({
   },
   rightContainer: {
     alignSelf: 'center',
-    padding: 5
+    padding: 0
   },
   thumbnailContainer: {
     height: 40,
