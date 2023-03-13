@@ -2,9 +2,8 @@ import React, { Component } from 'react'
 import { Dimensions, StyleSheet, Text, View } from 'react-native'
 import { AudioContext } from '../context/AudioProvider'
 import { RecyclerListView, LayoutProvider } from 'recyclerlistview'
-import * as NavigationBar from 'expo-navigation-bar'
+// import * as NavigationBar from 'expo-navigation-bar'
 
-// import Screen from '../components/Screen'
 import { AudioListItem } from '../components/AudioListItem'
 import { color } from '../misc/color'
 import { getListItemText, getListItemTime } from '../helpers/audioListItemHelpers'
@@ -20,8 +19,11 @@ export class AudioList extends Component {
     this.state = {
       modalVisible: false,
       currentItem: null,
-      currentTrackName: null
+      currentTrackName: null,
+      currentItem: {}
     }
+
+    this.currentItem = {}
   }
 
   layoutProvider = new LayoutProvider(
@@ -32,14 +34,9 @@ export class AudioList extends Component {
     }
   )
 
-  onModalOpen(trackname) {
-    NavigationBar.useVisibility('hidden')
-    // NavigationBar.setBackgroundColorAsync(BG)
-    this.setState({ ...this.state, modalVisible: true, currentTrackName: trackname })
-  }
-
   onModalClose = () => {
-    this.setState({ ...this.state, modalVisible: false, currentTrackName: null })
+    this.setState({ ...this.state, modalVisible: false })
+    this.currentItem = {}
   }
 
   rowRenderer = (type, item) => {
@@ -52,7 +49,10 @@ export class AudioList extends Component {
         letter={letter}
         trackname={trackname}
         time={time}
-        onPress={() => this.onModalOpen(trackname)}
+        onPress={() => {
+          this.currentItem = item
+          this.setState({ ...this.state, modalVisible: true })
+        }}
       />
     )
   }
@@ -70,10 +70,11 @@ export class AudioList extends Component {
                 rowRenderer={this.rowRenderer}
               />
               <PlaylistModal
-                currentItem={this.state}
+                currentItem={this.currentItem}
                 visible={this.state.modalVisible}
-                trackname={this.state.currentTrackName}
                 onClose={this.onModalClose}
+                onPlayPress={() => console.log('onPlayPress')}
+                onPlaylistPress={() => console.log('onPlaylistPress')}
               />
             </>
           )

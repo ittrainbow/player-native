@@ -1,21 +1,33 @@
 import React from 'react'
-import { StatusBar } from 'react-native'
-import { TouchableWithoutFeedback } from 'react-native'
-import { View, StyleSheet, Modal, Text } from 'react-native'
+import { View, StyleSheet, Modal, Text, TouchableWithoutFeedback } from 'react-native'
 
+import { getListItemText, getListItemTime } from '../helpers/audioListItemHelpers'
 import { color } from '../misc/color'
 const { FONT_MEDIUM, BG, MODAL_BG, MODAL_MAIN_BG } = color
+const defaultCurrentItem = { filename: '', duration: 0 }
 
-export const PlaylistModal = ({ visible, onClose, currentItem, trackname }) => {
+export const PlaylistModal = ({ visible, onClose, currentItem, onPlayPress, onPlaylistPress }) => {
+  const { filename } = currentItem
+  const { trackname } = filename ? getListItemText(filename) : ''
+
   return (
     <View style={styles.container}>
-      <StatusBar backgroundColor={BG} />
       <Modal animationType="fade" transparent visible={visible} style={styles.container}>
         <View style={styles.modal}>
-          <Text style={styles.title}>{trackname}</Text>
+          <Text style={styles.title} numberOfLines={2}>
+            {trackname}
+          </Text>
           <View style={styles.optionContainer}>
-            <Text style={styles.option}>Option 1</Text>
-            <Text style={styles.option}>Option 2</Text>
+            <TouchableWithoutFeedback onPress={onPlayPress}>
+              <View>
+                <Text style={styles.option}>Play</Text>
+              </View>
+            </TouchableWithoutFeedback>
+            <TouchableWithoutFeedback onPress={onPlaylistPress}>
+              <View>
+                <Text style={styles.option}>Add to playlist</Text>
+              </View>
+            </TouchableWithoutFeedback>
           </View>
         </View>
         <TouchableWithoutFeedback onPress={onClose}>
@@ -38,7 +50,6 @@ const styles = StyleSheet.create({
     left: 20,
     backgroundColor: MODAL_MAIN_BG,
     borderWidth: 2,
-    backgroundColor: 'transparent',
     borderColor: BG,
     borderRadius: 20,
     transition: '1s',

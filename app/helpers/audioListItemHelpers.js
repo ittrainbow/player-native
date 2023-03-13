@@ -1,4 +1,4 @@
-export const getListItemText = (filename) => {
+export const getListItemText = (filename = ' ') => {
   const letterNum = /[a-zA-Zа-яА-Я]/i.exec(filename).index
 
   const letter = filename.charAt(letterNum).toUpperCase()

@@ -1,6 +1,6 @@
 import React from 'react'
-import { View, StyleSheet, Pressable, Text, Dimensions } from 'react-native'
-import { MaterialIcons } from '@expo/vector-icons'
+import { View, StyleSheet, Text, Dimensions } from 'react-native'
+// import { MaterialIcons } from '@expo/vector-icons'
 import { Entypo } from '@expo/vector-icons'
 import { color } from '../misc/color'
 
@@ -24,7 +24,12 @@ export const AudioListItem = ({ letter, trackname, time, onPress }) => {
           <Text style={styles.duration}>{time}</Text>
         </View>
         <View style={styles.rightContainer}>
-          <Entypo name="dots-three-vertical" size={20} onPress={onPress} color={FONT_MEDIUM} />
+          <Entypo
+            style={styles.rightIcon}
+            name="dots-three-vertical"
+            size={20}
+            onPress={onPress}
+          />
         </View>
       </View>
     </View>
@@ -50,8 +55,16 @@ const styles = StyleSheet.create({
     flex: 1
   },
   rightContainer: {
-    alignSelf: 'center',
-    padding: 0
+    width: 100,
+    justifyContent: 'flex-start'
+  },
+  rightIcon: {
+    width: 60,
+    height: 43,
+    paddingLeft: 18,
+    paddingTop: 11,
+    right: 25,
+    color: FONT_MEDIUM
   },
   thumbnailContainer: {
     height: 40,

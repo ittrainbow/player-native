@@ -35,10 +35,7 @@ class AudioProvider extends Component {
 
   getFiles = async () => {
     const { dataProvider, audioFiles } = this.state
-
-    let media = await MediaLibrary.getAssetsAsync({
-      mediaType: 'audio'
-    })
+    let media = await MediaLibrary.getAssetsAsync({mediaType: 'audio'})
 
     media = await MediaLibrary.getAssetsAsync({
       mediaType: 'audio',
@@ -47,50 +44,26 @@ class AudioProvider extends Component {
 
     const data = [...audioFiles, ...media.assets]
 
-    // console.log(data)
-
     this.setState({
       ...this.state,
       dataProvider: dataProvider.cloneWithRows(data),
       audioFiles: data
     })
-
-    // console.log(media.assets.length)
   }
 
   getPermission = async () => {
-    // {"canAskAgain": true, "expires": "never", "granted": false, "status": "undetermined"}
     const permission = await MediaLibrary.getPermissionsAsync()
     const { granted, canAskAgain } = permission
 
-    if (granted) {
-      this.getFiles()
-    }
-
-    if (!canAskAgain && !granted) {
-      this.setState({
-        ...this.state,
-        permissionError: true
-      })
-    }
-
+    if (granted) this.getFiles()
+    if (!canAskAgain && !granted) this.setState({ ...this.state, permissionError: true })
     if (!granted && canAskAgain) {
       const { status, canAskAgain } = await MediaLibrary.requestPermissionsAsync()
 
-      if (status === 'denied' && canAskAgain) {
-        this.permissionAlert()
-      }
-
-      if (status === 'granted') {
-        this.getFiles()
-      }
-
-      if (status === 'denied' && !canAskAgain) {
-        this.setState({
-          ...this.state,
-          permissionError: true
-        })
-      }
+      if (status === 'denied' && canAskAgain) this.permissionAlert()
+      if (status === 'granted') this.getFiles()
+      if (status === 'denied' && !canAskAgain)
+        this.setState({ ...this.state, permissionError: true })
     }
   }
 
