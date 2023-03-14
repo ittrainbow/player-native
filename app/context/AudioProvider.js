@@ -12,7 +12,12 @@ class AudioProvider extends Component {
     this.state = {
       audioFiles: [],
       permissionError: false,
-      dataProvider: new DataProvider((r1, r2) => r1 !== r2)
+      dataProvider: new DataProvider((r1, r2) => r1 !== r2),
+      playbackObject: null,
+      soundObject: null,
+      currentAudio: {},
+      currentAudioIndex: null,
+      isPlaying: false
     }
   }
 
@@ -35,7 +40,7 @@ class AudioProvider extends Component {
 
   getFiles = async () => {
     const { dataProvider, audioFiles } = this.state
-    let media = await MediaLibrary.getAssetsAsync({mediaType: 'audio'})
+    let media = await MediaLibrary.getAssetsAsync({ mediaType: 'audio' })
 
     media = await MediaLibrary.getAssetsAsync({
       mediaType: 'audio',
@@ -71,8 +76,24 @@ class AudioProvider extends Component {
     this.getPermission()
   }
 
+  updateState = (prevState, newState = {}) => {
+    this.setState({
+      ...prevState,
+      ...newState
+    })
+  }
+
   render() {
-    const { audioFiles, dataProvider, permissionError } = this.state
+    const {
+      audioFiles,
+      dataProvider,
+      permissionError,
+      playbackObject,
+      soundObject,
+      currentAudio,
+      isPlaying,
+      currentAudioIndex
+    } = this.state
     if (permissionError)
       return (
         <View style={styles.audioProviderError}>
@@ -83,7 +104,18 @@ class AudioProvider extends Component {
         </View>
       )
     return (
-      <AudioContext.Provider value={{ audioFiles, dataProvider }}>
+      <AudioContext.Provider
+        value={{
+          audioFiles,
+          dataProvider,
+          playbackObject,
+          soundObject,
+          currentAudio,
+          isPlaying,
+          currentAudioIndex,
+          updateState: this.updateState
+        }}
+      >
         {this.props.children}
       </AudioContext.Provider>
     )

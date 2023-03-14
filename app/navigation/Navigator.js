@@ -3,6 +3,8 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { MaterialIcons } from '@expo/vector-icons'
 
 import { AudioList, Player, Playlist } from '../screens'
+import { color } from '../misc/color'
+const { ICON } = color
 
 const Tab = createBottomTabNavigator()
 
@@ -18,8 +20,8 @@ const Navigator = () => {
           left: 12,
           right: 12,
           borderRadius: 15,
-          height: 75,
-          backgroundColor: '#eee'
+          height: 70,
+          backgroundColor: '#fff'
         }
       }}
     >
@@ -28,7 +30,7 @@ const Navigator = () => {
         component={AudioList}
         options={{
           tabBarIcon: ({ size, color }) => {
-            return <MaterialIcons name="headset" size={size} color={color} />
+            return <MaterialIcons name="headset" size={36} color={ICON} />
           }
         }}
       />
@@ -37,7 +39,7 @@ const Navigator = () => {
         component={Player}
         options={{
           tabBarIcon: ({ size, color }) => {
-            return <MaterialIcons name="play-circle-outline" size={size} color={color} />
+            return <MaterialIcons name="play-circle-outline" size={36} color={ICON} />
           }
         }}
       />
@@ -46,7 +48,7 @@ const Navigator = () => {
         component={Playlist}
         options={{
           tabBarIcon: ({ size, color }) => {
-            return <MaterialIcons name="list-alt" size={size} color={color} />
+            return <MaterialIcons name="list-alt" size={36} color={ICON} />
           }
         }}
       />

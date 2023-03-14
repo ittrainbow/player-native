@@ -1,36 +1,49 @@
 import React from 'react'
-import { View, StyleSheet, Text, Dimensions } from 'react-native'
-// import { MaterialIcons } from '@expo/vector-icons'
+import { View, StyleSheet, Text, Dimensions, TouchableWithoutFeedback } from 'react-native'
+import { MaterialIcons } from '@expo/vector-icons'
 import { Entypo } from '@expo/vector-icons'
 import { color } from '../misc/color'
 
-const { FONT, FONT_MEDIUM, FONT_LIGHT } = color
+const { FONT, FONT_MEDIUM, FONT_LIGHT, BG, ICON } = color
 
-{
-  /* <MaterialIcons name="play-circle-fill" size={24} color="black" /> */
-}
+export const AudioListItem = ({
+  letter,
+  uri,
+  trackname,
+  time,
+  onPress,
+  onAudioPress,
+  isPlaying,
+  activeListItem
+}) => {
 
-export const AudioListItem = ({ letter, trackname, time, onPress }) => {
+  const icon = activeListItem ? (
+    isPlaying ? (
+      <MaterialIcons name="play-circle-filled" size={36} color={ICON} />
+    ) : (
+      <MaterialIcons name="pause-circle-filled" size={36} color={BG} />
+    )
+  ) : (
+    letter
+  )
+
   return (
-    <View style={styles.container}>
-      <View style={styles.thumbnailContainer}>
-        <Text style={styles.thumbnail}>{letter}</Text>
-      </View>
-      <View style={styles.leftContainer}>
-        <View style={styles.titleContainer}>
-          <Text numberOfLines={1} style={styles.title}>
-            {trackname}
-          </Text>
-          <Text style={styles.duration}>{time}</Text>
+    <View style={{ ...styles.container, backgroundColor: activeListItem ? '#fff' : '#eee' }}>
+      <TouchableWithoutFeedback onPress={onAudioPress} onLongPress={onPress}>
+        <View style={styles.leftContainer}>
+          <View style={styles.thumbnailContainer}>
+            <Text style={styles.thumbnail}>{icon}</Text>
+          </View>
+          <View style={styles.titleContainer}>
+            <Text numberOfLines={1} style={styles.title}>
+              {trackname}
+            </Text>
+            <Text style={styles.duration}>{time}</Text>
+          </View>
         </View>
-        <View style={styles.rightContainer}>
-          <Entypo
-            style={styles.rightIcon}
-            name="dots-three-vertical"
-            size={20}
-            onPress={onPress}
-          />
-        </View>
+      </TouchableWithoutFeedback>
+      <View style={styles.rightContainer}>
+        <Entypo style={styles.rightIcon} name="dots-three-vertical" size={20} onPress={onPress} />
       </View>
     </View>
   )
@@ -44,31 +57,32 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     alignItems: 'center',
     width: width - 24,
-    backgroundColor: '#eee',
-    padding: 10,
-    marginTop: 10,
+    height: 60,
+    padding: 5,
+    marginTop: 5,
     borderRadius: 10
   },
   leftContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1
+    flex: 1,
+    flexGrow: 7,
+    paddingLeft: 5,
+    flexDirection: 'row'
   },
   rightContainer: {
+    flex: 1,
     width: 100,
     justifyContent: 'flex-start'
   },
   rightIcon: {
     width: 60,
-    height: 43,
-    paddingLeft: 18,
-    paddingTop: 11,
-    right: 25,
+    height: 50,
+    paddingLeft: 20,
+    paddingTop: 15,
     color: FONT_MEDIUM
   },
   thumbnailContainer: {
-    height: 40,
-    width: 40,
+    height: 42,
+    width: 42,
     backgroundColor: 'white',
     alignItems: 'center',
     justifyContent: 'center',

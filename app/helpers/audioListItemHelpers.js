@@ -10,7 +10,7 @@ export const getListItemText = (filename = ' ') => {
 export const getListItemTime = (duration) => {
   const minutes = Math.floor(duration / 60)
   const seconds = Math.floor(duration) - 60 * minutes
-  const leadZero = (val) => (val < 9 ? '0' : '')
+  const leadZero = (val) => (val < 10 ? '0' : '')
   const time = `${leadZero(minutes)}${minutes}:${leadZero(seconds)}${seconds}`
 
   return time
