@@ -1,7 +1,7 @@
 import React from 'react'
 import { View, StyleSheet, Modal, Text, TouchableWithoutFeedback } from 'react-native'
 
-import { getListItemText, getListItemTime } from '../helpers/audioListItemHelpers'
+import { getListItemText } from '../misc/trackListItemHelpers'
 import { color } from '../misc/color'
 const { FONT_MEDIUM, BG, MODAL_BG, MODAL_MAIN_BG } = color
 const defaultCurrentItem = { filename: '', duration: 0 }

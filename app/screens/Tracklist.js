@@ -1,26 +1,24 @@
 import React, { Component } from 'react'
-import { Dimensions, StyleSheet, Text, View } from 'react-native'
+import { Dimensions, StyleSheet } from 'react-native'
 import { AudioContext } from '../context/AudioProvider'
 import { RecyclerListView, LayoutProvider } from 'recyclerlistview'
 import { Audio } from 'expo-av'
 
-import { AudioListItem } from '../components/AudioListItem'
+import { TrackListItem } from '../components/TrackListItem'
 import { color } from '../misc/color'
-import { getListItemText, getListItemTime } from '../helpers/audioListItemHelpers'
+import { getListItemText, getListItemTime } from '../misc/trackListItemHelpers'
 import { PlaylistModal } from '../components/PlaylistModal'
 import { play, pause, resume, next } from '../misc/audioController'
 
 const { BG } = color
 
-export class AudioList extends Component {
+export class Tracklist extends Component {
   static contextType = AudioContext
 
   constructor(props) {
     super(props)
     this.state = {
       modalVisible: false
-      // currentItem: null,
-      // currentTrackName: null,
     }
 
     this.currentItem = {}
@@ -44,10 +42,53 @@ export class AudioList extends Component {
     this.setState({ ...this.state, modalVisible: true })
   }
 
+  onPlaybackStatusUpdate = async (playbackStatus) => {
+    const { positionMillis, durationMillis, isLoaded, isPlaying, didJustFinish } = playbackStatus
+    const { updateState, currentAudioIndex, audioFiles, playbackObject, totalCount } = this.context
+    const newState = {
+      playbackPosition: positionMillis,
+      playbackDuration: durationMillis
+    }
+
+    isLoaded && isPlaying && updateState(this.context, newState)
+
+    if (didJustFinish) {
+      const nextAudioIndex = currentAudioIndex + 1
+
+      if (nextAudioIndex >= totalCount) {
+        playbackObject.unloadAsync()
+        const newState = {
+          currentAudio: audioFiles[0],
+          soundObject: null,
+          isPlaying: false,
+          currentTrackname: null,
+          currentAudioIndex: 0,
+          playbackPosition: null,
+          playbackDuration: null
+        }
+        updateState(this.context, newState)
+      }
+      const audio = audioFiles[nextAudioIndex]
+      const { uri } = audio
+      const status = await next({ playbackObject, uri })
+      const { trackname: currentTrackname } = getListItemText(audio.filename)
+      const newState = {
+        currentAudio: audio,
+        soundObject: status,
+        isPlaying: true,
+        currentTrackname,
+        currentAudioIndex: nextAudioIndex
+      }
+      updateState(this.context, newState)
+    }
+  }
+
   audioPressHandler = async (audio) => {
     const { uri } = audio
     const { soundObject, playbackObject, currentAudio, updateState, audioFiles } = this.context
+
     const currentAudioIndex = audioFiles.indexOf(audio)
+    const { trackname } = getListItemText(audio.filename)
 
     if (soundObject === null) {
       const playbackObject = new Audio.Sound()
@@ -57,10 +98,13 @@ export class AudioList extends Component {
         soundObject: status,
         isPlaying: true,
         playbackObject,
+        currentTrackname: trackname,
         currentAudioIndex
       }
 
-      return updateState(this.context, newState)
+      updateState(this.context, newState)
+
+      playbackObject.setOnPlaybackStatusUpdate(this.onPlaybackStatusUpdate)
     } else {
       const { isLoaded, isPlaying } = soundObject
       const { id } = currentAudio
@@ -82,6 +126,7 @@ export class AudioList extends Component {
         const newState = {
           currentAudio: audio,
           soundObject: status,
+          currentTrackname: trackname,
           isPlaying: true,
           currentAudioIndex
         }
@@ -93,13 +138,13 @@ export class AudioList extends Component {
 
   rowRenderer = (type, item, index, extendedState) => {
     const { isPlaying, currentAudioIndex } = extendedState
-    const { filename, duration, uri } = item
+    const { filename, duration } = item
     const { letter, trackname } = getListItemText(filename)
     const time = getListItemTime(duration)
     const activeListItem = currentAudioIndex === index
 
     return (
-      <AudioListItem
+      <TrackListItem
         letter={letter}
         isPlaying={isPlaying}
         activeListItem={activeListItem}

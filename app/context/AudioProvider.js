@@ -16,8 +16,12 @@ class AudioProvider extends Component {
       playbackObject: null,
       soundObject: null,
       currentAudio: {},
+      currentTrackname: null,
       currentAudioIndex: null,
-      isPlaying: false
+      isPlaying: false,
+      totalCount: 0,
+      playBackPosition: null,
+      playBackDuration: null
     }
   }
 
@@ -41,11 +45,14 @@ class AudioProvider extends Component {
   getFiles = async () => {
     const { dataProvider, audioFiles } = this.state
     let media = await MediaLibrary.getAssetsAsync({ mediaType: 'audio' })
+    const { totalCount } = media
 
     media = await MediaLibrary.getAssetsAsync({
       mediaType: 'audio',
-      first: media.totalCount
+      first: totalCount
     })
+
+    this.setState({ ...this.state, totalCount })
 
     const data = [...audioFiles, ...media.assets]
 
@@ -91,8 +98,12 @@ class AudioProvider extends Component {
       playbackObject,
       soundObject,
       currentAudio,
+      currentTrackname,
       isPlaying,
-      currentAudioIndex
+      currentAudioIndex,
+      totalCount,
+      playbackPosition,
+      playbackDuration
     } = this.state
     if (permissionError)
       return (
@@ -113,6 +124,10 @@ class AudioProvider extends Component {
           currentAudio,
           isPlaying,
           currentAudioIndex,
+          currentTrackname,
+          totalCount,
+          playbackPosition,
+          playbackDuration,
           updateState: this.updateState
         }}
       >

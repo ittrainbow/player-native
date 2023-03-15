@@ -5,27 +5,12 @@ import { Entypo } from '@expo/vector-icons'
 import { color } from '../misc/color'
 
 const { FONT, FONT_MEDIUM, FONT_LIGHT, BG, ICON } = color
+const playIcon = <MaterialIcons name="play-circle-filled" size={36} color={ICON} />
+const pauseIcon = <MaterialIcons name="pause-circle-filled" size={36} color={BG} />
 
-export const AudioListItem = ({
-  letter,
-  uri,
-  trackname,
-  time,
-  onPress,
-  onAudioPress,
-  isPlaying,
-  activeListItem
-}) => {
-
-  const icon = activeListItem ? (
-    isPlaying ? (
-      <MaterialIcons name="play-circle-filled" size={36} color={ICON} />
-    ) : (
-      <MaterialIcons name="pause-circle-filled" size={36} color={BG} />
-    )
-  ) : (
-    letter
-  )
+export const TrackListItem = ({ letter, trackname, time, onPress, onAudioPress, isPlaying, activeListItem }) => {
+  // const { letter, trackname, time, onPress, onAudioPress, isPlaying, activeListItem } = props
+  const icon = activeListItem ? (isPlaying ? playIcon : pauseIcon) : letter
 
   return (
     <View style={{ ...styles.container, backgroundColor: activeListItem ? '#fff' : '#eee' }}>
@@ -108,4 +93,4 @@ const styles = StyleSheet.create({
   }
 })
 
-export default AudioListItem
+export default TrackListItem
