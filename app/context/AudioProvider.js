@@ -4,7 +4,6 @@ import * as MediaLibrary from 'expo-media-library'
 import { DataProvider } from 'recyclerlistview'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { Audio } from 'expo-av'
-import RNMusicMetadata from 'react-native-music-metadata'
 
 export const AudioContext = React.createContext()
 
@@ -66,19 +65,6 @@ class AudioProvider extends Component {
     this.setState({ ...this.state, totalCount })
 
     const data = [...audioFiles, ...media.assets]
-    const { uri } = data[0]
-
-    console.log(1, uri)
-    
-    RNMusicMetadata.getMetadata(['uri'])
-      .try((tracks) => {
-        tracks.forEach((track) => {
-          console.log(`${track.title} by ${track.artist}`)
-        })
-      })
-      .catch((err) => {
-        console.error(err)
-      })
 
     this.setState({
       ...this.state,

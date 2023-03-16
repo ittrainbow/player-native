@@ -3,7 +3,6 @@ import { Dimensions, StyleSheet } from 'react-native'
 import { AudioContext } from '../context/AudioProvider'
 import { RecyclerListView, LayoutProvider } from 'recyclerlistview'
 import { Audio } from 'expo-av'
-import RNMusicMetadata from 'react-native-music-metadata'
 
 import { TrackListItem } from '../components/TrackListItem'
 import { color } from '../misc/color'
@@ -113,17 +112,6 @@ export class Tracklist extends Component {
     const { letter, trackname } = getListItemText(filename)
     const time = getListItemTime(duration)
     const activeListItem = currentAudioIndex === index
-    console.log(1, uri)
-
-    // RNMusicMetadata.getMetadata(uri)
-    //   .try((tracks) => {
-    //     tracks.forEach((track) => {
-    //       console.log(`${track.title} by ${track.artist}`)
-    //     })
-    //   })
-    //   .catch((err) => {
-    //     console.error(err)
-    //   })
 
     return (
       <TrackListItem
