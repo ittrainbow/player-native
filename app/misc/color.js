@@ -1,5 +1,6 @@
 export const color = {
   MAIN: '#fff',
+  PLAYER: '#02d8c1',
   FONT: '#303d49',
   FONT_LIGHT: "#eee",
   FONT_MEDIUM: '#636363',

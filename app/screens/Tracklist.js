@@ -9,6 +9,7 @@ import { color } from '../misc/color'
 import { getListItemText, getListItemTime } from '../misc/trackListItemHelpers'
 import { PlaylistModal } from '../components/PlaylistModal'
 import { play, pause, resume, next } from '../misc/audioController'
+import { storeAudioForNextOpening } from '../misc/helper'
 
 const { BG } = color
 
@@ -32,6 +33,10 @@ export class Tracklist extends Component {
     }
   )
 
+  componentDidMount() {
+    this.context.loadPreviousAudio()
+  }
+
   onModalClose = () => {
     this.setState({ ...this.state, modalVisible: false })
     this.currentItem = {}
@@ -53,33 +58,19 @@ export class Tracklist extends Component {
     isLoaded && isPlaying && updateState(this.context, newState)
 
     if (didJustFinish) {
-      const nextAudioIndex = currentAudioIndex + 1
-
-      if (nextAudioIndex >= totalCount) {
-        playbackObject.unloadAsync()
-        const newState = {
-          currentAudio: audioFiles[0],
-          soundObject: null,
-          isPlaying: false,
-          currentTrackname: null,
-          currentAudioIndex: 0,
-          playbackPosition: null,
-          playbackDuration: null
-        }
-        updateState(this.context, newState)
-      }
-      const audio = audioFiles[nextAudioIndex]
+      console.log('did just finished')
+      const maxReached = currentAudioIndex + 1 >= totalCount
+      const index = maxReached ? 0 : currentAudioIndex + 1
+      const audio = audioFiles[index]
       const { uri } = audio
       const status = await next({ playbackObject, uri })
-      const { trackname: currentTrackname } = getListItemText(audio.filename)
       const newState = {
         currentAudio: audio,
         soundObject: status,
-        isPlaying: true,
-        currentTrackname,
-        currentAudioIndex: nextAudioIndex
+        currentAudioIndex: index
       }
       updateState(this.context, newState)
+      return await storeAudioForNextOpening(audio, index)
     }
   }
 
@@ -87,8 +78,7 @@ export class Tracklist extends Component {
     const { uri } = audio
     const { soundObject, playbackObject, currentAudio, updateState, audioFiles } = this.context
 
-    const currentAudioIndex = audioFiles.indexOf(audio)
-    const { trackname } = getListItemText(audio.filename)
+    const index = audioFiles.indexOf(audio)
 
     if (soundObject === null) {
       const playbackObject = new Audio.Sound()
@@ -98,13 +88,13 @@ export class Tracklist extends Component {
         soundObject: status,
         isPlaying: true,
         playbackObject,
-        currentTrackname: trackname,
-        currentAudioIndex
+        currentAudioIndex: index
       }
 
       updateState(this.context, newState)
 
       playbackObject.setOnPlaybackStatusUpdate(this.onPlaybackStatusUpdate)
+      return await storeAudioForNextOpening(audio, index)
     } else {
       const { isLoaded, isPlaying } = soundObject
       const { id } = currentAudio
@@ -126,12 +116,12 @@ export class Tracklist extends Component {
         const newState = {
           currentAudio: audio,
           soundObject: status,
-          currentTrackname: trackname,
           isPlaying: true,
-          currentAudioIndex
+          currentAudioIndex: index
         }
 
-        return updateState(this.context, newState)
+        updateState(this.context, newState)
+        return await storeAudioForNextOpening(audio, index)
       }
     }
   }
@@ -160,6 +150,7 @@ export class Tracklist extends Component {
     return (
       <AudioContext.Consumer>
         {({ dataProvider, isPlaying, currentAudioIndex }) => {
+          // if (!dataProvider._data.length) return null
           return (
             <>
               <RecyclerListView

@@ -2,6 +2,9 @@ import React, { Component } from 'react'
 import { StyleSheet, Alert, View, Text } from 'react-native'
 import * as MediaLibrary from 'expo-media-library'
 import { DataProvider } from 'recyclerlistview'
+import AsyncStorage from '@react-native-async-storage/async-storage'
+import { getListItemText, getListItemTime } from '../misc/trackListItemHelpers'
+import { Audio } from 'expo-av'
 
 export const AudioContext = React.createContext()
 
@@ -20,8 +23,16 @@ class AudioProvider extends Component {
       currentAudioIndex: null,
       isPlaying: false,
       totalCount: 0,
-      playBackPosition: null,
-      playBackDuration: null
+      playbackPosition: null,
+      playbackDuration: null
+    }
+  }
+
+  componentDidMount() {
+    this.getPermission()
+    if (this.state.playbackObject === null) {
+      const playbackObject = new Audio.Sound()
+      this.setState({ ...this.state, playbackObject })
     }
   }
 
@@ -63,6 +74,17 @@ class AudioProvider extends Component {
     })
   }
 
+  loadPreviousAudio = async () => {
+    const { audioFiles } = this.state
+    const previousAudio = await AsyncStorage.getItem('previousAudio')
+    const { audio, index } = previousAudio ? JSON.parse(previousAudio) : null
+
+    const currentAudio = previousAudio ? audio : audioFiles[0]
+    const currentAudioIndex = previousAudio ? index : 0
+
+    this.setState({ ...this.state, currentAudio, currentAudioIndex })
+  }
+
   getPermission = async () => {
     const permission = await MediaLibrary.getPermissionsAsync()
     const { granted, canAskAgain } = permission
@@ -77,10 +99,6 @@ class AudioProvider extends Component {
       if (status === 'denied' && !canAskAgain)
         this.setState({ ...this.state, permissionError: true })
     }
-  }
-
-  componentDidMount() {
-    this.getPermission()
   }
 
   updateState = (prevState, newState = {}) => {
@@ -98,7 +116,6 @@ class AudioProvider extends Component {
       playbackObject,
       soundObject,
       currentAudio,
-      currentTrackname,
       isPlaying,
       currentAudioIndex,
       totalCount,
@@ -124,10 +141,10 @@ class AudioProvider extends Component {
           currentAudio,
           isPlaying,
           currentAudioIndex,
-          currentTrackname,
           totalCount,
           playbackPosition,
           playbackDuration,
+          loadPreviousAudio: this.loadPreviousAudio,
           updateState: this.updateState
         }}
       >
