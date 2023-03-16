@@ -1,6 +1,7 @@
 import React from 'react'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { MaterialIcons } from '@expo/vector-icons'
+import { StyleSheet } from 'react-native'
 
 import { Tracklist, Player, Playlist } from '../screens'
 import { color } from '../misc/color'
@@ -22,7 +23,7 @@ const Navigator = () => {
           borderRadius: 15,
           height: 70,
           borderColor: MAIN,
-          backgroundColor: BG_LIGHT,
+          backgroundColor: BG_LIGHT
         }
       }}
     >
@@ -31,7 +32,7 @@ const Navigator = () => {
         component={Tracklist}
         options={{
           tabBarIcon: ({ size, color }) => {
-            return <MaterialIcons name="headset" size={36} color={MAIN} />
+            return <MaterialIcons name="headset" size={36} color={color} style={styles.icon} />
           }
         }}
       />
@@ -40,7 +41,14 @@ const Navigator = () => {
         component={Player}
         options={{
           tabBarIcon: ({ size, color }) => {
-            return <MaterialIcons name="play-circle-outline" size={36} color={MAIN} />
+            return (
+              <MaterialIcons
+                name="play-circle-outline"
+                size={36}
+                color={color}
+                style={styles.icon}
+              />
+            )
           }
         }}
       />
@@ -49,11 +57,19 @@ const Navigator = () => {
         component={Playlist}
         options={{
           tabBarIcon: ({ size, color }) => {
-            return <MaterialIcons name="list-alt" size={36} color={MAIN} />
+            return <MaterialIcons name="list-alt" size={36} color={color} style={styles.icon} />
           }
         }}
       />
     </Tab.Navigator>
   )
 }
+const styles = StyleSheet.create({
+  icon: {
+    // padding: 10,
+    // borderRadius: 10,
+    // backgroundColor: '#e5e5e5'
+  }
+})
+
 export default Navigator

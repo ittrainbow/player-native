@@ -4,7 +4,6 @@ import { View, StyleSheet, Modal, Text, TouchableWithoutFeedback } from 'react-n
 import { getListItemText } from '../misc/trackListItemHelpers'
 import { color } from '../misc/color'
 const { FONT_MEDIUM, BG, MODAL_BG, MODAL_MAIN_BG } = color
-const defaultCurrentItem = { filename: '', duration: 0 }
 
 export const PlaylistModal = ({ visible, onClose, currentItem, onPlayPress, onPlaylistPress }) => {
   const { filename } = currentItem

@@ -27,7 +27,8 @@ export const Player = () => {
     playbackObject,
     soundObject,
     updateState,
-    audioFiles
+    audioFiles,
+    onPlaybackStatusUpdate
   } = context
 
   useEffect(() => {
@@ -92,6 +93,7 @@ export const Player = () => {
     }
 
     updateState(context, newState)
+    playbackObject.setOnPlaybackStatusUpdate(onPlaybackStatusUpdate)
     return await storeAudioForNextOpening(audio, index)
   }
 
@@ -108,6 +110,7 @@ export const Player = () => {
       fadeIn()
 
       await storeAudioForNextOpening(currentAudio, currentAudioIndex)
+      playbackObject.setOnPlaybackStatusUpdate(onPlaybackStatusUpdate)
       return updateState(context, newState)
     } else if (soundObject) {
       if (isPlaying) {

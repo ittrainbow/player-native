@@ -3,6 +3,7 @@ import { Dimensions, StyleSheet } from 'react-native'
 import { AudioContext } from '../context/AudioProvider'
 import { RecyclerListView, LayoutProvider } from 'recyclerlistview'
 import { Audio } from 'expo-av'
+import RNMusicMetadata from 'react-native-music-metadata'
 
 import { TrackListItem } from '../components/TrackListItem'
 import { color } from '../misc/color'
@@ -47,36 +48,16 @@ export class Tracklist extends Component {
     this.setState({ ...this.state, modalVisible: true })
   }
 
-  onPlaybackStatusUpdate = async (playbackStatus) => {
-    const { positionMillis, durationMillis, isLoaded, isPlaying, didJustFinish } = playbackStatus
-    const { updateState, currentAudioIndex, audioFiles, playbackObject, totalCount } = this.context
-    const newState = {
-      playbackPosition: positionMillis,
-      playbackDuration: durationMillis
-    }
-
-    isLoaded && isPlaying && updateState(this.context, newState)
-
-    if (didJustFinish) {
-      console.log('did just finished')
-      const maxReached = currentAudioIndex + 1 >= totalCount
-      const index = maxReached ? 0 : currentAudioIndex + 1
-      const audio = audioFiles[index]
-      const { uri } = audio
-      const status = await next({ playbackObject, uri })
-      const newState = {
-        currentAudio: audio,
-        soundObject: status,
-        currentAudioIndex: index
-      }
-      updateState(this.context, newState)
-      return await storeAudioForNextOpening(audio, index)
-    }
-  }
-
   audioPressHandler = async (audio) => {
     const { uri } = audio
-    const { soundObject, playbackObject, currentAudio, updateState, audioFiles } = this.context
+    const {
+      soundObject,
+      playbackObject,
+      currentAudio,
+      updateState,
+      audioFiles,
+      onPlaybackStatusUpdate
+    } = this.context
 
     const index = audioFiles.indexOf(audio)
 
@@ -93,7 +74,7 @@ export class Tracklist extends Component {
 
       updateState(this.context, newState)
 
-      playbackObject.setOnPlaybackStatusUpdate(this.onPlaybackStatusUpdate)
+      playbackObject.setOnPlaybackStatusUpdate(onPlaybackStatusUpdate)
       return await storeAudioForNextOpening(audio, index)
     } else {
       const { isLoaded, isPlaying } = soundObject
@@ -128,10 +109,21 @@ export class Tracklist extends Component {
 
   rowRenderer = (type, item, index, extendedState) => {
     const { isPlaying, currentAudioIndex } = extendedState
-    const { filename, duration } = item
+    const { filename, duration, uri } = item
     const { letter, trackname } = getListItemText(filename)
     const time = getListItemTime(duration)
     const activeListItem = currentAudioIndex === index
+    console.log(1, uri)
+
+    // RNMusicMetadata.getMetadata(uri)
+    //   .try((tracks) => {
+    //     tracks.forEach((track) => {
+    //       console.log(`${track.title} by ${track.artist}`)
+    //     })
+    //   })
+    //   .catch((err) => {
+    //     console.error(err)
+    //   })
 
     return (
       <TrackListItem

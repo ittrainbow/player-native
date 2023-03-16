@@ -3,8 +3,8 @@ import { StyleSheet, Alert, View, Text } from 'react-native'
 import * as MediaLibrary from 'expo-media-library'
 import { DataProvider } from 'recyclerlistview'
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import { getListItemText, getListItemTime } from '../misc/trackListItemHelpers'
 import { Audio } from 'expo-av'
+import RNMusicMetadata from 'react-native-music-metadata'
 
 export const AudioContext = React.createContext()
 
@@ -66,6 +66,19 @@ class AudioProvider extends Component {
     this.setState({ ...this.state, totalCount })
 
     const data = [...audioFiles, ...media.assets]
+    const { uri } = data[0]
+
+    console.log(1, uri)
+    
+    RNMusicMetadata.getMetadata(['uri'])
+      .try((tracks) => {
+        tracks.forEach((track) => {
+          console.log(`${track.title} by ${track.artist}`)
+        })
+      })
+      .catch((err) => {
+        console.error(err)
+      })
 
     this.setState({
       ...this.state,
@@ -108,6 +121,33 @@ class AudioProvider extends Component {
     })
   }
 
+  onPlaybackStatusUpdate = async (playbackStatus) => {
+    const { positionMillis, durationMillis, isLoaded, isPlaying, didJustFinish } = playbackStatus
+    const { updateState, currentAudioIndex, audioFiles, playbackObject, totalCount } = this.state
+    const newState = {
+      playbackPosition: positionMillis,
+      playbackDuration: durationMillis
+    }
+
+    isLoaded && isPlaying && updateState(this, newState)
+
+    if (didJustFinish) {
+      console.log('did just finished')
+      const maxReached = currentAudioIndex + 1 >= totalCount
+      const index = maxReached ? 0 : currentAudioIndex + 1
+      const audio = audioFiles[index]
+      const { uri } = audio
+      const status = await next({ playbackObject, uri })
+      const newState = {
+        currentAudio: audio,
+        soundObject: status,
+        currentAudioIndex: index
+      }
+      updateState(this, newState)
+      return await storeAudioForNextOpening(audio, index)
+    }
+  }
+
   render() {
     const {
       audioFiles,
@@ -145,7 +185,8 @@ class AudioProvider extends Component {
           playbackPosition,
           playbackDuration,
           loadPreviousAudio: this.loadPreviousAudio,
-          updateState: this.updateState
+          updateState: this.updateState,
+          onPlaybackStatusUpdate: this.onPlaybackStatusUpdate
         }}
       >
         {this.props.children}

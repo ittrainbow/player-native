@@ -1,5 +1,6 @@
 import React from 'react'
 import { NavigationContainer, DarkTheme } from '@react-navigation/native'
+import { StatusBar } from 'react-native'
 
 import Navigator from './app/navigation/Navigator'
 import AudioProvider from './app/context/AudioProvider'
@@ -19,6 +20,7 @@ export default function App() {
   return (
     <AudioProvider>
       <NavigationContainer theme={MyTheme}>
+        <StatusBar backgroundColor={BG} />
         <Navigator />
       </NavigationContainer>
     </AudioProvider>

@@ -10,6 +10,6 @@ export const color = {
   ACTIVE_BG: '#5252ad',
   ACTIVE_FONT: '#fff',
   BG: '#373b42',
-  BG_LIGHT: '#575b62',
+  BG_LIGHT: '#d7d7d7',
   ICON: '#639ed4'
 }
