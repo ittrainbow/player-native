@@ -2,6 +2,7 @@ import React, { useContext, useRef, useEffect } from 'react'
 import { Animated, View, StyleSheet, Text, Dimensions } from 'react-native'
 import { MaterialIcons } from '@expo/vector-icons'
 import Slider from '@react-native-community/slider'
+import MusicInfo from 'expo-music-info'
 
 import { color } from '../misc/color'
 import Screen from '../components/Screen'
@@ -28,15 +29,21 @@ export const Player = () => {
     soundObject,
     updateState,
     audioFiles,
-    onPlaybackStatusUpdate
+    onPlaybackStatusUpdate,
+    updateTrack
   } = context
+
+  const { currentArtist, currentTitle } = context
 
   useEffect(() => {
     isPlaying ? fadeIn() : fadeOut()
-  }, [])
+    if (currentAudio) {
+      const { uri } = currentAudio
+      getMetadata(uri)
+    }
+  }, [currentAudio])
 
-  const { filename, duration } = currentAudio
-  const { trackname } = getListItemText(filename)
+  const { duration } = currentAudio
 
   const fadeAnim = useRef(new Animated.Value(0)).current
 
@@ -54,6 +61,15 @@ export const Player = () => {
       duration: 350,
       useNativeDriver: true
     }).start()
+  }
+
+  const getMetadata = async (uri) => {
+    let response = await MusicInfo.getMusicInfoAsync(uri, {
+      title: true,
+      artist: true
+    })
+    updateTrack(response)
+    return response
   }
 
   const calculateSlider = () => {
@@ -74,6 +90,7 @@ export const Player = () => {
       : currentAudioIndex + counter
     const audio = audioFiles[index]
     const { uri } = audio
+    await getMetadata(uri)
 
     let status
     if (!isLoaded && !endOfList) {
@@ -92,14 +109,16 @@ export const Player = () => {
       soundObject: status
     }
 
-    updateState(context, newState)
     playbackObject.setOnPlaybackStatusUpdate(onPlaybackStatusUpdate)
-    return await storeAudioForNextOpening(audio, index)
+    updateState(context, newState)
+    const { artist, title } = await getMetadata(uri)
+    return await storeAudioForNextOpening(audio, index, artist, title)
   }
 
   const playPauseHandler = async () => {
     if (soundObject === null) {
       const { uri } = currentAudio
+      getMetadata(uri)
       const status = await play({ playbackObject, uri })
       const newState = {
         soundObject: status,
@@ -139,8 +158,11 @@ export const Player = () => {
           <MaterialIcons name="library-music" size={240} color={MAIN} />
         </Animated.View>
         <View style={styles.playerContainer}>
+          <Text numberOfLine={1} style={styles.artist}>
+            {currentArtist}
+          </Text>
           <Text numberOfLine={1} style={styles.title}>
-            {trackname.length < 50 ? trackname : trackname.substring(0, 47) + '...'}
+            {currentTitle}
           </Text>
           <View style={styles.timer}>
             <Text style={styles.timerTextLeft}>{getListItemTime(playbackPosition / 1000)}</Text>
@@ -186,12 +208,19 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center'
   },
-  title: {
-    fontSize: 24,
-    color: MAIN,
+  artist: {
+    fontSize: 22,
+    color: FONT_LIGHT,
     alignItems: 'center',
     justifyContent: 'center',
-    height: 75
+    height: 35
+  },
+  title: {
+    fontSize: 22,
+    color: FONT_LIGHT,
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: 35
   },
   timer: {
     flexDirection: 'row',

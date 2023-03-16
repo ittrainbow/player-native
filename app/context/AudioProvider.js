@@ -18,12 +18,18 @@ class AudioProvider extends Component {
       playbackObject: null,
       soundObject: null,
       currentAudio: {},
-      currentTrackname: null,
+      currentArtist: '',
+      currentTitle: '',
       currentAudioIndex: null,
       isPlaying: false,
       totalCount: 0,
       playbackPosition: null,
       playbackDuration: null
+    }
+
+    this.track = {
+      currentArtist: '1',
+      currentTitle: '2'
     }
   }
 
@@ -64,24 +70,30 @@ class AudioProvider extends Component {
 
     this.setState({ ...this.state, totalCount })
 
-    const data = [...audioFiles, ...media.assets]
+    const data = [...audioFiles, ...media.assets].filter((el) => {
+      const { uri } = el
+      const mp3 = '/0/Music/mp3'
+      return uri.includes(mp3) ? el : null
+    })
 
     this.setState({
       ...this.state,
       dataProvider: dataProvider.cloneWithRows(data),
-      audioFiles: data
+      audioFiles: data,
+      totalCount: data.length
     })
   }
 
   loadPreviousAudio = async () => {
     const { audioFiles } = this.state
     const previousAudio = await AsyncStorage.getItem('previousAudio')
-    const { audio, index } = previousAudio ? JSON.parse(previousAudio) : null
+    const { audio, index, artist, title } = previousAudio ? JSON.parse(previousAudio) : null
 
     const currentAudio = previousAudio ? audio : audioFiles[0]
     const currentAudioIndex = previousAudio ? index : 0
 
     this.setState({ ...this.state, currentAudio, currentAudioIndex })
+    this.track = ({ currentArtist: artist, currentTitle: title })
   }
 
   getPermission = async () => {
@@ -107,6 +119,15 @@ class AudioProvider extends Component {
     })
   }
 
+  updateTrack = (response) => {
+    const { artist, title } = response
+    this.track = {
+      ...this.track,
+      currentArtist: artist,
+      currentTitle: title
+    }
+  }
+
   onPlaybackStatusUpdate = async (playbackStatus) => {
     const { positionMillis, durationMillis, isLoaded, isPlaying, didJustFinish } = playbackStatus
     const { updateState, currentAudioIndex, audioFiles, playbackObject, totalCount } = this.state
@@ -118,7 +139,6 @@ class AudioProvider extends Component {
     isLoaded && isPlaying && updateState(this, newState)
 
     if (didJustFinish) {
-      console.log('did just finished')
       const maxReached = currentAudioIndex + 1 >= totalCount
       const index = maxReached ? 0 : currentAudioIndex + 1
       const audio = audioFiles[index]
@@ -148,6 +168,7 @@ class AudioProvider extends Component {
       playbackPosition,
       playbackDuration
     } = this.state
+    const { currentArtist, currentTitle } = this.track
     if (permissionError)
       return (
         <View style={styles.audioProviderError}>
@@ -170,9 +191,12 @@ class AudioProvider extends Component {
           totalCount,
           playbackPosition,
           playbackDuration,
+          currentArtist,
+          currentTitle,
           loadPreviousAudio: this.loadPreviousAudio,
           updateState: this.updateState,
-          onPlaybackStatusUpdate: this.onPlaybackStatusUpdate
+          onPlaybackStatusUpdate: this.onPlaybackStatusUpdate,
+          updateTrack: this.updateTrack
         }}
       >
         {this.props.children}
