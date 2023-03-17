@@ -3,7 +3,6 @@ import { Dimensions, StyleSheet } from 'react-native'
 import { AudioContext } from '../context/AudioProvider'
 import { RecyclerListView, LayoutProvider } from 'recyclerlistview'
 import { Audio } from 'expo-av'
-import MusicInfo from 'expo-music-info'
 
 import { TrackListItem } from '../components/TrackListItem'
 import { color } from '../misc/color'
@@ -56,12 +55,13 @@ export class Tracklist extends Component {
       currentAudio,
       updateState,
       audioFiles,
-      onPlaybackStatusUpdate
+      onPlaybackStatusUpdate,
+      getMetadata
     } = this.context
 
     const index = audioFiles.indexOf(audio)
 
-    const { artist, title } = await MusicInfo.getMusicInfoAsync(uri, { title: true, artist: true })
+    const { artist, title } = await getMetadata(uri)
     await storeAudioForNextOpening(audio, index, artist, title)
 
     if (soundObject === null) {
@@ -77,17 +77,7 @@ export class Tracklist extends Component {
 
       updateState(this.context, newState)
 
-      const getMetadata = async (uri) => {
-        let response = await MusicInfo.getMusicInfoAsync(uri, {
-          title: true,
-          artist: true
-        })
-        return response
-      }
-      const { artist, title } = await getMetadata(uri)
-
       return playbackObject.setOnPlaybackStatusUpdate(onPlaybackStatusUpdate)
-      // return await storeAudioForNextOpening(audio, index, artist, title)
     } else {
       const { isLoaded, isPlaying } = soundObject
       const { id } = currentAudio
@@ -113,8 +103,7 @@ export class Tracklist extends Component {
           currentAudioIndex: index
         }
 
-        updateState(this.context, newState)
-        // return await storeAudioForNextOpening(audio, index)
+        return updateState(this.context, newState)
       }
     }
   }

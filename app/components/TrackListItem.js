@@ -9,7 +9,7 @@ const playIcon = <MaterialIcons name="play-circle-filled" size={36} color={ICON}
 const pauseIcon = <MaterialIcons name="pause-circle-filled" size={36} color={BG} />
 
 export const TrackListItem = ({ letter, trackname, time, onPress, onAudioPress, isPlaying, activeListItem }) => {
-  const icon = activeListItem ? (isPlaying ? playIcon : pauseIcon) : letter
+  const icon = activeListItem ? (isPlaying ? pauseIcon : playIcon) : letter
 
   return (
     <View style={{ ...styles.container, backgroundColor: activeListItem ? '#fff' : '#eee' }}>

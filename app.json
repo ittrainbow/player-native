@@ -2,7 +2,7 @@
   "expo": {
     "name": "player-native",
     "slug": "player-native",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -22,7 +22,8 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.ittrainbow.playernative"
+      "package": "com.ittrainbow.playernative",
+      "versionCode": "1.0.1"
     },
     "androidNavigationBar": {
       "backgroundColor": "#373b42"

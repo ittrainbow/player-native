@@ -2,7 +2,6 @@ import React, { useContext, useRef, useEffect } from 'react'
 import { Animated, View, StyleSheet, Text, Dimensions } from 'react-native'
 import { MaterialIcons } from '@expo/vector-icons'
 import Slider from '@react-native-community/slider'
-import MusicInfo from 'expo-music-info'
 
 import { color } from '../misc/color'
 import Screen from '../components/Screen'
@@ -30,7 +29,7 @@ export const Player = () => {
     updateState,
     audioFiles,
     onPlaybackStatusUpdate,
-    updateTrack
+    getMetadata
   } = context
 
   const { currentArtist, currentTitle } = context
@@ -61,15 +60,6 @@ export const Player = () => {
       duration: 350,
       useNativeDriver: true
     }).start()
-  }
-
-  const getMetadata = async (uri) => {
-    let response = await MusicInfo.getMusicInfoAsync(uri, {
-      title: true,
-      artist: true
-    })
-    updateTrack(response)
-    return response
   }
 
   const calculateSlider = () => {
@@ -110,8 +100,8 @@ export const Player = () => {
     }
 
     playbackObject.setOnPlaybackStatusUpdate(onPlaybackStatusUpdate)
-    updateState(context, newState)
     const { artist, title } = await getMetadata(uri)
+    updateState(context, newState)
     return await storeAudioForNextOpening(audio, index, artist, title)
   }
 
@@ -128,9 +118,11 @@ export const Player = () => {
       }
       fadeIn()
 
-      await storeAudioForNextOpening(currentAudio, currentAudioIndex)
+      const { artist, title } = await getMetadata(uri)
+      const { currentAudio: audio, currentAudioIndex: index} = newState
+      await storeAudioForNextOpening(audio, index, artist, title)
       playbackObject.setOnPlaybackStatusUpdate(onPlaybackStatusUpdate)
-      return updateState(context, newState)
+      updateState(context, newState)
     } else if (soundObject) {
       if (isPlaying) {
         const status = await pause(playbackObject)

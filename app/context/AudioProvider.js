@@ -2,8 +2,9 @@ import React, { Component } from 'react'
 import { StyleSheet, Alert, View, Text } from 'react-native'
 import * as MediaLibrary from 'expo-media-library'
 import { DataProvider } from 'recyclerlistview'
-import AsyncStorage from '@react-native-async-storage/async-storage'
 import { Audio } from 'expo-av'
+import AsyncStorage from '@react-native-async-storage/async-storage'
+// import MusicInfo from 'expo-music-info'
 
 export const AudioContext = React.createContext()
 
@@ -28,8 +29,8 @@ class AudioProvider extends Component {
     }
 
     this.track = {
-      currentArtist: '1',
-      currentTitle: '2'
+      currentArtist: '',
+      currentTitle: ''
     }
   }
 
@@ -39,6 +40,16 @@ class AudioProvider extends Component {
       const playbackObject = new Audio.Sound()
       this.setState({ ...this.state, playbackObject })
     }
+  }
+
+  getMetadata = async (uri) => {
+    // const response = await MusicInfo.getMusicInfoAsync(uri, { title: true, artist: true })
+    // const { artist, title } = response
+
+    const file = uri.split('mp3/')[1].substring(4).replace('.mp3', '').split(' - ')
+    this.track = { currentArtist: file[0], currentTitle: file[1] }
+
+    return { artist: file[0], title: file[1] }
   }
 
   permissionAlert = () => {
@@ -70,11 +81,9 @@ class AudioProvider extends Component {
 
     this.setState({ ...this.state, totalCount })
 
-    const data = [...audioFiles, ...media.assets].filter((el) => {
-      const { uri } = el
-      const mp3 = '/0/Music/mp3'
-      return uri.includes(mp3) ? el : null
-    })
+    const data = [...audioFiles, ...media.assets].filter((el) =>
+      el.uri.includes('/0/Music/mp3') ? el : null
+    )
 
     this.setState({
       ...this.state,
@@ -93,7 +102,7 @@ class AudioProvider extends Component {
     const currentAudioIndex = previousAudio ? index : 0
 
     this.setState({ ...this.state, currentAudio, currentAudioIndex })
-    this.track = ({ currentArtist: artist, currentTitle: title })
+    this.track = { currentArtist: artist, currentTitle: title }
   }
 
   getPermission = async () => {
@@ -117,15 +126,6 @@ class AudioProvider extends Component {
       ...prevState,
       ...newState
     })
-  }
-
-  updateTrack = (response) => {
-    const { artist, title } = response
-    this.track = {
-      ...this.track,
-      currentArtist: artist,
-      currentTitle: title
-    }
   }
 
   onPlaybackStatusUpdate = async (playbackStatus) => {
@@ -196,7 +196,7 @@ class AudioProvider extends Component {
           loadPreviousAudio: this.loadPreviousAudio,
           updateState: this.updateState,
           onPlaybackStatusUpdate: this.onPlaybackStatusUpdate,
-          updateTrack: this.updateTrack
+          getMetadata: this.getMetadata
         }}
       >
         {this.props.children}
