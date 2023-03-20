@@ -1,39 +1,36 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import { View, StyleSheet, Modal, Text, TouchableWithoutFeedback } from 'react-native'
 
-import { getListItemText } from '../misc/trackListItemHelpers'
+import { AudioContext } from '../context/AudioProvider'
 import { color } from '../misc/color'
-const { FONT_MEDIUM, BG, MODAL_BG, MODAL_MAIN_BG } = color
+const { FONT_MEDIUM, BG, MODAL_BG, MAIN } = color
 
 export const PlaylistModal = ({ visible, onClose, currentItem, onPlayPress, onPlaylistPress }) => {
-  const { filename } = currentItem
-  const { trackname } = filename ? getListItemText(filename) : ''
+  const { currentTitle } = useContext(AudioContext)
 
   return (
-    <View style={styles.container}>
-      <Modal animationType="fade" transparent visible={visible} style={styles.container}>
-        <View style={styles.modal}>
-          <Text style={styles.title} numberOfLines={2}>
-            {trackname}
-          </Text>
-          <View style={styles.optionContainer}>
-            <TouchableWithoutFeedback onPress={onPlayPress}>
-              <View>
-                <Text style={styles.option}>Play</Text>
-              </View>
-            </TouchableWithoutFeedback>
-            <TouchableWithoutFeedback onPress={onPlaylistPress}>
-              <View>
-                <Text style={styles.option}>Add to playlist</Text>
-              </View>
-            </TouchableWithoutFeedback>
-          </View>
+    <Modal animationType="fade" transparent visible={visible} style={styles.container}>
+      <View style={styles.modal}>
+        <Text style={styles.title} numberOfLines={2}>
+          {currentTitle}
+        </Text>
+        <View style={styles.optionContainer}>
+          <TouchableWithoutFeedback onPress={onPlayPress}>
+            <View>
+              <Text style={styles.option}>Play</Text>
+            </View>
+          </TouchableWithoutFeedback>
+          <TouchableWithoutFeedback onPress={onPlaylistPress}>
+            <View>
+              <Text style={styles.option}>Add to playlist</Text>
+            </View>
+          </TouchableWithoutFeedback>
         </View>
-        <TouchableWithoutFeedback onPress={onClose}>
-          <View style={styles.modalBG} />
-        </TouchableWithoutFeedback>
-      </Modal>
-    </View>
+      </View>
+      <TouchableWithoutFeedback onPress={onClose}>
+        <View style={styles.modalBG} />
+      </TouchableWithoutFeedback>
+    </Modal>
   )
 }
 
@@ -47,10 +44,10 @@ const styles = StyleSheet.create({
     bottom: 20,
     right: 20,
     left: 20,
-    backgroundColor: MODAL_MAIN_BG,
+    backgroundColor: MAIN,
     borderWidth: 2,
     borderColor: BG,
-    borderRadius: 20,
+    borderRadius: 10,
     transition: '1s',
     zIndex: 10
   },

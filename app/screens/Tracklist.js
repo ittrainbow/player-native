@@ -9,7 +9,6 @@ import { color } from '../misc/color'
 import { getListItemText, getListItemTime } from '../misc/trackListItemHelpers'
 import { PlaylistModal } from '../components/PlaylistModal'
 import { play, pause, resume, next } from '../misc/audioController'
-import { storeAudioForNextOpening } from '../misc/helper'
 
 const { BG } = color
 
@@ -47,8 +46,8 @@ export class Tracklist extends Component {
     this.setState({ ...this.state, modalVisible: true })
   }
 
-  audioPressHandler = async (audio) => {
-    const { uri } = audio
+  onAudioPressHandler = async (audio) => {
+    const { context } = this
     const {
       soundObject,
       playbackObject,
@@ -57,16 +56,14 @@ export class Tracklist extends Component {
       audioFiles,
       onPlaybackStatusUpdate,
       getMetadata
-    } = this.context
-
+    } = context
+    const { uri } = audio
+    const { artist, title } = getMetadata(uri)
     const index = audioFiles.indexOf(audio)
-
-    const { artist, title } = await getMetadata(uri)
-    await storeAudioForNextOpening(audio, index, artist, title)
 
     if (soundObject === null) {
       const playbackObject = new Audio.Sound()
-      const status = await play({ playbackObject, uri })
+      const status = await play({ playbackObject, uri, audio, index, artist, title })
       const newState = {
         currentAudio: audio,
         soundObject: status,
@@ -75,7 +72,7 @@ export class Tracklist extends Component {
         currentAudioIndex: index
       }
 
-      updateState(this.context, newState)
+      updateState(context, newState)
 
       return playbackObject.setOnPlaybackStatusUpdate(onPlaybackStatusUpdate)
     } else {
@@ -87,15 +84,15 @@ export class Tracklist extends Component {
           const status = await pause(playbackObject)
           const newState = { soundObject: status, isPlaying: false }
 
-          return updateState(this.context, newState)
+          return updateState(context, newState)
         } else {
           const status = await resume(playbackObject)
           const newState = { soundObject: status, isPlaying: true }
 
-          return updateState(this.context, newState)
+          return updateState(context, newState)
         }
       } else if (id !== audio.id) {
-        const status = await next({ playbackObject, uri })
+        const status = await next({ playbackObject, uri, audio, index, artist, title })
         const newState = {
           currentAudio: audio,
           soundObject: status,
@@ -103,14 +100,22 @@ export class Tracklist extends Component {
           currentAudioIndex: index
         }
 
-        return updateState(this.context, newState)
+        return updateState(context, newState)
       }
     }
+  }
+
+  onPlaylistPressHandler = () => {
+    const newState = { addToPlaylist: this.currentItem }
+    this.context.updateState(this.context, newState)
+    this.props.navigation.navigate('Playlist')
+    this.setState({ modalVisible: false })
   }
 
   rowRenderer = (type, item, index, extendedState) => {
     const { isPlaying, currentAudioIndex } = extendedState
     const { filename, duration, uri } = item
+    const { onPressHandler, onAudioPressHandler } = this
     const { letter, trackname } = getListItemText(filename)
     const time = getListItemTime(duration)
     const activeListItem = currentAudioIndex === index
@@ -122,8 +127,8 @@ export class Tracklist extends Component {
         activeListItem={activeListItem}
         trackname={trackname}
         time={time}
-        onPress={() => this.onPressHandler(item)}
-        onAudioPress={() => this.audioPressHandler(item)}
+        onPress={() => onPressHandler(item)}
+        onAudioPress={() => onAudioPressHandler(item)}
       />
     )
   }
@@ -132,22 +137,24 @@ export class Tracklist extends Component {
     return (
       <AudioContext.Consumer>
         {({ dataProvider, isPlaying, currentAudioIndex }) => {
-          // if (!dataProvider._data.length) return null
+          const { modalVisible } = this.state
+          const { currentItem, onModalClose, layoutProvider, rowRenderer, onPlaylistPressHandler } =
+            this
           return (
             <>
               <RecyclerListView
-                style={styles.view}
+                style={styles.container}
                 dataProvider={dataProvider}
-                layoutProvider={this.layoutProvider}
-                rowRenderer={this.rowRenderer}
+                layoutProvider={layoutProvider}
+                rowRenderer={rowRenderer}
                 extendedState={{ isPlaying, currentAudioIndex }}
               />
               <PlaylistModal
-                currentItem={this.currentItem}
-                visible={this.state.modalVisible}
-                onClose={this.onModalClose}
+                currentItem={currentItem}
+                visible={modalVisible}
+                onClose={onModalClose}
                 onPlayPress={() => console.log('onPlayPress')}
-                onPlaylistPress={() => console.log('onPlaylistPress')}
+                onPlaylistPress={onPlaylistPressHandler}
               />
             </>
           )
@@ -159,13 +166,8 @@ export class Tracklist extends Component {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center'
-  },
-  view: {
     width: Dimensions.get('window').width,
-    marginBottom: 50,
+    marginBottom: 90,
     backgroundColor: BG
   }
 })

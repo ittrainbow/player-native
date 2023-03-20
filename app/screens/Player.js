@@ -7,9 +7,8 @@ import { color } from '../misc/color'
 import Screen from '../components/Screen'
 import PlayerButton from '../components/PlayerButton'
 import { AudioContext } from '../context/AudioProvider'
-import { getListItemTime, getListItemText } from '../misc/trackListItemHelpers'
+import { getListItemTime } from '../misc/trackListItemHelpers'
 import { play, next, pause, resume } from '../misc/audioController'
-import { storeAudioForNextOpening } from '../misc/helper'
 
 const { FONT_LIGHT, MAIN } = color
 const { width } = Dimensions.get('window')
@@ -36,10 +35,7 @@ export const Player = () => {
 
   useEffect(() => {
     isPlaying ? fadeIn() : fadeOut()
-    if (currentAudio) {
-      const { uri } = currentAudio
-      getMetadata(uri)
-    }
+    if (currentAudio) getMetadata(currentAudio.uri)
   }, [currentAudio])
 
   const { duration } = currentAudio
@@ -67,6 +63,7 @@ export const Player = () => {
   }
 
   const prevNext = async (value) => {
+
     const prev = value === 'prev'
     const counter = prev ? -1 : 1
     const { isLoaded } = await playbackObject.getStatusAsync()
@@ -80,15 +77,15 @@ export const Player = () => {
       : currentAudioIndex + counter
     const audio = audioFiles[index]
     const { uri } = audio
-    await getMetadata(uri)
+    const { artist, title } = getMetadata(uri)
 
     let status
     if (!isLoaded && !endOfList) {
-      status = await play({ playbackObject, uri })
+      status = await play({ playbackObject, uri, audio, index, artist, title })
     } else if (isLoaded && !endOfList) {
-      status = await next({ playbackObject, uri })
+      status = await next({ playbackObject, uri, audio, index, artist, title })
     } else if (isLoaded && endOfList) {
-      status = await next({ playbackObject, uri })
+      status = await next({ playbackObject, uri, audio, index, artist, title })
     }
 
     const newState = {
@@ -100,16 +97,16 @@ export const Player = () => {
     }
 
     playbackObject.setOnPlaybackStatusUpdate(onPlaybackStatusUpdate)
-    const { artist, title } = await getMetadata(uri)
-    updateState(context, newState)
-    return await storeAudioForNextOpening(audio, index, artist, title)
+    return updateState(context, newState)
   }
 
   const playPauseHandler = async () => {
     if (soundObject === null) {
       const { uri } = currentAudio
-      getMetadata(uri)
-      const status = await play({ playbackObject, uri })
+      const index = currentAudioIndex
+      const audio = currentAudio
+      const { artist, title } = getMetadata(uri)
+      const status = await play({ playbackObject, uri, audio, index, artist, title })
       const newState = {
         soundObject: status,
         currentAudio,
@@ -117,12 +114,9 @@ export const Player = () => {
         isPlaying: true
       }
       fadeIn()
-
-      const { artist, title } = await getMetadata(uri)
-      const { currentAudio: audio, currentAudioIndex: index} = newState
-      await storeAudioForNextOpening(audio, index, artist, title)
       playbackObject.setOnPlaybackStatusUpdate(onPlaybackStatusUpdate)
-      updateState(context, newState)
+
+      return updateState(context, newState)
     } else if (soundObject) {
       if (isPlaying) {
         const status = await pause(playbackObject)
