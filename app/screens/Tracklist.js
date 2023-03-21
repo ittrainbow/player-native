@@ -41,12 +41,20 @@ export class Tracklist extends Component {
     this.currentItem = {}
   }
 
-  onPressHandler = (item) => {
+  onDotsPressHandler = (item) => {
+    const { currentArtist, currentTitle } = this.context
+    console.log(currentArtist, currentTitle)
+    const { uri } = item
+    console.log('ondots', uri)
+    const { getMetadata } = this.context
+    getMetadata(uri)
+    // console.log('tracklist', title)
     this.currentItem = item
     this.setState({ ...this.state, modalVisible: true })
   }
 
   onAudioPressHandler = async (audio) => {
+    console.log('onAudioPressHandler')
     const { context } = this
     const {
       soundObject,
@@ -115,7 +123,7 @@ export class Tracklist extends Component {
   rowRenderer = (type, item, index, extendedState) => {
     const { isPlaying, currentAudioIndex } = extendedState
     const { filename, duration, uri } = item
-    const { onPressHandler, onAudioPressHandler } = this
+    const { onDotsPressHandler, onAudioPressHandler } = this
     const { letter, trackname } = getListItemText(filename)
     const time = getListItemTime(duration)
     const activeListItem = currentAudioIndex === index
@@ -127,7 +135,7 @@ export class Tracklist extends Component {
         activeListItem={activeListItem}
         trackname={trackname}
         time={time}
-        onPress={() => onPressHandler(item)}
+        onPress={() => onDotsPressHandler(item)}
         onAudioPress={() => onAudioPressHandler(item)}
       />
     )

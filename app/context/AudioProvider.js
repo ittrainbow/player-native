@@ -48,9 +48,15 @@ class AudioProvider extends Component {
 
   getMetadata = (uri) => {
     const { artist, title } = getTrackNames(uri)
+    console.log('provider', title)
     this.track = { currentArtist: artist, currentTitle: title }
 
+    console.log('provider thistrack', this.track)
     return { artist, title }
+  }
+
+  logMetadata = () => {
+    console.log('logMeta', this.track)
   }
 
   permissionAlert = () => {
@@ -200,6 +206,7 @@ class AudioProvider extends Component {
           currentTitle,
           playlist,
           addToPlaylist,
+          track: this.track,
           loadPreviousAudio: this.loadPreviousAudio,
           updateState: this.updateState,
           onPlaybackStatusUpdate: this.onPlaybackStatusUpdate,

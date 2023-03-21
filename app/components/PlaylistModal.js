@@ -6,18 +6,32 @@ import { color } from '../misc/color'
 const { FONT_MEDIUM, BG, MODAL_BG, MAIN } = color
 
 export const PlaylistModal = ({ visible, onClose, currentItem, onPlayPress, onPlaylistPress }) => {
-  const { currentTitle } = useContext(AudioContext)
+  const { currentTitle, logMetadata, track } = useContext(AudioContext)
+  const pressHandler1 = () => {
+    console.log('1 modal track', track)
+    // logMetadata()
+  }
+  const pressHandler2 = () => {
+    console.log('2 modal track', currentTitle)
+    // logMetadata()
+  }
 
   return (
     <Modal animationType="fade" transparent visible={visible} style={styles.container}>
       <View style={styles.modal}>
         <Text style={styles.title} numberOfLines={2}>
-          {currentTitle}
+          {/* {currentTitle} */}
         </Text>
         <View style={styles.optionContainer}>
-          <TouchableWithoutFeedback onPress={onPlayPress}>
+          {/* <TouchableWithoutFeedback onPress={onPlayPress}> */}
+          <TouchableWithoutFeedback onPress={pressHandler1}>
             <View>
               <Text style={styles.option}>Play</Text>
+            </View>
+          </TouchableWithoutFeedback>
+          <TouchableWithoutFeedback onPress={pressHandler2}>
+            <View>
+              <Text style={styles.option}>Log</Text>
             </View>
           </TouchableWithoutFeedback>
           <TouchableWithoutFeedback onPress={onPlaylistPress}>
