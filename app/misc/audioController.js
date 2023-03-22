@@ -3,7 +3,10 @@ import { storeAudioForNextOpening } from './storeAudio'
 export const play = async ({ playbackObject, uri, audio, index, artist, title }) => {
   try {
     await storeAudioForNextOpening({ audio, index, artist, title })
-    return await playbackObject.loadAsync({ uri }, { shouldPlay: true })
+    return await playbackObject.loadAsync(
+      { uri },
+      { shouldPlay: true, progressUpdateIntervalMillis: 1000 }
+    )
   } catch (error) {
     console.error('play start error', error.message)
   }
@@ -62,7 +65,6 @@ export const playpause = async ({ audio, context }) => {
       }
 
       updateState(context, newState)
-
       return playbackObject.setOnPlaybackStatusUpdate(onPlaybackStatusUpdate)
     } else {
       const { isLoaded, isPlaying } = soundObject

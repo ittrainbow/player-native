@@ -53,8 +53,7 @@ class AudioProvider extends Component {
     return { artist, title }
   }
 
-  logMetadata = () => {
-  }
+  logMetadata = () => {}
 
   permissionAlert = () => {
     Alert.alert(
@@ -178,7 +177,6 @@ class AudioProvider extends Component {
       currentArtist,
       currentTitle
     } = this.state
-    // const { currentArtist, currentTitle } = this.track
     if (permissionError)
       return (
         <View style={styles.audioProviderError}>

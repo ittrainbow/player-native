@@ -1,4 +1,4 @@
-import React, { useContext, useRef, useEffect } from 'react'
+import React, { useContext, useRef, useEffect, useState } from 'react'
 import { Animated, View, StyleSheet, Text, Dimensions } from 'react-native'
 import { MaterialIcons } from '@expo/vector-icons'
 import Slider from '@react-native-community/slider'
@@ -15,6 +15,7 @@ const halfWidth = width / 2
 
 export const Player = () => {
   const context = useContext(AudioContext)
+  const [prevPlaybackPosition, setPrevPlaybackPosition] = useState('00:00')
   const {
     currentAudio,
     currentAudioIndex,
@@ -65,6 +66,17 @@ export const Player = () => {
     await playpause({ context, audio: currentAudio })
   }
 
+  const getTime = (playbackPosition) => {
+    const response = getListItemTime(playbackPosition / 1000)
+    const tics = Number(response.substring(3))
+    const oldTics = Number(prevPlaybackPosition.substring(3))
+    if (tics > oldTics) {
+      setPrevPlaybackPosition(response)
+      return response
+    }
+    return prevPlaybackPosition
+  }
+
   return (
     <Screen>
       <View style={styles.container}>
@@ -82,7 +94,7 @@ export const Player = () => {
             {currentTitle}
           </Text>
           <View style={styles.timer}>
-            <Text style={styles.timerTextLeft}>{getListItemTime(playbackPosition / 1000)}</Text>
+            <Text style={styles.timerTextLeft}>{getTime(playbackPosition)}</Text>
             <Text style={styles.timerTextRight}>
               {getListItemTime(playbackDuration ? playbackDuration / 1000 : duration)}
             </Text>

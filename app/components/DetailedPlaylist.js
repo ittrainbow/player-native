@@ -57,10 +57,10 @@ const styles = StyleSheet.create({
   },
   itemContainer: {
     flexDirection: 'row',
-    backgroundColor: CREME_GREY,
+    // backgroundColor: CREME_GREY,
     borderWidth: 1,
-    borderColor: CREME_DARK,
-    borderRadius: 5,
+    borderColor: CREME_GREY,
+    borderRadius: 10,
     padding: 10
   },
   itemTrackname: {
