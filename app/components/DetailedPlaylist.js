@@ -4,7 +4,7 @@ import { View, ScrollView, StyleSheet, Text, TouchableOpacity, Dimensions } from
 import { getTrackNames } from '../misc/getTrackNames'
 import { getListItemTime } from '../misc/trackListItemHelpers'
 import { color } from '../misc/color'
-const { CREME, CREME_LIGHT } = color
+const { CREME, CREME_GREY, CREME_DARK } = color
 const { width, height } = Dimensions.get('window')
 
 const DetailedPlaylist = ({ playlist }) => {
@@ -39,7 +39,7 @@ const styles = StyleSheet.create({
     padding: 10,
     gap: 10,
     width: width - 25,
-    backgroundColor: CREME,
+    backgroundColor: CREME_DARK,
     justifyContent: 'center',
     borderRadius: 10,
     height: height - 277
@@ -57,7 +57,9 @@ const styles = StyleSheet.create({
   },
   itemContainer: {
     flexDirection: 'row',
-    backgroundColor: CREME_LIGHT,
+    backgroundColor: CREME_GREY,
+    borderWidth: 1,
+    borderColor: CREME_DARK,
     borderRadius: 5,
     padding: 10
   },

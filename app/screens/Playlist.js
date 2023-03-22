@@ -135,12 +135,12 @@ export const Playlist = () => {
           <Text style={styles.bannerDel}>Delete All</Text>
         </TouchableOpacity>
       </View>
-      {/* {playlist.map((item) => {
+      {playlist.map((item) => {
         const { id } = item
-        return <PlaylistItem key={id} item={item} onPress={onBannerPress} />
-      })} */}
+        return addToPlaylist ? <PlaylistItem key={id} item={item} onPress={onBannerPress} /> : null
+      })}
 
-      <DetailedPlaylist playlist={selectedPlaylist} />
+      {addToPlaylist ? null : <DetailedPlaylist playlist={selectedPlaylist} />}
 
       <ExistsModal
         visible={existsVisible}

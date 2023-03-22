@@ -3,13 +3,12 @@ import { Animated, View, StyleSheet, Text, Dimensions } from 'react-native'
 import { MaterialIcons } from '@expo/vector-icons'
 import Slider from '@react-native-community/slider'
 
-import { color } from '../misc/color'
 import Screen from '../components/Screen'
 import PlayerButton from '../components/PlayerButton'
 import { AudioContext } from '../context/AudioProvider'
 import { getListItemTime } from '../misc/trackListItemHelpers'
-import { play, next, pause, resume } from '../misc/audioController'
-
+import { playpause, prevnext } from '../misc/audioController'
+import { color } from '../misc/color'
 const { FONT_LIGHT, MAIN } = color
 const { width } = Dimensions.get('window')
 const halfWidth = width / 2
@@ -23,11 +22,6 @@ export const Player = () => {
     isPlaying,
     playbackPosition,
     playbackDuration,
-    playbackObject,
-    soundObject,
-    updateState,
-    audioFiles,
-    onPlaybackStatusUpdate,
     getMetadata,
     track
   } = context
@@ -63,76 +57,12 @@ export const Player = () => {
     return (playbackPosition && playbackDuration && playbackPosition / playbackDuration) || 0
   }
 
-  const prevNext = async (value) => {
-
-    const prev = value === 'prev'
-    const counter = prev ? -1 : 1
-    const { isLoaded } = await playbackObject.getStatusAsync()
-    const endOfList = prev ? currentAudioIndex === 0 : currentAudioIndex + counter === totalCount
-    const index = prev
-      ? endOfList
-        ? totalCount + counter
-        : currentAudioIndex + counter
-      : endOfList
-      ? 0
-      : currentAudioIndex + counter
-    const audio = audioFiles[index]
-    const { uri } = audio
-    const { artist, title } = getMetadata(uri)
-
-    let status
-    if (!isLoaded && !endOfList) {
-      status = await play({ playbackObject, uri, audio, index, artist, title })
-    } else if (isLoaded && !endOfList) {
-      status = await next({ playbackObject, uri, audio, index, artist, title })
-    } else if (isLoaded && endOfList) {
-      status = await next({ playbackObject, uri, audio, index, artist, title })
-    }
-
-    const newState = {
-      currentAudio: audio,
-      currentAudioIndex: index,
-      playbackObject,
-      isPlaying: true,
-      soundObject: status
-    }
-
-    playbackObject.setOnPlaybackStatusUpdate(onPlaybackStatusUpdate)
-    return updateState(context, newState)
+  const prevNextHandler = async (value) => {
+    await prevnext({ value, context })
   }
 
   const playPauseHandler = async () => {
-    if (soundObject === null) {
-      const { uri } = currentAudio
-      const index = currentAudioIndex
-      const audio = currentAudio
-      const { artist, title } = getMetadata(uri)
-      const status = await play({ playbackObject, uri, audio, index, artist, title })
-      const newState = {
-        soundObject: status,
-        currentAudio,
-        currentAudioIndex,
-        isPlaying: true
-      }
-      fadeIn()
-      playbackObject.setOnPlaybackStatusUpdate(onPlaybackStatusUpdate)
-
-      return updateState(context, newState)
-    } else if (soundObject) {
-      if (isPlaying) {
-        const status = await pause(playbackObject)
-        const newState = { soundObject: status, isPlaying: false }
-        fadeOut()
-
-        return updateState(context, newState)
-      } else {
-        const status = await resume(playbackObject)
-        const newState = { soundObject: status, isPlaying: true }
-        fadeIn()
-
-        return updateState(context, newState)
-      }
-    }
+    await playpause({ context, audio: currentAudio })
   }
 
   return (
@@ -166,9 +96,9 @@ export const Player = () => {
             maximumTrackTintColor="#000000"
           />
           <View style={styles.playerButtons}>
-            <PlayerButton iconType={'PREV'} onPress={() => prevNext('prev')} />
-            <PlayerButton iconType={isPlaying ? 'PAUSE' : 'PLAY'} onPress={playPauseHandler} />
-            <PlayerButton iconType={'NEXT'} onPress={() => prevNext('next')} />
+            <PlayerButton onPress={() => prevNextHandler('prev')} iconType={'PREV'} />
+            <PlayerButton onPress={playPauseHandler} iconType={isPlaying ? 'PAUSE' : 'PLAY'} />
+            <PlayerButton onPress={() => prevNextHandler('next')} iconType={'NEXT'} />
           </View>
         </View>
       </View>

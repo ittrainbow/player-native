@@ -2,13 +2,12 @@ import React, { Component } from 'react'
 import { Dimensions, StyleSheet } from 'react-native'
 import { AudioContext } from '../context/AudioProvider'
 import { RecyclerListView, LayoutProvider } from 'recyclerlistview'
-import { Audio } from 'expo-av'
 
 import { TrackListItem } from '../components/TrackListItem'
 import { color } from '../misc/color'
 import { getListItemText, getListItemTime } from '../misc/trackListItemHelpers'
 import { PlaylistModal } from '../components/PlaylistModal'
-import { play, pause, resume, next } from '../misc/audioController'
+import { playpause } from '../misc/audioController'
 
 const { BG } = color
 
@@ -47,62 +46,7 @@ export class Tracklist extends Component {
   }
 
   onAudioPressHandler = async (audio) => {
-    const { context } = this
-    const {
-      soundObject,
-      playbackObject,
-      currentAudio,
-      updateState,
-      audioFiles,
-      onPlaybackStatusUpdate,
-      getMetadata
-    } = context
-    const { uri } = audio
-    const { artist, title } = getMetadata(uri)
-    const index = audioFiles.indexOf(audio)
-
-    if (soundObject === null) {
-      const playbackObject = new Audio.Sound()
-      const status = await play({ playbackObject, uri, audio, index, artist, title })
-      const newState = {
-        currentAudio: audio,
-        soundObject: status,
-        isPlaying: true,
-        playbackObject,
-        currentAudioIndex: index
-      }
-
-      updateState(context, newState)
-
-      return playbackObject.setOnPlaybackStatusUpdate(onPlaybackStatusUpdate)
-    } else {
-      const { isLoaded, isPlaying } = soundObject
-      const { id } = currentAudio
-
-      if (isLoaded && id === audio.id) {
-        if (isPlaying) {
-          const status = await pause(playbackObject)
-          const newState = { soundObject: status, isPlaying: false }
-
-          return updateState(context, newState)
-        } else {
-          const status = await resume(playbackObject)
-          const newState = { soundObject: status, isPlaying: true }
-
-          return updateState(context, newState)
-        }
-      } else if (id !== audio.id) {
-        const status = await next({ playbackObject, uri, audio, index, artist, title })
-        const newState = {
-          currentAudio: audio,
-          soundObject: status,
-          isPlaying: true,
-          currentAudioIndex: index
-        }
-
-        return updateState(context, newState)
-      }
-    }
+    await playpause({ audio, context: this.context })
   }
 
   onPlaylistPressHandler = () => {
@@ -112,7 +56,7 @@ export class Tracklist extends Component {
     this.setState({ modalVisible: false })
   }
 
-  rowRenderer = (type, item, index, extendedState) => {
+  rowRenderer = (_, item, index, extendedState) => {
     const { isPlaying, currentAudioIndex } = extendedState
     const { filename, duration, uri } = item
     const { onDotsPressHandler, onAudioPressHandler } = this
