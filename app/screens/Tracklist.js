@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React, { useContext, useEffect, useState, useRef } from 'react'
 import { Dimensions, StyleSheet } from 'react-native'
 import { AudioContext } from '../context/AudioProvider'
 import { RecyclerListView, LayoutProvider } from 'recyclerlistview'
@@ -11,55 +11,49 @@ import { playpause } from '../misc/audioController'
 
 const { BG } = color
 
-export class Tracklist extends Component {
-  static contextType = AudioContext
+export const Tracklist = () => {
+  const context = useContext(AudioContext)
+  const { loadPreviousAudio, updateState, isPlaying, currentAudioIndex, dataProvider } = context
+  const [currentItem, setCurrentItem] = useState({})
+  const [modalVisible, setModalVisible] = useState(false)
 
-  constructor(props) {
-    super(props)
-    this.state = {
-      modalVisible: false
-    }
+  const layoutProvider = useRef(
+    new LayoutProvider(
+      (index) => 'audio',
+      (type, dim) => {
+        dim.width = Dimensions.get('window').width
+        dim.height = 68
+      }
+    )
+  ).current
 
-    this.currentItem = {}
+  useEffect(() => {
+    loadPreviousAudio()
+  }, [])
+
+  const onModalClose = () => {
+    setModalVisible(false)
+    setCurrentItem({})
   }
 
-  layoutProvider = new LayoutProvider(
-    (index) => 'audio',
-    (type, dim) => {
-      dim.width = Dimensions.get('window').width
-      dim.height = 68
-    }
-  )
-
-  componentDidMount() {
-    this.context.loadPreviousAudio()
+  const onDotsPressHandler = async (item) => {
+    setCurrentItem(item)
+    setModalVisible(true)
   }
 
-  onModalClose = () => {
-    this.setState({ ...this.state, modalVisible: false })
-    this.currentItem = {}
+  const onAudioPressHandler = async (audio) => {
+    await playpause({ audio, context })
   }
 
-  onDotsPressHandler = async (item) => {
-    this.currentItem = item
-    this.setState({ ...this.state, modalVisible: true })
+  const onPlaylistPressHandler = () => {
+    const newState = { addToPlaylist: currentItem }
+    updateState(context, newState)
+    setModalVisible(false)
   }
 
-  onAudioPressHandler = async (audio) => {
-    await playpause({ audio, context: this.context })
-  }
-
-  onPlaylistPressHandler = () => {
-    const newState = { addToPlaylist: this.currentItem }
-    this.context.updateState(this.context, newState)
-    this.props.navigation.navigate('Playlist')
-    this.setState({ modalVisible: false })
-  }
-
-  rowRenderer = (_, item, index, extendedState) => {
+  const rowRenderer = (type, item, index, extendedState) => {
     const { isPlaying, currentAudioIndex } = extendedState
-    const { filename, duration, uri } = item
-    const { onDotsPressHandler, onAudioPressHandler } = this
+    const { filename, duration } = item
     const { letter, trackname } = getListItemText(filename)
     const time = getListItemTime(duration)
     const activeListItem = currentAudioIndex === index
@@ -77,35 +71,24 @@ export class Tracklist extends Component {
     )
   }
 
-  render() {
-    return (
-      <AudioContext.Consumer>
-        {({ dataProvider, isPlaying, currentAudioIndex }) => {
-          const { modalVisible } = this.state
-          const { currentItem, onModalClose, layoutProvider, rowRenderer, onPlaylistPressHandler } =
-            this
-          return (
-            <>
-              <RecyclerListView
-                style={styles.container}
-                dataProvider={dataProvider}
-                layoutProvider={layoutProvider}
-                rowRenderer={rowRenderer}
-                extendedState={{ isPlaying, currentAudioIndex }}
-              />
-              <PlaylistModal
-                currentItem={currentItem}
-                visible={modalVisible}
-                onClose={onModalClose}
-                onPlayPress={() => console.log('onPlayPress')}
-                onPlaylistPress={onPlaylistPressHandler}
-              />
-            </>
-          )
-        }}
-      </AudioContext.Consumer>
-    )
-  }
+  return (
+    <>
+      <RecyclerListView
+        style={styles.container}
+        dataProvider={dataProvider}
+        layoutProvider={layoutProvider}
+        rowRenderer={rowRenderer}
+        extendedState={{ isPlaying, currentAudioIndex }}
+      />
+      <PlaylistModal
+        currentItem={currentItem}
+        visible={modalVisible}
+        onClose={onModalClose}
+        onPlayPress={() => console.log('onPlayPress')}
+        onPlaylistPress={onPlaylistPressHandler}
+      />
+    </>
+  )
 }
 
 const styles = StyleSheet.create({
