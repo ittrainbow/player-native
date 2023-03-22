@@ -41,20 +41,12 @@ export class Tracklist extends Component {
     this.currentItem = {}
   }
 
-  onDotsPressHandler = (item) => {
-    const { currentArtist, currentTitle } = this.context
-    console.log(currentArtist, currentTitle)
-    const { uri } = item
-    console.log('ondots', uri)
-    const { getMetadata } = this.context
-    getMetadata(uri)
-    // console.log('tracklist', title)
+  onDotsPressHandler = async (item) => {
     this.currentItem = item
     this.setState({ ...this.state, modalVisible: true })
   }
 
   onAudioPressHandler = async (audio) => {
-    console.log('onAudioPressHandler')
     const { context } = this
     const {
       soundObject,

@@ -28,10 +28,11 @@ export const Player = () => {
     updateState,
     audioFiles,
     onPlaybackStatusUpdate,
-    getMetadata
+    getMetadata,
+    track
   } = context
 
-  const { currentArtist, currentTitle } = context
+  const { currentArtist, currentTitle } = track
 
   useEffect(() => {
     isPlaying ? fadeIn() : fadeOut()

@@ -3,6 +3,7 @@ export const color = {
   PLAYER: '#02d8c1',
   FONT: '#303d49',
   CREME: '#e7e7e7',
+  CREME_LIGHT: '#f8f8f8',
   CREME_DARK: '#c0c0c0',
   FONT_MEDIUM: '#636363',
   FONT_LIGHT: '#bbb',

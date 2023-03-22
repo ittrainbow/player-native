@@ -1,8 +1,10 @@
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import React, { useContext, useState, useEffect } from 'react'
-import { StyleSheet, Text, View, TouchableOpacity, Dimensions, Alert } from 'react-native'
-import AddPlaylistModal from '../components/AddPlaylistModal'
+import { StyleSheet, Text, View, TouchableOpacity, Dimensions } from 'react-native'
 
+import AddPlaylistModal from '../components/AddPlaylistModal'
+import ExistsModal from '../components/ExistsModal'
+import { PlaylistItem } from '../components/PlaylistItem'
 import { AudioContext } from '../context/AudioProvider'
 import { color } from '../misc/color'
 const { CREME, CREME_DARK } = color
@@ -11,11 +13,16 @@ const { width } = Dimensions.get('window')
 
 export const Playlist = () => {
   const [modalVisible, setModalVisible] = useState(false)
+  const [existsVisible, setExistsVisible] = useState(false)
   const context = useContext(AudioContext)
   const { playlist, addToPlaylist, updateState } = context
 
   const onCloseAddPlaylistModal = () => {
     setModalVisible(false)
+  }
+
+  const onCloseExistsModal = () => {
+    setExistsVisible(false)
   }
 
   useEffect(() => {
@@ -96,8 +103,11 @@ export const Playlist = () => {
       if (response !== null) {
         updatedList = JSON.parse(response).filter((list) => {
           if (list.id === playlist.id) {
-            alreadyInPlaylist = list.tracks.map(track => track.id).includes(addToPlaylist.id)
-            if (alreadyInPlaylist) return
+            alreadyInPlaylist = list.tracks.map((track) => track.id).includes(addToPlaylist.id)
+            if (alreadyInPlaylist) {
+              setExistsVisible(true)
+              return
+            }
             list.tracks = [...list.tracks, addToPlaylist]
           }
 
@@ -105,15 +115,9 @@ export const Playlist = () => {
         })
       }
 
-      if (alreadyInPlaylist) {
-        alreadyInPlaylist = false
-        Alert.alert('This track exists in playlist')
-        return updateState(context, { addToPlaylist: null })
-      } else {
-        updateState(context, { addToPlaylist: null, playlist: updatedList })
-        AsyncStorage.setItem('playlist', JSON.stringify(updatedList))
-      }
-
+      if (alreadyInPlaylist) return updateState(context, { addToPlaylist: null })
+      updateState(context, { addToPlaylist: null, playlist: updatedList })
+      AsyncStorage.setItem('playlist', JSON.stringify(updatedList))
     }
 
     console.log('open list')
@@ -132,7 +136,11 @@ export const Playlist = () => {
           <Text style={styles.bannerDel}>Delete All</Text>
         </TouchableOpacity>
       </View>
-      {playlist.map((item) => renderPlaylistItem(item))}
+      {/* {playlist.map((item) => renderPlaylistItem(item))} */}
+      {playlist.map((item) => (
+        <PlaylistItem key={item.id} item={item} onPress={onBannerPress} />
+      ))}
+      <ExistsModal visible={existsVisible} onClose={onCloseExistsModal} />
       <AddPlaylistModal
         visible={modalVisible}
         onClose={onCloseAddPlaylistModal}
@@ -145,21 +153,19 @@ export const Playlist = () => {
 const styles = StyleSheet.create({
   container: {
     fledDirection: 'column',
-    gap: 8,
-    padding: 10,
     justifyContent: 'center',
     alignItems: 'center'
   },
   header: {
     flex: 1,
-    flexDirection: 'row',
-    gap: 8
+    flexDirection: 'row'
   },
   banner: {
     padding: 10,
     height: 50,
     flexDirection: 'row',
     backgroundColor: CREME_DARK,
+    margin: 5,
     borderRadius: 10,
     width: width - 25
   },
@@ -175,7 +181,9 @@ const styles = StyleSheet.create({
   },
   addDelContainer: {
     flexDirection: 'row',
-    gap: 8
+    gap: 10,
+    width: width - 25,
+    margin: 5
   },
   add: {
     padding: 10,
@@ -183,7 +191,7 @@ const styles = StyleSheet.create({
     backgroundColor: CREME_DARK,
     borderRadius: 10,
     alignItems: 'center',
-    width: width / 3 - 14
+    width: width / 3 - 15
   },
   bannerDel: {
     fontSize: 16,

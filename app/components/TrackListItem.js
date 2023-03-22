@@ -4,7 +4,6 @@ import {
   StyleSheet,
   Text,
   Dimensions,
-  TouchableWithoutFeedback,
   TouchableOpacity
 } from 'react-native'
 import { MaterialIcons } from '@expo/vector-icons'
@@ -99,7 +98,7 @@ const styles = StyleSheet.create({
   },
   titleContainer: {
     paddingLeft: 10,
-    width: width - 100
+    width: width - 110
   },
   title: {
     fontSize: 16,
