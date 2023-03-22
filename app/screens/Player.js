@@ -2,15 +2,13 @@ import React, { useContext, useRef, useEffect } from 'react'
 import { Animated, View, StyleSheet, Text, Dimensions } from 'react-native'
 import { MaterialIcons } from '@expo/vector-icons'
 import Slider from '@react-native-community/slider'
-import MusicInfo from 'expo-music-info'
 
 import { color } from '../misc/color'
 import Screen from '../components/Screen'
 import PlayerButton from '../components/PlayerButton'
 import { AudioContext } from '../context/AudioProvider'
-import { getListItemTime, getListItemText } from '../misc/trackListItemHelpers'
+import { getListItemTime } from '../misc/trackListItemHelpers'
 import { play, next, pause, resume } from '../misc/audioController'
-import { storeAudioForNextOpening } from '../misc/helper'
 
 const { FONT_LIGHT, MAIN } = color
 const { width } = Dimensions.get('window')
@@ -30,17 +28,15 @@ export const Player = () => {
     updateState,
     audioFiles,
     onPlaybackStatusUpdate,
-    updateTrack
+    getMetadata,
+    track
   } = context
 
-  const { currentArtist, currentTitle } = context
+  const { currentArtist, currentTitle } = track
 
   useEffect(() => {
     isPlaying ? fadeIn() : fadeOut()
-    if (currentAudio) {
-      const { uri } = currentAudio
-      getMetadata(uri)
-    }
+    if (currentAudio) getMetadata(currentAudio.uri)
   }, [currentAudio])
 
   const { duration } = currentAudio
@@ -63,20 +59,12 @@ export const Player = () => {
     }).start()
   }
 
-  const getMetadata = async (uri) => {
-    let response = await MusicInfo.getMusicInfoAsync(uri, {
-      title: true,
-      artist: true
-    })
-    updateTrack(response)
-    return response
-  }
-
   const calculateSlider = () => {
     return (playbackPosition && playbackDuration && playbackPosition / playbackDuration) || 0
   }
 
   const prevNext = async (value) => {
+
     const prev = value === 'prev'
     const counter = prev ? -1 : 1
     const { isLoaded } = await playbackObject.getStatusAsync()
@@ -90,15 +78,15 @@ export const Player = () => {
       : currentAudioIndex + counter
     const audio = audioFiles[index]
     const { uri } = audio
-    await getMetadata(uri)
+    const { artist, title } = getMetadata(uri)
 
     let status
     if (!isLoaded && !endOfList) {
-      status = await play({ playbackObject, uri })
+      status = await play({ playbackObject, uri, audio, index, artist, title })
     } else if (isLoaded && !endOfList) {
-      status = await next({ playbackObject, uri })
+      status = await next({ playbackObject, uri, audio, index, artist, title })
     } else if (isLoaded && endOfList) {
-      status = await next({ playbackObject, uri })
+      status = await next({ playbackObject, uri, audio, index, artist, title })
     }
 
     const newState = {
@@ -110,16 +98,16 @@ export const Player = () => {
     }
 
     playbackObject.setOnPlaybackStatusUpdate(onPlaybackStatusUpdate)
-    updateState(context, newState)
-    const { artist, title } = await getMetadata(uri)
-    return await storeAudioForNextOpening(audio, index, artist, title)
+    return updateState(context, newState)
   }
 
   const playPauseHandler = async () => {
     if (soundObject === null) {
       const { uri } = currentAudio
-      getMetadata(uri)
-      const status = await play({ playbackObject, uri })
+      const index = currentAudioIndex
+      const audio = currentAudio
+      const { artist, title } = getMetadata(uri)
+      const status = await play({ playbackObject, uri, audio, index, artist, title })
       const newState = {
         soundObject: status,
         currentAudio,
@@ -127,9 +115,8 @@ export const Player = () => {
         isPlaying: true
       }
       fadeIn()
-
-      await storeAudioForNextOpening(currentAudio, currentAudioIndex)
       playbackObject.setOnPlaybackStatusUpdate(onPlaybackStatusUpdate)
+
       return updateState(context, newState)
     } else if (soundObject) {
       if (isPlaying) {

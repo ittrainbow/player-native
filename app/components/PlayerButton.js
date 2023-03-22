@@ -1,10 +1,12 @@
 import React from 'react'
+import { IconButton } from '@react-native-material/core'
 import { MaterialIcons } from '@expo/vector-icons'
 
 import { color } from '../misc/color'
 const { MAIN } = color
 
-const PlayerButton = ({ iconType, size = 40, color = MAIN, onPress }) => {
+const PlayerButton = (props) => {
+  const { iconType, size = 40, color = MAIN, onPress } = props
   const getIcon = () => {
     switch (iconType) {
       case 'PREV':
@@ -19,7 +21,8 @@ const PlayerButton = ({ iconType, size = 40, color = MAIN, onPress }) => {
         return
     }
   }
-  return <MaterialIcons onPress={onPress} name={getIcon()} size={size} color={color} />
+
+  return <IconButton onPress={onPress} icon={<MaterialIcons name={getIcon()} size={size} color={color}/>} />
 }
 
 export default PlayerButton

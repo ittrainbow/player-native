@@ -2,8 +2,11 @@ import React, { Component } from 'react'
 import { StyleSheet, Alert, View, Text } from 'react-native'
 import * as MediaLibrary from 'expo-media-library'
 import { DataProvider } from 'recyclerlistview'
-import AsyncStorage from '@react-native-async-storage/async-storage'
 import { Audio } from 'expo-av'
+import AsyncStorage from '@react-native-async-storage/async-storage'
+
+import { getTrackNames } from '../misc/getTrackNames'
+import { next } from '../misc/audioController'
 
 export const AudioContext = React.createContext()
 
@@ -13,11 +16,13 @@ class AudioProvider extends Component {
 
     this.state = {
       audioFiles: [],
+      playlist: [],
+      addToPlaylist: null,
       permissionError: false,
       dataProvider: new DataProvider((r1, r2) => r1 !== r2),
       playbackObject: null,
       soundObject: null,
-      currentAudio: {},
+      currentAudio: null,
       currentArtist: '',
       currentTitle: '',
       currentAudioIndex: null,
@@ -28,8 +33,8 @@ class AudioProvider extends Component {
     }
 
     this.track = {
-      currentArtist: '1',
-      currentTitle: '2'
+      currentArtist: '',
+      currentTitle: ''
     }
   }
 
@@ -39,6 +44,16 @@ class AudioProvider extends Component {
       const playbackObject = new Audio.Sound()
       this.setState({ ...this.state, playbackObject })
     }
+  }
+
+  getMetadata = (uri) => {
+    const { artist, title } = getTrackNames(uri)
+    this.track = { currentArtist: artist, currentTitle: title }
+
+    return { artist, title }
+  }
+
+  logMetadata = () => {
   }
 
   permissionAlert = () => {
@@ -70,11 +85,9 @@ class AudioProvider extends Component {
 
     this.setState({ ...this.state, totalCount })
 
-    const data = [...audioFiles, ...media.assets].filter((el) => {
-      const { uri } = el
-      const mp3 = '/0/Music/mp3'
-      return uri.includes(mp3) ? el : null
-    })
+    const data = [...audioFiles, ...media.assets].filter((el) =>
+      el.uri.includes('/0/Music/mp3') ? el : null
+    )
 
     this.setState({
       ...this.state,
@@ -85,31 +98,31 @@ class AudioProvider extends Component {
   }
 
   loadPreviousAudio = async () => {
-    const { audioFiles } = this.state
     const previousAudio = await AsyncStorage.getItem('previousAudio')
     const { audio, index, artist, title } = previousAudio ? JSON.parse(previousAudio) : null
+    const { audioFiles } = this.state
 
     const currentAudio = previousAudio ? audio : audioFiles[0]
     const currentAudioIndex = previousAudio ? index : 0
 
     this.setState({ ...this.state, currentAudio, currentAudioIndex })
-    this.track = ({ currentArtist: artist, currentTitle: title })
+    this.track = { currentArtist: artist, currentTitle: title }
   }
 
   getPermission = async () => {
     const permission = await MediaLibrary.getPermissionsAsync()
     const { granted, canAskAgain } = permission
-
-    if (granted) this.getFiles()
-    if (!canAskAgain && !granted) this.setState({ ...this.state, permissionError: true })
-    if (!granted && canAskAgain) {
+    const notGrantedCanAsk = async () => {
       const { status, canAskAgain } = await MediaLibrary.requestPermissionsAsync()
 
-      if (status === 'denied' && canAskAgain) this.permissionAlert()
-      if (status === 'granted') this.getFiles()
-      if (status === 'denied' && !canAskAgain)
-        this.setState({ ...this.state, permissionError: true })
+      status === 'denied' && canAskAgain && this.permissionAlert()
+      status === 'granted' && this.getFiles()
+      status === 'denied' && !canAskAgain && this.setState({ ...this.state, permissionError: true })
     }
+
+    granted && this.getFiles()
+    !granted && !canAskAgain && this.setState({ ...this.state, permissionError: true })
+    !granted && canAskAgain && notGrantedCanAsk
   }
 
   updateState = (prevState, newState = {}) => {
@@ -119,18 +132,10 @@ class AudioProvider extends Component {
     })
   }
 
-  updateTrack = (response) => {
-    const { artist, title } = response
-    this.track = {
-      ...this.track,
-      currentArtist: artist,
-      currentTitle: title
-    }
-  }
-
   onPlaybackStatusUpdate = async (playbackStatus) => {
     const { positionMillis, durationMillis, isLoaded, isPlaying, didJustFinish } = playbackStatus
     const { updateState, currentAudioIndex, audioFiles, playbackObject, totalCount } = this.state
+    const { currentArtist, currentTitle } = this.track
     const newState = {
       playbackPosition: positionMillis,
       playbackDuration: durationMillis
@@ -143,14 +148,15 @@ class AudioProvider extends Component {
       const index = maxReached ? 0 : currentAudioIndex + 1
       const audio = audioFiles[index]
       const { uri } = audio
-      const status = await next({ playbackObject, uri })
+      const artist = currentArtist
+      const title = currentTitle
+      const status = await next({ playbackObject, uri, audio, index, artist, title })
       const newState = {
         currentAudio: audio,
         soundObject: status,
         currentAudioIndex: index
       }
-      updateState(this, newState)
-      return await storeAudioForNextOpening(audio, index)
+      return updateState(this, newState)
     }
   }
 
@@ -166,9 +172,13 @@ class AudioProvider extends Component {
       currentAudioIndex,
       totalCount,
       playbackPosition,
-      playbackDuration
+      playbackDuration,
+      playlist,
+      addToPlaylist,
+      currentArtist,
+      currentTitle
     } = this.state
-    const { currentArtist, currentTitle } = this.track
+    // const { currentArtist, currentTitle } = this.track
     if (permissionError)
       return (
         <View style={styles.audioProviderError}>
@@ -193,10 +203,13 @@ class AudioProvider extends Component {
           playbackDuration,
           currentArtist,
           currentTitle,
+          playlist,
+          addToPlaylist,
+          track: this.track,
           loadPreviousAudio: this.loadPreviousAudio,
           updateState: this.updateState,
           onPlaybackStatusUpdate: this.onPlaybackStatusUpdate,
-          updateTrack: this.updateTrack
+          getMetadata: this.getMetadata
         }}
       >
         {this.props.children}

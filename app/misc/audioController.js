@@ -1,5 +1,8 @@
-export const play = async ({ playbackObject, uri }) => {
+import { storeAudioForNextOpening } from './storeAudio'
+
+export const play = async ({ playbackObject, uri, audio, index, artist, title }) => {
   try {
+    await storeAudioForNextOpening({ audio, index, artist, title })
     return await playbackObject.loadAsync({ uri }, { shouldPlay: true })
   } catch (error) {
     console.error('play start error', error.message)
@@ -22,11 +25,13 @@ export const resume = async (playbackObject) => {
   }
 }
 
-export const next = async ({ playbackObject, uri }) => {
+export const next = async (props) => {
+  const { playbackObject, audio, index, artist, title } = props
   try {
+    await storeAudioForNextOpening({ audio, index, artist, title })
     await playbackObject.stopAsync()
     await playbackObject.unloadAsync()
-    return await play({ playbackObject, uri })
+    return await play(props)
   } catch (error) {
     console.error('next track error', error.message)
   }

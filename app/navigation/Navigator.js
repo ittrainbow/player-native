@@ -20,7 +20,7 @@ const Navigator = () => {
           bottom: 12,
           left: 12,
           right: 12,
-          borderRadius: 15,
+          borderRadius: 10,
           height: 70,
           borderColor: MAIN,
           backgroundColor: BG_LIGHT
@@ -53,23 +53,17 @@ const Navigator = () => {
         }}
       />
       <Tab.Screen
-        name="Playlist3"
+        name="Playlist"
         component={Playlist}
         options={{
           tabBarIcon: ({ size, color }) => {
-            return <MaterialIcons name="list-alt" size={36} color={color} style={styles.icon} />
+            return <MaterialIcons name="list-alt" size={36} color={color} />
           }
         }}
       />
     </Tab.Navigator>
   )
 }
-const styles = StyleSheet.create({
-  icon: {
-    // padding: 10,
-    // borderRadius: 10,
-    // backgroundColor: '#e5e5e5'
-  }
-})
+const styles = StyleSheet.create({})
 
 export default Navigator

@@ -1,19 +1,33 @@
 import React from 'react'
-import { View, StyleSheet, Text, Dimensions, TouchableWithoutFeedback } from 'react-native'
+import {
+  View,
+  StyleSheet,
+  Text,
+  Dimensions,
+  TouchableOpacity
+} from 'react-native'
 import { MaterialIcons } from '@expo/vector-icons'
 import { Entypo } from '@expo/vector-icons'
 import { color } from '../misc/color'
 
-const { FONT, FONT_MEDIUM, FONT_LIGHT, BG, ICON } = color
+const { FONT, FONT_MEDIUM, FONT_LIGHT, BG, ICON, MAIN, CREME } = color
 const playIcon = <MaterialIcons name="play-circle-filled" size={36} color={ICON} />
 const pauseIcon = <MaterialIcons name="pause-circle-filled" size={36} color={BG} />
 
-export const TrackListItem = ({ letter, trackname, time, onPress, onAudioPress, isPlaying, activeListItem }) => {
-  const icon = activeListItem ? (isPlaying ? playIcon : pauseIcon) : letter
+export const TrackListItem = ({
+  letter,
+  trackname,
+  time,
+  onPress,
+  onAudioPress,
+  isPlaying,
+  activeListItem
+}) => {
+  const icon = activeListItem ? (isPlaying ? pauseIcon : playIcon) : letter
 
   return (
-    <View style={{ ...styles.container, backgroundColor: activeListItem ? '#fff' : '#eee' }}>
-      <TouchableWithoutFeedback onPress={onAudioPress} onLongPress={onPress}>
+    <View style={{ ...styles.container, backgroundColor: activeListItem ? MAIN : CREME }}>
+      <TouchableOpacity style={styles.opacity} onPress={onAudioPress} onLongPress={onPress}>
         <View style={styles.leftContainer}>
           <View style={styles.thumbnailContainer}>
             <Text style={styles.thumbnail}>{icon}</Text>
@@ -25,7 +39,7 @@ export const TrackListItem = ({ letter, trackname, time, onPress, onAudioPress, 
             <Text style={styles.duration}>{time}</Text>
           </View>
         </View>
-      </TouchableWithoutFeedback>
+      </TouchableOpacity>
       <View style={styles.rightContainer}>
         <Entypo style={styles.rightIcon} name="dots-three-vertical" size={20} onPress={onPress} />
       </View>
@@ -42,9 +56,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     width: width - 24,
     height: 60,
-    padding: 5,
     marginTop: 5,
     borderRadius: 10
+  },
+  opacity: {
+    padding: 5,
+    paddingTop: 9,
+    width: width - 80
   },
   leftContainer: {
     flex: 1,
@@ -80,7 +98,7 @@ const styles = StyleSheet.create({
   },
   titleContainer: {
     paddingLeft: 10,
-    width: width - 100
+    width: width - 110
   },
   title: {
     fontSize: 16,

@@ -1,70 +1,97 @@
-import React from 'react'
-import { View, StyleSheet, Modal, Text, TouchableWithoutFeedback } from 'react-native'
+import React, { useContext, useEffect, useState } from 'react'
+import { View, StyleSheet, Modal, Text, TouchableWithoutFeedback, Dimensions } from 'react-native'
 
-import { getListItemText } from '../misc/trackListItemHelpers'
+import { AudioContext } from '../context/AudioProvider'
 import { color } from '../misc/color'
-const { FONT_MEDIUM, BG, MODAL_BG, MODAL_MAIN_BG } = color
+const { FONT_MEDIUM, BG, MODAL_BG, MAIN, CREME_LIGHT } = color
+
+const { width } = Dimensions.get('window')
 
 export const PlaylistModal = ({ visible, onClose, currentItem, onPlayPress, onPlaylistPress }) => {
-  const { filename } = currentItem
-  const { trackname } = filename ? getListItemText(filename) : ''
+  const { getMetadata } = useContext(AudioContext)
+  const [artist, setArtist] = useState(null)
+  const [title, setTitle] = useState(null)
+
+  useEffect(() => {
+    if (visible) {
+      const { uri } = currentItem
+      const { artist, title } = getMetadata(uri)
+      setArtist(artist)
+      setTitle(title)
+    }
+  }, [visible])
 
   return (
-    <View style={styles.container}>
-      <Modal animationType="fade" transparent visible={visible} style={styles.container}>
-        <View style={styles.modal}>
-          <Text style={styles.title} numberOfLines={2}>
-            {trackname}
-          </Text>
-          <View style={styles.optionContainer}>
-            <TouchableWithoutFeedback onPress={onPlayPress}>
-              <View>
-                <Text style={styles.option}>Play</Text>
-              </View>
-            </TouchableWithoutFeedback>
-            <TouchableWithoutFeedback onPress={onPlaylistPress}>
-              <View>
-                <Text style={styles.option}>Add to playlist</Text>
-              </View>
-            </TouchableWithoutFeedback>
-          </View>
+    <Modal animationType="fade" transparent visible={visible} style={styles.container}>
+      <View style={styles.modal}>
+        <View style={styles.titleContainer}>
+          <Text style={styles.title}>{artist}</Text>
+          <Text style={styles.title}>{title}</Text>
         </View>
-        <TouchableWithoutFeedback onPress={onClose}>
-          <View style={styles.modalBG} />
-        </TouchableWithoutFeedback>
-      </Modal>
-    </View>
+        <View style={styles.buttonsContainer}>
+          <TouchableWithoutFeedback onPress={onPlayPress}>
+            <View style={styles.centered}>
+              <Text style={styles.option}>Play</Text>
+            </View>
+          </TouchableWithoutFeedback>
+          <TouchableWithoutFeedback onPress={onPlaylistPress}>
+            <View style={styles.centered}>
+              <Text style={styles.option}>Add to playlist</Text>
+            </View>
+          </TouchableWithoutFeedback>
+        </View>
+      </View>
+      <TouchableWithoutFeedback onPress={onClose}>
+        <View style={styles.modalBG} />
+      </TouchableWithoutFeedback>
+    </Modal>
   )
 }
 
 const styles = StyleSheet.create({
   container: {
-    padding: 20,
     bottom: 0
+  },
+  centered: {
+    backgroundColor: CREME_LIGHT,
+    borderRadius: 10,
+    alignItems: 'center',
+    width: width / 2
   },
   modal: {
     position: 'absolute',
-    bottom: 20,
+    bottom: 75,
     right: 20,
     left: 20,
-    backgroundColor: MODAL_MAIN_BG,
+    backgroundColor: MAIN,
+    alignItems: 'center',
     borderWidth: 2,
     borderColor: BG,
-    borderRadius: 20,
+    borderRadius: 10,
     transition: '1s',
     zIndex: 10
   },
-  optionContainer: {
-    padding: 20
+  titleContainer: {
+    gap: 10,
+    padding: 25,
+    paddingBottom: 10,
+  },
+  buttonsContainer: {
+    gap: 20,
+    padding: 25,
+    paddingTop: 10
   },
   title: {
-    fontSize: 24,
-    padding: 20,
-    paddingBottom: 0,
+    fontSize: 20,
+    fontWeight: 700,
+    textAlign: 'center',
     color: FONT_MEDIUM
   },
   option: {
-    fontSize: 20,
+    fontSize: 18,
+    fontWeight: 300,
+    alignItems: 'center',
+    justifyContent: 'center',
     color: FONT_MEDIUM,
     paddingVertical: 10
   },
