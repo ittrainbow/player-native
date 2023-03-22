@@ -4,7 +4,8 @@ import { StyleSheet, Text, View, TouchableOpacity, Dimensions } from 'react-nati
 
 import AddPlaylistModal from '../components/AddPlaylistModal'
 import ExistsModal from '../components/ExistsModal'
-import DetailedPlaylistModal from '../components/DetailedPlaylistModal'
+import DetailedPlaylist from '../components/DetailedPlaylist'
+import DropdownMenu from '../components/DropdownMenu'
 import { PlaylistItem } from '../components/PlaylistItem'
 import { AudioContext } from '../context/AudioProvider'
 import { color } from '../misc/color'
@@ -23,7 +24,7 @@ const initialPlaylist = (title = '', tracks = []) => {
 export const Playlist = () => {
   const [modalVisible, setModalVisible] = useState(false)
   const [existsVisible, setExistsVisible] = useState(false)
-  const [detailedVisible, setDetailedVisible] = useState(false)
+  // const [detailedVisible, setDetailedVisible] = useState(false)
   const [selectedPlaylist, setSelectedPlaylist] = useState(initialPlaylist())
   const context = useContext(AudioContext)
   const { playlist, addToPlaylist, updateState } = context
@@ -34,16 +35,17 @@ export const Playlist = () => {
     }
   }, [])
 
+  useEffect(() => {
+    if (playlist.length) setSelectedPlaylist(playlist[0])
+    // setSelectedPlaylist(playlist[0])
+  }, [playlist])
+
   const onCloseAddPlaylistModal = () => {
     setModalVisible(false)
   }
 
   const onCloseExistsModal = () => {
     setExistsVisible(false)
-  }
-
-  const onCloseDetailedModal = () => {
-    setDetailedVisible(false)
   }
 
   const createPlaylist = async (playlistName) => {
@@ -112,8 +114,6 @@ export const Playlist = () => {
       if (alreadyInPlaylist) return updateState(context, { addToPlaylist: null })
       updateState(context, { addToPlaylist: null, playlist: updatedList })
       AsyncStorage.setItem('playlist', JSON.stringify(updatedList))
-    } else {
-      setDetailedVisible(true)
     }
 
     setSelectedPlaylist(playlist)
@@ -123,6 +123,7 @@ export const Playlist = () => {
 
   return (
     <View style={styles.container}>
+      <DropdownMenu list={playlist} onPress={onBannerPress} />
       <View style={styles.addDelContainer}>
         <TouchableOpacity onPress={() => setModalVisible(true)} style={styles.add}>
           <Text style={styles.bannerAdd}>New Playlist</Text>
@@ -134,15 +135,12 @@ export const Playlist = () => {
           <Text style={styles.bannerDel}>Delete All</Text>
         </TouchableOpacity>
       </View>
-      {playlist.map((item) => (
-        <PlaylistItem key={item.id} item={item} onPress={onBannerPress} />
-      ))}
+      {/* {playlist.map((item) => {
+        const { id } = item
+        return <PlaylistItem key={id} item={item} onPress={onBannerPress} />
+      })} */}
 
-      <DetailedPlaylistModal
-        visible={detailedVisible}
-        onClose={onCloseDetailedModal}
-        playlist={selectedPlaylist}
-      />
+      <DetailedPlaylist playlist={selectedPlaylist} />
 
       <ExistsModal
         visible={existsVisible}

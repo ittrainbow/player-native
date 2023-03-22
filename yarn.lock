@@ -4425,7 +4425,7 @@ lodash.throttle@^4.1.1:
   resolved "https://registry.npmjs.org/lodash.throttle/-/lodash.throttle-4.1.1.tgz"
   integrity sha512-wIkUCfVKpVsWo3JSZlc+8MB5it+2AN5W8J7YVMST30UrvcQNZ1Okbj+rbVniijTWE6FGYy4XJq/rHkas8qJMLQ==
 
-lodash@^4.17.13, lodash@^4.17.15, lodash@^4.17.4:
+lodash@^4.17.13, lodash@^4.17.15, lodash@^4.17.21, lodash@^4.17.4:
   version "4.17.21"
   resolved "https://registry.npmjs.org/lodash/-/lodash-4.17.21.tgz"
   integrity sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==
@@ -5676,6 +5676,13 @@ react-native-codegen@^0.71.5:
     flow-parser "^0.185.0"
     jscodeshift "^0.13.1"
     nullthrows "^1.1.1"
+
+react-native-element-dropdown@^2.8.3:
+  version "2.8.3"
+  resolved "https://registry.yarnpkg.com/react-native-element-dropdown/-/react-native-element-dropdown-2.8.3.tgz#62347cbf8ebe6f646cd14cf59752844d671ab13e"
+  integrity sha512-Q13I6E1BTDJatoThhVszCX97jaUzpi6Dnp2DTY6zhtO3el7S5eY6w8Hym4IpWsjuX45MPZPRBHPN7enxDDkJVw==
+  dependencies:
+    lodash "^4.17.21"
 
 react-native-flex-layout@^0.1.5:
   version "0.1.5"
