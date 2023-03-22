@@ -4,6 +4,7 @@ import { StyleSheet, Text, View, TouchableOpacity, Dimensions } from 'react-nati
 
 import AddPlaylistModal from '../components/AddPlaylistModal'
 import ExistsModal from '../components/ExistsModal'
+import DetailedPlaylistModal from '../components/DetailedPlaylistModal'
 import { PlaylistItem } from '../components/PlaylistItem'
 import { AudioContext } from '../context/AudioProvider'
 import { color } from '../misc/color'
@@ -11,11 +12,27 @@ const { CREME, CREME_DARK } = color
 
 const { width } = Dimensions.get('window')
 
+const initialPlaylist = (title = '', tracks = []) => {
+  return {
+    id: Date.now(),
+    title,
+    tracks
+  }
+}
+
 export const Playlist = () => {
   const [modalVisible, setModalVisible] = useState(false)
   const [existsVisible, setExistsVisible] = useState(false)
+  const [detailedVisible, setDetailedVisible] = useState(false)
+  const [selectedPlaylist, setSelectedPlaylist] = useState(initialPlaylist())
   const context = useContext(AudioContext)
   const { playlist, addToPlaylist, updateState } = context
+
+  useEffect(() => {
+    if (!playlist.length) {
+      renderPlaylist()
+    }
+  }, [])
 
   const onCloseAddPlaylistModal = () => {
     setModalVisible(false)
@@ -25,22 +42,16 @@ export const Playlist = () => {
     setExistsVisible(false)
   }
 
-  useEffect(() => {
-    if (!playlist.length) {
-      renderPlaylist()
-    }
-  }, [])
+  const onCloseDetailedModal = () => {
+    setDetailedVisible(false)
+  }
 
   const createPlaylist = async (playlistName) => {
     const response = await AsyncStorage.getItem('playlist')
 
     if (response !== null) {
       const tracks = []
-      const newList = {
-        id: Date.now(),
-        title: playlistName,
-        tracks
-      }
+      const newList = initialPlaylist(playlistName, tracks)
 
       addToPlaylist && tracks.push(addToPlaylist)
 
@@ -51,7 +62,6 @@ export const Playlist = () => {
       }
       updateState(context, newState)
       await AsyncStorage.setItem('playlist', JSON.stringify(updatedPlaylist))
-    } else {
     }
     setModalVisible(false)
   }
@@ -59,11 +69,7 @@ export const Playlist = () => {
   const renderPlaylist = async () => {
     const response = await AsyncStorage.getItem('playlist')
     if (response === null) {
-      const defaultPlaylist = {
-        id: Date.now(),
-        title: 'Favorites',
-        tracks: []
-      }
+      const defaultPlaylist = initialPlaylist('Favorites', [])
 
       const updatedPlaylist = [...playlist, defaultPlaylist]
       const newState = { playlist: [...updatedPlaylist] }
@@ -74,20 +80,8 @@ export const Playlist = () => {
     return updateState(context, newState)
   }
 
-  const renderPlaylistItem = (item) => {
-    const num = item.tracks.length
-    return (
-      <TouchableOpacity style={styles.banner} key={item.id} onPress={() => onBannerPress(item)}>
-        <Text style={styles.bannerLeft}>{item.title}</Text>
-        <Text style={styles.bannerRight}>
-          {num} {num === 1 ? 'song' : 'songs'}
-        </Text>
-      </TouchableOpacity>
-    )
-  }
-
   const logger = () => {
-    console.log(playlist)
+    // console.log(playlist)
   }
 
   const clearPlaylists = async () => {
@@ -118,10 +112,14 @@ export const Playlist = () => {
       if (alreadyInPlaylist) return updateState(context, { addToPlaylist: null })
       updateState(context, { addToPlaylist: null, playlist: updatedList })
       AsyncStorage.setItem('playlist', JSON.stringify(updatedList))
+    } else {
+      setDetailedVisible(true)
     }
 
-    console.log('open list')
+    setSelectedPlaylist(playlist)
   }
+
+  const onDetailedPressHandler = () => {}
 
   return (
     <View style={styles.container}>
@@ -136,11 +134,21 @@ export const Playlist = () => {
           <Text style={styles.bannerDel}>Delete All</Text>
         </TouchableOpacity>
       </View>
-      {/* {playlist.map((item) => renderPlaylistItem(item))} */}
       {playlist.map((item) => (
         <PlaylistItem key={item.id} item={item} onPress={onBannerPress} />
       ))}
-      <ExistsModal visible={existsVisible} onClose={onCloseExistsModal} />
+
+      <DetailedPlaylistModal
+        visible={detailedVisible}
+        onClose={onCloseDetailedModal}
+        playlist={selectedPlaylist}
+      />
+
+      <ExistsModal
+        visible={existsVisible}
+        onClose={onCloseExistsModal}
+        onPress={onDetailedPressHandler}
+      />
       <AddPlaylistModal
         visible={modalVisible}
         onClose={onCloseAddPlaylistModal}

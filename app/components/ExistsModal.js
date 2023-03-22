@@ -7,7 +7,7 @@ const { width, height } = Dimensions.get('window')
 
 const ExistsModal = ({ visible, onClose }) => {
   return (
-    <Modal animationType="fade" transparent visible={visible} >
+    <Modal animationType="fade" transparent visible={visible}>
       <View style={styles.modal}>
         <Text style={styles.alert}>This file already added to playlist</Text>
         <Text style={styles.alert} onPress={onClose}>
