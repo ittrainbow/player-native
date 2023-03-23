@@ -1,7 +1,7 @@
 export const getTrackNames = (uri) => {
-  const file = uri.split('mp3/')[1].replace('.mp3', '').replace('_', ' ').split(' - ')
-  const artist = file[0]
-  const title = file[1]
+  const filename = uri.split('/')
+  const length = filename.length - 1
+  const file = filename[length].replace('.mp3', '').replace('_', ' ').split(' - ')
 
-  return { artist, title }
+  return { artist: file[0], title: file[1] }
 }

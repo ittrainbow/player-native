@@ -73,7 +73,7 @@ export const playpause = async ({ audio, context }) => {
       if (isLoaded && id === audio.id) {
         if (isPlaying) {
           const status = await pause(playbackObject)
-          const newState = { soundObject: status, isPlaying: false }
+          const newState = { soundObject: status, isPlaying: false, playbackPosition: status.positionMillis }
 
           return updateState(context, newState)
         } else {

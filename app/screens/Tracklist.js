@@ -47,6 +47,7 @@ export const Tracklist = ({ navigation }) => {
   }
 
   const onPlaylistPressHandler = () => {
+    navigation.navigate('Playlist')
     const newState = { addToPlaylist: currentItem }
     updateState(context, newState)
     setModalVisible(false)

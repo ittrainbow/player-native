@@ -29,11 +29,11 @@ export const PlaylistModal = ({ visible, onClose, currentItem, onPlayPress, onPl
           <Text style={styles.title}>{title}</Text>
         </View>
         <View style={styles.buttonsContainer}>
-          <TouchableWithoutFeedback onPress={onPlayPress}>
+          {/* <TouchableWithoutFeedback onPress={onPlayPress}>
             <View style={styles.centered}>
               <Text style={styles.option}>Play</Text>
             </View>
-          </TouchableWithoutFeedback>
+          </TouchableWithoutFeedback> */}
           <TouchableWithoutFeedback onPress={onPlaylistPress}>
             <View style={styles.centered}>
               <Text style={styles.option}>Add to playlist</Text>
