@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState, useRef } from 'react'
 import { Dimensions, StyleSheet } from 'react-native'
 import { AudioContext } from '../context/AudioProvider'
 import { RecyclerListView, LayoutProvider } from 'recyclerlistview'
+import GestureRecognizer, { swipeDirections } from 'react-native-swipe-gestures'
 
 import { TrackListItem } from '../components/TrackListItem'
 import { color } from '../misc/color'
@@ -11,7 +12,7 @@ import { playpause } from '../misc/audioController'
 
 const { BG } = color
 
-export const Tracklist = () => {
+export const Tracklist = ({ navigation }) => {
   const context = useContext(AudioContext)
   const { loadPreviousAudio, updateState, isPlaying, currentAudioIndex, dataProvider } = context
   const [currentItem, setCurrentItem] = useState({})
@@ -71,8 +72,28 @@ export const Tracklist = () => {
     )
   }
 
+  const onSwipe = (gestureName) => {
+    const { SWIPE_LEFT } = swipeDirections
+    switch (gestureName) {
+      case SWIPE_LEFT:
+        navigation.navigate('Player')
+        break
+      default:
+        break
+    }
+  }
+
+  const config = {
+    velocityThreshold: 0.3,
+    directionalOffsetThreshold: 80
+  }
+
   return (
-    <>
+    <GestureRecognizer
+      onSwipe={(direction, state) => onSwipe(direction, state)}
+      config={config}
+      style={styles.gestures}
+    >
       <RecyclerListView
         style={styles.container}
         dataProvider={dataProvider}
@@ -80,6 +101,7 @@ export const Tracklist = () => {
         rowRenderer={rowRenderer}
         extendedState={{ isPlaying, currentAudioIndex }}
       />
+
       <PlaylistModal
         currentItem={currentItem}
         visible={modalVisible}
@@ -87,7 +109,7 @@ export const Tracklist = () => {
         onPlayPress={() => console.log('onPlayPress')}
         onPlaylistPress={onPlaylistPressHandler}
       />
-    </>
+    </GestureRecognizer>
   )
 }
 
@@ -96,5 +118,8 @@ const styles = StyleSheet.create({
     width: Dimensions.get('window').width,
     marginBottom: 90,
     backgroundColor: BG
+  },
+  gestures: {
+    flex: 1
   }
 })

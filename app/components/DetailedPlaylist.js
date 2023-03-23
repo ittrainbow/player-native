@@ -6,6 +6,7 @@ import { getListItemTime } from '../misc/trackListItemHelpers'
 import { color } from '../misc/color'
 const { CREME, CREME_GREY, CREME_DARK } = color
 const { width, height } = Dimensions.get('window')
+import TrackListItem from './TrackListItem'
 
 const DetailedPlaylist = ({ playlist }) => {
   const renderTrack = (track) => {

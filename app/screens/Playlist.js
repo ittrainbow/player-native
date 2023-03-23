@@ -1,12 +1,14 @@
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import React, { useContext, useState, useEffect } from 'react'
 import { StyleSheet, Text, View, TouchableOpacity, Dimensions } from 'react-native'
+import GestureRecognizer, { swipeDirections } from 'react-native-swipe-gestures'
 
 import AddPlaylistModal from '../components/AddPlaylistModal'
 import ExistsModal from '../components/ExistsModal'
 import DetailedPlaylist from '../components/DetailedPlaylist'
 import DropdownMenu from '../components/DropdownMenu'
-import { PlaylistItem } from '../components/PlaylistItem'
+import PlaylistItem from '../components/PlaylistItem'
+import TrackListItem from '../components/TrackListItem'
 import { AudioContext } from '../context/AudioProvider'
 import { color } from '../misc/color'
 const { CREME, CREME_DARK } = color
@@ -21,10 +23,9 @@ const initialPlaylist = (title = '', tracks = []) => {
   }
 }
 
-export const Playlist = () => {
+export const Playlist = ({ navigation }) => {
   const [modalVisible, setModalVisible] = useState(false)
   const [existsVisible, setExistsVisible] = useState(false)
-  // const [detailedVisible, setDetailedVisible] = useState(false)
   const [selectedPlaylist, setSelectedPlaylist] = useState(initialPlaylist())
   const context = useContext(AudioContext)
   const { playlist, addToPlaylist, updateState } = context
@@ -37,7 +38,6 @@ export const Playlist = () => {
 
   useEffect(() => {
     if (playlist.length) setSelectedPlaylist(playlist[0])
-    // setSelectedPlaylist(playlist[0])
   }, [playlist])
 
   const onCloseAddPlaylistModal = () => {
@@ -119,40 +119,60 @@ export const Playlist = () => {
     setSelectedPlaylist(playlist)
   }
 
+  const onSwipe = (gestureName) => {
+    const { SWIPE_RIGHT } = swipeDirections
+    switch (gestureName) {
+      case SWIPE_RIGHT:
+        navigation.navigate('Player')
+        break
+      default:
+        break
+    }
+  }
+
+  const config = {
+    velocityThreshold: 0.3,
+    directionalOffsetThreshold: 80
+  }
+
   const onDetailedPressHandler = () => {}
 
   return (
-    <View style={styles.container}>
-      <DropdownMenu list={playlist} onPress={onBannerPress} />
-      <View style={styles.addDelContainer}>
-        <TouchableOpacity onPress={() => setModalVisible(true)} style={styles.add}>
-          <Text style={styles.bannerAdd}>New Playlist</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={logger} style={styles.add}>
-          <Text style={styles.bannerLog}>Log</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={clearPlaylists} style={styles.add}>
-          <Text style={styles.bannerDel}>Delete All</Text>
-        </TouchableOpacity>
+    <GestureRecognizer onSwipe={(direction, state) => onSwipe(direction, state)} config={config}>
+      <View style={styles.container}>
+        <DropdownMenu list={playlist} onPress={onBannerPress} />
+        <View style={styles.addDelContainer}>
+          <TouchableOpacity onPress={() => setModalVisible(true)} style={styles.add}>
+            <Text style={styles.bannerAdd}>New Playlist</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={logger} style={styles.add}>
+            <Text style={styles.bannerLog}>Log</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={clearPlaylists} style={styles.add}>
+            <Text style={styles.bannerDel}>Delete All</Text>
+          </TouchableOpacity>
+        </View>
+        {playlist.map((item) => {
+          const { id } = item
+          return addToPlaylist ? (
+            <PlaylistItem key={id} item={item} onPress={onBannerPress} />
+          ) : null
+        })}
+
+        {addToPlaylist ? null : <DetailedPlaylist playlist={selectedPlaylist} />}
+
+        <ExistsModal
+          visible={existsVisible}
+          onClose={onCloseExistsModal}
+          onPress={onDetailedPressHandler}
+        />
+        <AddPlaylistModal
+          visible={modalVisible}
+          onClose={onCloseAddPlaylistModal}
+          onSubmit={createPlaylist}
+        />
       </View>
-      {playlist.map((item) => {
-        const { id } = item
-        return addToPlaylist ? <PlaylistItem key={id} item={item} onPress={onBannerPress} /> : null
-      })}
-
-      {addToPlaylist ? null : <DetailedPlaylist playlist={selectedPlaylist} />}
-
-      <ExistsModal
-        visible={existsVisible}
-        onClose={onCloseExistsModal}
-        onPress={onDetailedPressHandler}
-      />
-      <AddPlaylistModal
-        visible={modalVisible}
-        onClose={onCloseAddPlaylistModal}
-        onSubmit={createPlaylist}
-      />
-    </View>
+    </GestureRecognizer>
   )
 }
 

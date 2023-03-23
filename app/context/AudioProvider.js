@@ -38,9 +38,12 @@ class AudioProvider extends Component {
     }
   }
 
-  componentDidMount() {
+  async componentDidMount() {
     this.getPermission()
     if (this.state.playbackObject === null) {
+      await Audio.setAudioModeAsync({
+        staysActiveInBackground: true
+      })
       const playbackObject = new Audio.Sound()
       this.setState({ ...this.state, playbackObject })
     }

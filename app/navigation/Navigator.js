@@ -5,9 +5,14 @@ import { StyleSheet } from 'react-native'
 
 import { Tracklist, Player, Playlist } from '../screens'
 import { color } from '../misc/color'
-const { ICON, MAIN, BG, BG_LIGHT } = color
+const { MAIN, BG_LIGHT } = color
 
 const Tab = createBottomTabNavigator()
+const tabs = [
+  { name: 'Tracklist', component: Tracklist, icon: 'headset' },
+  { name: 'Player', component: Player, icon: 'play-circle-outline' },
+  { name: 'Playlist', component: Playlist, icon: 'list-alt' }
+]
 
 const Navigator = () => {
   return (
@@ -27,40 +32,21 @@ const Navigator = () => {
         }
       }}
     >
-      <Tab.Screen
-        name="Track List"
-        component={Tracklist}
-        options={{
-          tabBarIcon: ({ size, color }) => {
-            return <MaterialIcons name="headset" size={36} color={color} style={styles.icon} />
-          }
-        }}
-      />
-      <Tab.Screen
-        name="Player"
-        component={Player}
-        options={{
-          tabBarIcon: ({ size, color }) => {
-            return (
-              <MaterialIcons
-                name="play-circle-outline"
-                size={36}
-                color={color}
-                style={styles.icon}
-              />
-            )
-          }
-        }}
-      />
-      <Tab.Screen
-        name="Playlist"
-        component={Playlist}
-        options={{
-          tabBarIcon: ({ size, color }) => {
-            return <MaterialIcons name="list-alt" size={36} color={color} />
-          }
-        }}
-      />
+      {tabs.map((tab) => {
+        const { name, component, icon } = tab
+        return (
+          <Tab.Screen
+            key={Math.random()}
+            name={name}
+            component={component}
+            options={{
+              tabBarIcon: ({ color }) => {
+                return <MaterialIcons name={icon} size={36} color={color} style={styles.icon} />
+              }
+            }}
+          />
+        )
+      })}
     </Tab.Navigator>
   )
 }
