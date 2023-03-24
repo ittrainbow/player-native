@@ -56,8 +56,13 @@ export default DropdownMenu
 
 const styles = StyleSheet.create({
   container: {
-    width: width - 25,
+    width: width - 24,
     marginBottom: 5
+  },
+  z: {
+    width: width - 24,
+    left: 12,
+    zIndex: 999
   },
   dropdown: {
     height: 60,

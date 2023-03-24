@@ -1,12 +1,13 @@
 import React, { useContext, useEffect, useState, useRef } from 'react'
 import { Dimensions, StyleSheet } from 'react-native'
 import { AudioContext } from '../context/AudioProvider'
-import { RecyclerListView, LayoutProvider } from 'recyclerlistview'
+import { RecyclerListView } from 'recyclerlistview'
 import GestureRecognizer, { swipeDirections } from 'react-native-swipe-gestures'
 
 import { TrackListItem } from '../components/TrackListItem'
 import { color } from '../misc/color'
-import { getListItemText, getListItemTime } from '../misc/trackListItemHelpers'
+import { swipeConfig } from '../misc/swipeConfig'
+import { getLayoutProvider } from '../misc/layoutProvider'
 import { PlaylistModal } from '../components/PlaylistModal'
 import { playpause } from '../misc/audioController'
 
@@ -14,19 +15,10 @@ const { BG } = color
 
 export const Tracklist = ({ navigation }) => {
   const context = useContext(AudioContext)
-  const { loadPreviousAudio, updateState, isPlaying, currentAudioIndex, dataProvider } = context
+  const { loadPreviousAudio, updateState, isPlaying, currentAudioIndex, dataProvider, currentAudio } = context
   const [currentItem, setCurrentItem] = useState({})
   const [modalVisible, setModalVisible] = useState(false)
-
-  const layoutProvider = useRef(
-    new LayoutProvider(
-      (index) => 'audio',
-      (type, dim) => {
-        dim.width = Dimensions.get('window').width
-        dim.height = 68
-      }
-    )
-  ).current
+  const layoutProvider = getLayoutProvider()
 
   useEffect(() => {
     loadPreviousAudio()
@@ -54,10 +46,8 @@ export const Tracklist = ({ navigation }) => {
   }
 
   const rowRenderer = (type, item, index, extendedState) => {
-    const { isPlaying, currentAudioIndex } = extendedState
-    const { filename, duration } = item
-    const time = getListItemTime(duration)
-    const activeListItem = currentAudioIndex === index
+    const { isPlaying } = extendedState
+    const activeListItem = item.id === currentAudio.id
 
     return (
       <TrackListItem
@@ -81,16 +71,11 @@ export const Tracklist = ({ navigation }) => {
         break
     }
   }
-
-  const config = {
-    velocityThreshold: 0.3,
-    directionalOffsetThreshold: 80
-  }
-
+  
   return (
     <GestureRecognizer
       onSwipe={(direction, state) => onSwipe(direction, state)}
-      config={config}
+      config={swipeConfig}
       style={styles.gestures}
     >
       <RecyclerListView
@@ -98,6 +83,8 @@ export const Tracklist = ({ navigation }) => {
         dataProvider={dataProvider}
         layoutProvider={layoutProvider}
         rowRenderer={rowRenderer}
+        isPlaying={isPlaying}
+        currentAudioIndex={currentAudioIndex}
         extendedState={{ isPlaying, currentAudioIndex }}
       />
 
@@ -105,7 +92,6 @@ export const Tracklist = ({ navigation }) => {
         currentItem={currentItem}
         visible={modalVisible}
         onClose={onModalClose}
-        onPlayPress={() => console.log('onPlayPress')}
         onPlaylistPress={onPlaylistPressHandler}
       />
     </GestureRecognizer>

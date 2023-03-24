@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { StyleSheet, Alert, View, Text } from 'react-native'
+import { StyleSheet, Alert, View, Text, Dimensions } from 'react-native'
 import * as MediaLibrary from 'expo-media-library'
 import { DataProvider } from 'recyclerlistview'
 import { Audio } from 'expo-av'
@@ -17,9 +17,11 @@ class AudioProvider extends Component {
     this.state = {
       audioFiles: [],
       playlist: [],
+      playlistNumber: 0,
       addToPlaylist: null,
       permissionError: false,
       dataProvider: new DataProvider((r1, r2) => r1 !== r2),
+      layoutProvider: null,
       playbackObject: null,
       soundObject: null,
       currentAudio: null,
@@ -87,7 +89,7 @@ class AudioProvider extends Component {
 
     this.setState({ ...this.state, totalCount })
 
-    const data = [...audioFiles, ...media.assets].filter(el => el.duration > 90)
+    const data = [...audioFiles, ...media.assets].filter((el) => el.duration > 90)
 
     this.setState({
       ...this.state,
@@ -174,6 +176,7 @@ class AudioProvider extends Component {
       playbackPosition,
       playbackDuration,
       playlist,
+      playlistNumber,
       addToPlaylist,
       currentArtist,
       currentTitle
@@ -203,6 +206,7 @@ class AudioProvider extends Component {
           currentArtist,
           currentTitle,
           playlist,
+          playlistNumber, 
           addToPlaylist,
           track: this.track,
           loadPreviousAudio: this.loadPreviousAudio,

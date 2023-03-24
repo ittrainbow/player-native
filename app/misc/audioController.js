@@ -95,7 +95,7 @@ export const playpause = async ({ audio, context }) => {
       }
     }
   } catch (error) {
-    console.log('audio controller select audio method error', error.message)
+    console.error('audio controller select audio method error', error.message)
   }
 }
 
@@ -145,6 +145,6 @@ export const prevnext = async ({ value, context }) => {
     playbackObject.setOnPlaybackStatusUpdate(onPlaybackStatusUpdate)
     return updateState(context, newState)
   } catch (error) {
-    console.log('audio controller prev/next method error', error.message)
+    console.error('audio controller prev/next method error', error.message)
   }
 }

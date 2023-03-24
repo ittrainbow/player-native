@@ -1,72 +1,83 @@
-import React from 'react'
-import { View, ScrollView, StyleSheet, Text, TouchableOpacity, Dimensions } from 'react-native'
+import React, { useContext, useState } from 'react'
+import { StyleSheet, View, Dimensions } from 'react-native'
+import { RecyclerListView } from 'recyclerlistview'
 
-import { getTrackNames } from '../misc/getTrackNames'
 import TrackListItem from './TrackListItem'
-import { getListItemTime } from '../misc/trackListItemHelpers'
-import { color } from '../misc/color'
-const { CREME_DARK } = color
+import { AudioContext } from '../context/AudioProvider'
+import { getLayoutProvider } from '../misc/layoutProvider'
+import { playpause } from '../misc/audioController'
+import { DeleteModal } from './DeleteModal'
+
 const { width, height } = Dimensions.get('window')
 
 const DetailedPlaylist = ({ playlist }) => {
-  const renderTrack = (track) => {
-    const { id, uri, duration, filename } = track
-    // const time = getListItemTime(duration)
-    // const { artist, title } = getTrackNames(uri)
-    // const string = `${artist} - ${title}`
+  const [deleteModalVisible, setDeleteModalVisible] = useState(false)
+  const [currentItem, setCurrentItem] = useState({})
+  const { tracks } = playlist
+  const context = useContext(AudioContext)
+  const { dataProvider, currentAudioIndex, isPlaying } = context
+  const layoutProvider = getLayoutProvider()
+
+  const onAudioPressHandler = async (audio) => {
+    await playpause({ audio, context })
+  }
+
+  const onCloseDeleteModal = () => {
+    setDeleteModalVisible(false)
+    setCurrentItem({})
+  }
+
+  const onDotsPressHandler = (item) => {
+    setDeleteModalVisible(true)
+    setCurrentItem(item)
+  }
+
+  const onDeleteFromPlaylist = () => {
+    const newTracks = [...playlist.tracks].filter((track) => track.id !== currentItem.id)
+    const newPlaylist = { ...playlist, tracks: newTracks }
+    console.log(4, newPlaylist)
+  }
+
+  const rowRenderer = (type, item, index, extendedState) => {
+    const { isPlaying, currentAudioIndex } = extendedState
+    const activeListItem = currentAudioIndex === index
+    const { id } = item
     return (
-      <TouchableOpacity key={id} style={styles.itemContainer}>
-        <TrackListItem 
-          item={track}
-        />
-        {/* <Text style={styles.itemTrackname}>
-          {string.length > 35 ? string.substring(0, 32) + '...' : string}
-        </Text>
-        <Text style={styles.itemTime}>{time}</Text> */}
-      </TouchableOpacity>
+      <TrackListItem
+        item={item}
+        isPlaying={isPlaying}
+        activeListItem={activeListItem}
+        onPress={() => onDotsPressHandler(item)}
+        onAudioPress={() => onAudioPressHandler(item)}
+      />
     )
   }
-  const { title, tracks } = playlist
+
   return (
-    <View style={styles.container}>
-      {/* <Text style={styles.playlistHeader}>{title}</Text> */}
-      <ScrollView contentContainerStyle={styles.containerScroll}>
-        {tracks.map((track) => renderTrack(track))}
-      </ScrollView>
+    <View>
+      <DeleteModal
+        visible={deleteModalVisible}
+        currentItem={currentItem}
+        onClose={onCloseDeleteModal}
+        onDelete={onDeleteFromPlaylist}
+      />
+      <RecyclerListView
+        style={styles.container}
+        dataProvider={dataProvider.cloneWithRows(tracks)}
+        layoutProvider={layoutProvider}
+        rowRenderer={rowRenderer}
+        extendedState={{ isPlaying, currentAudioIndex }}
+      />
     </View>
   )
 }
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: 5,
-    gap: 10,
-    width: width - 25,
-    // backgroundColor: CREME_DARK,
-    justifyContent: 'center',
-    borderRadius: 10,
-    height: height - 277
-  },
-  containerScroll: {
-    gap: 10,
-    justifyContent: 'center'
-  },
-  playlistHeader: {
-    fontSize: 18,
-    fontWeight: 700,
-    padding: 5,
-    borderRadius: 5,
-    textAlign: 'center'
-  },
-  itemContainer: {
-    flexDirection: 'row',
-  },
-  itemTrackname: {
-    fontSize: 16,
-    flexGrow: 1
-  },
-  itemTime: {
-    fontSize: 16
+    width: width,
+    height: 200,
+    marginBottom: 90,
+    // backgroundColor: BG
   }
 })
 

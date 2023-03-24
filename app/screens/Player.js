@@ -9,6 +9,7 @@ import PlayerButton from '../components/PlayerButton'
 import { AudioContext } from '../context/AudioProvider'
 import { getListItemTime } from '../misc/trackListItemHelpers'
 import { pause, resume, playpause, prevnext } from '../misc/audioController'
+import { swipeConfig } from '../misc/swipeConfig'
 import { color } from '../misc/color'
 const { FONT_LIGHT, MAIN } = color
 const { width } = Dimensions.get('window')
@@ -106,17 +107,12 @@ export const Player = ({ navigation }) => {
     }
   }
 
-  const config = {
-    velocityThreshold: 0.1,
-    directionalOffsetThreshold: 50
-  }
-
   return (
     <Screen>
       <View style={styles.container}>
         <GestureRecognizer
           onSwipe={(direction, state) => onSwipe(direction, state)}
-          config={config}
+          config={swipeConfig}
         >
           <Text style={styles.audioCount}>
             {currentAudioIndex + 1} / {totalCount}
