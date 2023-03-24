@@ -124,7 +124,7 @@ class AudioProvider extends Component {
 
     granted && this.getFiles()
     !granted && !canAskAgain && this.setState({ ...this.state, permissionError: true })
-    !granted && canAskAgain && notGrantedCanAsk
+    !granted && canAskAgain && notGrantedCanAsk()
   }
 
   updateState = (prevState, newState = {}) => {

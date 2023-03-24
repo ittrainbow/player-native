@@ -1,4 +1,4 @@
-import React, { useContext, useRef, useEffect } from 'react'
+import React, { useContext, useRef, useEffect, useState } from 'react'
 import { Animated, View, StyleSheet, Text, Dimensions } from 'react-native'
 import { MaterialIcons } from '@expo/vector-icons'
 import Slider from '@react-native-community/slider'
@@ -15,6 +15,7 @@ const { width } = Dimensions.get('window')
 const halfWidth = width / 2
 
 export const Player = ({ navigation }) => {
+  const [duration, setDuration] = useState(0)
   const context = useContext(AudioContext)
   const {
     currentAudio,
@@ -34,10 +35,12 @@ export const Player = ({ navigation }) => {
 
   useEffect(() => {
     isPlaying ? fadeIn() : fadeOut()
-    if (currentAudio) getMetadata(currentAudio.uri)
+    if (currentAudio) {
+      const { uri, duration } = currentAudio
+      getMetadata(uri)
+      setDuration(duration)
+    }
   }, [currentAudio, isPlaying])
-
-  const { duration } = currentAudio
 
   const fadeAnim = useRef(new Animated.Value(0)).current
 
