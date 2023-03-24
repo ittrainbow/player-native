@@ -7,7 +7,7 @@ import { color } from '../misc'
 const { FONT_MEDIUM, BG, MODAL_BG, MAIN, CREME_LIGHT } = color
 const { width } = Dimensions.get('window')
 
-export const PlaylistModal = ({ visible, onClose, currentItem, onPlaylistPress }) => {
+export const DeleteModal = ({ visible, onClose, currentItem, onDelete }) => {
   const { getMetadata } = useContext(AudioContext)
   const [artist, setArtist] = useState(null)
   const [title, setTitle] = useState(null)
@@ -29,9 +29,9 @@ export const PlaylistModal = ({ visible, onClose, currentItem, onPlaylistPress }
           <Text style={styles.title}>{title}</Text>
         </View>
         <View style={styles.buttonsContainer}>
-          <TouchableWithoutFeedback onPress={onPlaylistPress}>
+          <TouchableWithoutFeedback onPress={onDelete}>
             <View style={styles.centered}>
-              <Text style={styles.option}>Add to playlist</Text>
+              <Text style={styles.option}>Delete from playlist</Text>
             </View>
           </TouchableWithoutFeedback>
         </View>
@@ -99,3 +99,4 @@ const styles = StyleSheet.create({
     backgroundColor: MODAL_BG
   }
 })
+

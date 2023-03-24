@@ -1,11 +1,12 @@
 import React from 'react'
 import { View, StyleSheet, Text, Modal, TouchableWithoutFeedback, Dimensions } from 'react-native'
-import { color } from '../misc/color'
-const { MAIN, MODAL_BG, FONT_MEDIUM, BG } = color
 
+import { color } from '../misc/color'
+
+const { MAIN, MODAL_BG, FONT_MEDIUM, BG } = color
 const { width, height } = Dimensions.get('window')
 
-const ExistsModal = ({ visible, onClose }) => {
+export const ExistsModal = ({ visible, onClose }) => {
   return (
     <Modal animationType="fade" transparent visible={visible}>
       <View style={styles.modal}>
@@ -49,8 +50,5 @@ const styles = StyleSheet.create({
     left: 0,
     bottom: 5,
     backgroundColor: MODAL_BG
-    // backgroundColor: 'red'
   }
 })
-
-export default ExistsModal

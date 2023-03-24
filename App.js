@@ -1,7 +1,6 @@
 import React from 'react'
 import { NavigationContainer, DarkTheme } from '@react-navigation/native'
 import { StatusBar } from 'react-native'
-import { usePreventScreenCapture } from 'expo-screen-capture'
 
 import Navigator from './app/navigation/Navigator'
 import AudioProvider from './app/context/AudioProvider'
@@ -19,8 +18,6 @@ export default function App() {
       text: '#eee'
     }
   }
-
-  usePreventScreenCapture()
 
   return (
     <AudioProvider>

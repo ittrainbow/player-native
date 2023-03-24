@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
+import { MaterialIcons } from '@expo/vector-icons'
 import {
   Modal,
   StyleSheet,
@@ -8,14 +9,13 @@ import {
   Dimensions,
   TouchableWithoutFeedback
 } from 'react-native'
-import { MaterialIcons } from '@expo/vector-icons'
 
-import { color } from '../misc/color'
+import { color } from '../misc'
+
 const { MAIN, BG, MODAL_BG } = color
-
 const { width } = Dimensions.get('window')
 
-const AddPlaylistModal = ({ visible, onClose, onSubmit }) => {
+export const AddPlaylistModal = ({ visible, onClose, onSubmit }) => {
   const nameRef = useRef()
   const [playlistName, setPlaylistName] = useState('')
 
@@ -25,7 +25,7 @@ const AddPlaylistModal = ({ visible, onClose, onSubmit }) => {
 
   const submitHandler = () => {
     if (playlistName.trim()) {
-      onSubmit(playlistName) 
+      onSubmit(playlistName)
       setPlaylistName('')
     }
     onClose()
@@ -111,5 +111,3 @@ const styles = StyleSheet.create({
     backgroundColor: MODAL_BG
   }
 })
-
-export default AddPlaylistModal

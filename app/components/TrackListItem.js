@@ -1,32 +1,38 @@
-import React from 'react'
-import {
-  View,
-  StyleSheet,
-  Text,
-  Dimensions,
-  TouchableOpacity
-} from 'react-native'
+import React, { useContext } from 'react'
+import { View, StyleSheet, Text, Dimensions, TouchableOpacity } from 'react-native'
 import { MaterialIcons } from '@expo/vector-icons'
-import { Entypo } from '@expo/vector-icons'
-import { color } from '../misc/color'
+
+import { getListItemText, getListItemTime, color } from '../misc'
+import { AudioContext } from '../context/AudioProvider'
 
 const { FONT, FONT_MEDIUM, FONT_LIGHT, BG, ICON, MAIN, CREME } = color
-const playIcon = <MaterialIcons name="play-circle-filled" size={36} color={ICON} />
-const pauseIcon = <MaterialIcons name="pause-circle-filled" size={36} color={BG} />
+const { width } = Dimensions.get('window')
 
-export const TrackListItem = ({
-  letter,
-  trackname,
-  time,
-  onPress,
-  onAudioPress,
-  isPlaying,
-  activeListItem
-}) => {
-  const icon = activeListItem ? (isPlaying ? pauseIcon : playIcon) : letter
+export const TrackListItem = ({ item, isPlaying, activeListItem, onPress, onAudioPress }) => {
+  const context = useContext(AudioContext)
+  const { getMetadata } = context
+  const { filename, duration } = item
+  const { letter } = getListItemText(filename)
+  const { artist, title } = getMetadata(filename)
+  const time = getListItemTime(duration)
+  
+  const icon = activeListItem ? (
+    isPlaying ? (
+      <MaterialIcons name="pause-circle-filled" size={36} color={BG} />
+    ) : (
+      <MaterialIcons name="play-circle-filled" size={36} color={ICON} />
+    )
+  ) : (
+    letter
+  )
 
   return (
-    <View style={{ ...styles.container, backgroundColor: activeListItem ? MAIN : CREME }}>
+    <View
+      style={{
+        ...styles.container,
+        backgroundColor: activeListItem ? MAIN : CREME
+      }}
+    >
       <TouchableOpacity style={styles.opacity} onPress={onAudioPress} onLongPress={onPress}>
         <View style={styles.leftContainer}>
           <View style={styles.thumbnailContainer}>
@@ -34,20 +40,21 @@ export const TrackListItem = ({
           </View>
           <View style={styles.titleContainer}>
             <Text numberOfLines={1} style={styles.title}>
-              {trackname}
+              {artist}
             </Text>
-            <Text style={styles.duration}>{time}</Text>
+            <Text numberOfLines={1} style={styles.title}>
+              {title}
+            </Text>
           </View>
+          <Text style={styles.duration}>{time}</Text>
         </View>
       </TouchableOpacity>
       <View style={styles.rightContainer}>
-        <Entypo style={styles.rightIcon} name="dots-three-vertical" size={20} onPress={onPress} />
+        <MaterialIcons name="more-vert" size={28} color="black" onPress={onPress} />
       </View>
     </View>
   )
 }
-
-const { width } = Dimensions.get('window')
 
 const styles = StyleSheet.create({
   container: {
@@ -71,14 +78,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row'
   },
   rightContainer: {
-    flex: 1,
-    width: 100,
-    justifyContent: 'flex-start'
+    width: 80,
+    alignItems: 'center'
   },
   rightIcon: {
     width: 60,
     height: 50,
-    paddingLeft: 20,
+    paddingLeft: 25,
     paddingTop: 15,
     color: FONT_MEDIUM
   },
@@ -97,8 +103,8 @@ const styles = StyleSheet.create({
     color: FONT
   },
   titleContainer: {
-    paddingLeft: 10,
-    width: width - 110
+    paddingHorizontal: 7,
+    width: width - 155
   },
   title: {
     fontSize: 16,
@@ -106,8 +112,7 @@ const styles = StyleSheet.create({
   },
   duration: {
     fontSize: 16,
+    paddingTop: 10,
     color: FONT_LIGHT
   }
 })
-
-export default TrackListItem

@@ -1,44 +1,51 @@
 import React, { useContext, useRef, useEffect, useState } from 'react'
 import { Animated, View, StyleSheet, Text, Dimensions } from 'react-native'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 import { MaterialIcons } from '@expo/vector-icons'
 import Slider from '@react-native-community/slider'
 import GestureRecognizer, { swipeDirections } from 'react-native-swipe-gestures'
 
-import Screen from '../components/Screen'
-import PlayerButton from '../components/PlayerButton'
+import { Screen, PlayerButton } from '../components'
+import { pause, resume, playpause, prevnext, getListItemTime, swipeConfig, color } from '../misc'
 import { AudioContext } from '../context/AudioProvider'
-import { getListItemTime } from '../misc/trackListItemHelpers'
-import { pause, resume, playpause, prevnext } from '../misc/audioController'
-import { color } from '../misc/color'
 const { FONT_LIGHT, MAIN } = color
 const { width } = Dimensions.get('window')
 const halfWidth = width / 2
 
 export const Player = ({ navigation }) => {
   const [duration, setDuration] = useState(0)
+  const [artist, setArtist] = useState('')
+  const [title, setTitle] = useState('')
   const context = useContext(AudioContext)
   const {
     currentAudio,
     currentAudioIndex,
     totalCount,
     isPlaying,
+    isPlaylist,
     playbackObject,
     playbackPosition,
     playbackDuration,
     getMetadata,
     soundObject,
-    track,
-    updateState
+    shuffle,
+    updateState,
+    playlist,
+    playlistNumber,
+    getNextAudio,
+    audioFiles
   } = context
-
-  const { currentArtist, currentTitle } = track
 
   useEffect(() => {
     isPlaying ? fadeIn() : fadeOut()
     if (currentAudio) {
       const { uri, duration } = currentAudio
+      const { filename } = currentAudio
+      const { artist, title } = getMetadata(filename)
       getMetadata(uri)
       setDuration(duration)
+      setArtist(artist)
+      setTitle(title)
     }
   }, [currentAudio, isPlaying])
 
@@ -65,7 +72,10 @@ export const Player = ({ navigation }) => {
   }
 
   const prevNextHandler = async (value) => {
-    await prevnext({ value, context })
+    const audio = await getNextAudio({ value })
+    const random = audioFiles[Math.floor(Math.random() * totalCount)]
+    const nextAudio = audio || random
+    await prevnext({ value, context, nextAudio })
   }
 
   const playPauseHandler = async () => {
@@ -96,7 +106,7 @@ export const Player = ({ navigation }) => {
     const { SWIPE_LEFT, SWIPE_RIGHT } = swipeDirections
     switch (gestureName) {
       case SWIPE_LEFT:
-        navigation.navigate('Playlist')
+        navigation.navigate('Playlists')
         break
       case SWIPE_RIGHT:
         navigation.navigate('Tracklist')
@@ -106,9 +116,42 @@ export const Player = ({ navigation }) => {
     }
   }
 
-  const config = {
-    velocityThreshold: 0.1,
-    directionalOffsetThreshold: 50
+  const getCount = () => {
+    const { id } = currentAudio
+    const list = isPlaylist ? playlist[playlistNumber].tracks : audioFiles
+    const total = isPlaylist ? list.length : totalCount
+    const num = list.map((el) => el.id).indexOf(id)
+    return `${num + 1} / ${total}`
+  }
+
+  const checkFav = () => {
+    const favs = playlist
+      .filter((list) => list.title === 'Favorites')[0]
+      .tracks.map((track) => track.id)
+    return favs.filter((el) => el === currentAudio.id).length === 1
+  }
+
+  const onFavHandler = async () => {
+    const favPlaylistNumber = playlist.map((list) => list.title).indexOf('Favorites')
+    const getTracks = [...playlist[favPlaylistNumber].tracks]
+    let newTracks
+    if (!checkFav()) newTracks = getTracks.concat([currentAudio])
+    else {
+      getTracks.splice(getTracks.map((track) => track.id).indexOf(currentAudio.id), 1)
+      newTracks = [...getTracks]
+    }
+    const newPlaylist = [...playlist]
+    newPlaylist[favPlaylistNumber].tracks = newTracks
+    updateState(context, { playlist: newPlaylist })
+    return await AsyncStorage.setItem('playlist', JSON.stringify(newPlaylist))
+  }
+
+  const shuffleHandler = () => {
+    updateState(context, { shuffle: !shuffle })
+  }
+
+  const getPlaylistName = () => {
+    return isPlaylist ? `Playlist: ${playlist[playlistNumber].title}` : `All Tracks`
   }
 
   return (
@@ -116,20 +159,21 @@ export const Player = ({ navigation }) => {
       <View style={styles.container}>
         <GestureRecognizer
           onSwipe={(direction, state) => onSwipe(direction, state)}
-          config={config}
+          config={swipeConfig}
         >
-          <Text style={styles.audioCount}>
-            {currentAudioIndex + 1} / {totalCount}
-          </Text>
+          <View style={styles.top}>
+            <Text style={styles.playlistName}>{getPlaylistName()}</Text>
+            <Text style={styles.audioCount}>{getCount()}</Text>
+          </View>
           <Animated.View style={[styles.playerIconContainer, { opacity: fadeAnim }]}>
             <MaterialIcons name="library-music" size={240} color={MAIN} />
           </Animated.View>
           <View style={styles.playerContainer}>
             <Text numberOfLine={1} style={styles.artist}>
-              {currentArtist}
+              {artist}
             </Text>
             <Text numberOfLine={1} style={styles.title}>
-              {currentTitle}
+              {title}
             </Text>
           </View>
           <View style={styles.timeSlide}>
@@ -152,9 +196,19 @@ export const Player = ({ navigation }) => {
             />
           </View>
           <View style={styles.playerButtons}>
+            <PlayerButton
+              onPress={onFavHandler}
+              iconType={checkFav() ? 'FAVORITE' : 'FAVORITE-OUTLINE'}
+              size={28}
+            />
             <PlayerButton onPress={() => prevNextHandler('prev')} iconType={'PREV'} />
             <PlayerButton onPress={playPauseHandler} iconType={isPlaying ? 'PAUSE' : 'PLAY'} />
             <PlayerButton onPress={() => prevNextHandler('next')} iconType={'NEXT'} />
+            <PlayerButton
+              onPress={shuffleHandler}
+              iconType={shuffle ? 'SHUFFLE-ON' : 'SHUFFLE'}
+              size={30}
+            />
           </View>
         </GestureRecognizer>
       </View>
@@ -167,15 +221,24 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'column'
   },
-  timeSlide: {
-    left: 25,
-    marginTop: 65
+  top: {
+    padding: 15,
+    flexDirection: 'row'
+  },
+  playlistName: {
+    textAlign: 'left',
+    color: FONT_LIGHT,
+    fontSize: 16,
+    flexGrow: 1
   },
   audioCount: {
     textAlign: 'right',
-    padding: 15,
     color: FONT_LIGHT,
     fontSize: 16
+  },
+  timeSlide: {
+    left: 25,
+    marginTop: 65
   },
   playerIconContainer: {
     alignItems: 'center',
@@ -224,7 +287,8 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     paddingTop: 25,
-    gap: 40,
-    left: width / 2 - 110
+    gap: 20,
+    aligiItems: 'center',
+    justifyContent: 'center'
   }
 })

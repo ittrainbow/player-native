@@ -1,9 +1,11 @@
 import { StyleSheet, Text, TouchableOpacity, Dimensions } from 'react-native'
-import { color } from '../misc/color'
+
+import { color } from '../misc'
+
 const { CREME_DARK } = color
 const { width } = Dimensions.get('window')
 
-const PlaylistItem = ({ item, onPress }) => {
+export const PlaylistItem = ({ item, onPress }) => {
   const { tracks, title } = item
   const num = tracks.length
   return (
@@ -38,5 +40,3 @@ const styles = StyleSheet.create({
     fontSize: 16
   }
 })
-
-export default PlaylistItem

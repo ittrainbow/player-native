@@ -1,55 +1,64 @@
-import AsyncStorage from '@react-native-async-storage/async-storage'
 import React, { useContext, useState, useEffect } from 'react'
-import { StyleSheet, Text, View, TouchableOpacity, Dimensions } from 'react-native'
+import { StyleSheet, View, TouchableOpacity, Dimensions, Alert } from 'react-native'
 import GestureRecognizer, { swipeDirections } from 'react-native-swipe-gestures'
+import { RecyclerListView } from 'recyclerlistview'
+import { useIsFocused } from '@react-navigation/native'
+import { MaterialIcons } from '@expo/vector-icons'
 
-import AddPlaylistModal from '../components/AddPlaylistModal'
-import ExistsModal from '../components/ExistsModal'
-import DetailedPlaylist from '../components/DetailedPlaylist'
-import DropdownMenu from '../components/DropdownMenu'
-import PlaylistItem from '../components/PlaylistItem'
-import TrackListItem from '../components/TrackListItem'
+import {
+  AddPlaylistModal,
+  ExistsModal,
+  TrackListItem,
+  DeleteModal,
+  DropdownMenu,
+  PlaylistItem
+} from '../components'
 import { AudioContext } from '../context/AudioProvider'
-import { color } from '../misc/color'
-const { CREME, CREME_DARK } = color
+import { playpause, getLayoutProvider, swipeConfig, color, getAsync, setAsync } from '../misc'
+const { CREME } = color
 
 const { width } = Dimensions.get('window')
 
 const initialPlaylist = (title = '', tracks = []) => {
-  return {
-    id: Date.now(),
-    title,
-    tracks
-  }
+  return { id: Date.now(), title, tracks }
 }
 
-export const Playlist = ({ navigation }) => {
+export const Playlists = ({ navigation }) => {
   const [modalVisible, setModalVisible] = useState(false)
   const [existsVisible, setExistsVisible] = useState(false)
+  const [currentItem, setCurrentItem] = useState({})
   const [selectedPlaylist, setSelectedPlaylist] = useState(initialPlaylist())
+  const [deleteModalVisible, setDeleteModalVisible] = useState(false)
   const context = useContext(AudioContext)
-  const { playlist, addToPlaylist, updateState } = context
+  const {
+    playlist,
+    addToPlaylist,
+    updateState,
+    playlistNumber,
+    dataProvider,
+    isPlaying,
+    currentAudio
+  } = context
+  const focused = useIsFocused()
+  const layoutProvider = getLayoutProvider()
 
   useEffect(() => {
-    if (!playlist.length) {
-      renderPlaylist()
-    }
+    !playlist.length && renderPlaylist()
   }, [])
 
   useEffect(() => {
-    if (playlist.length) setSelectedPlaylist(playlist[0])
-  }, [playlist])
+    focused && updateState(context, { isPlaylist: true })
+  }, [focused])
 
-  const onCloseAddPlaylistModal = () => {
-    setModalVisible(false)
-  }
+  useEffect(() => {
+    playlist.length && setSelectedPlaylist(playlist[playlistNumber])
+  }, [playlist, playlistNumber])
 
-  const onCloseExistsModal = () => {
-    setExistsVisible(false)
-  }
+  const onCloseAddPlaylistModal = () => setModalVisible(false)
+  const onCloseExistsModal = () => setExistsVisible(false)
 
   const createPlaylist = async (playlistName) => {
-    const response = await AsyncStorage.getItem('playlist')
+    const response = await getAsync('playlist')
 
     if (response !== null) {
       const tracks = []
@@ -63,41 +72,78 @@ export const Playlist = ({ navigation }) => {
         playlist: updatedPlaylist
       }
       updateState(context, newState)
-      await AsyncStorage.setItem('playlist', JSON.stringify(updatedPlaylist))
+      await setAsync('playlist', updatedPlaylist)
     }
     setModalVisible(false)
   }
 
+  const onCloseDeleteModal = () => {
+    setDeleteModalVisible(false)
+    setCurrentItem({})
+  }
+
+  const onDotsPressHandler = (item) => {
+    console.log(0, item)
+    setDeleteModalVisible(true)
+    setCurrentItem(item)
+  }
+
+  const onAddPlaylistHandler = () => {
+    setModalVisible(true)
+  }
+
+  const deletePlaylist = async () => {
+    const playlist = await getAsync('playlist')
+    playlist.splice(playlistNumber, 1)
+    await setAsync('playlist', playlist)
+    const newState = {
+      playlist,
+      playlistNumber: 0
+    }
+    return updateState(context, newState)
+  }
+
+  const onDeletePlaylistHandler = () => {
+    playlistNumber === 0
+      ? Alert.alert('Favorites playlist is undeletable')
+      : Alert.alert('Delete playlist?', 'This operation cannot be undone', [
+          { text: 'Yes', onPress: () => deletePlaylist() },
+          { text: 'No', style: 'cancel' }
+        ])
+  }
+
+  const onDeleteFromPlaylist = async () => {
+    const { id } = currentItem
+    const newTracks = [...playlist[playlistNumber].tracks].filter((track) => track.id !== id)
+    const newPlaylist = [...playlist]
+    newPlaylist[playlistNumber].tracks = newTracks
+    updateState(context, { playlist: newPlaylist })
+    setDeleteModalVisible(false)
+    return await setAsync('playlist', newPlaylist)
+  }
+
   const renderPlaylist = async () => {
-    const response = await AsyncStorage.getItem('playlist')
+    const response = await getAsync('playlist')
     if (response === null) {
       const defaultPlaylist = initialPlaylist('Favorites', [])
 
       const updatedPlaylist = [...playlist, defaultPlaylist]
       const newState = { playlist: [...updatedPlaylist] }
       updateState(context, newState)
-      return await AsyncStorage.setItem('playlist', JSON.stringify(updatedPlaylist))
+      return await setAsync('playlist', updatedPlaylist)
     }
     const newState = { playlist: JSON.parse(response) }
     return updateState(context, newState)
   }
 
-  const logger = () => {
-    // console.log(playlist)
-  }
-
-  const clearPlaylists = async () => {
-    await AsyncStorage.removeItem('playlist')
-  }
-
   const onBannerPress = async (playlist) => {
     if (addToPlaylist) {
-      const response = await AsyncStorage.getItem('playlist')
+      const response = await getAsync('playlist')
       let updatedList = []
       let alreadyInPlaylist = false
 
       if (response !== null) {
-        updatedList = JSON.parse(response).filter((list) => {
+        updatedList = response.filter((list) => {
           if (list.id === playlist.id) {
             alreadyInPlaylist = list.tracks.map((track) => track.id).includes(addToPlaylist.id)
             if (alreadyInPlaylist) {
@@ -111,9 +157,11 @@ export const Playlist = ({ navigation }) => {
         })
       }
 
-      if (alreadyInPlaylist) return updateState(context, { addToPlaylist: null })
+      if (alreadyInPlaylist) {
+        return updateState(context, { addToPlaylist: null })
+      }
       updateState(context, { addToPlaylist: null, playlist: updatedList })
-      AsyncStorage.setItem('playlist', JSON.stringify(updatedList))
+      setAsync('playlist', updatedList)
     }
 
     setSelectedPlaylist(playlist)
@@ -130,48 +178,73 @@ export const Playlist = ({ navigation }) => {
     }
   }
 
-  const config = {
-    velocityThreshold: 0.3,
-    directionalOffsetThreshold: 80
+  const onAudioPressHandler = async (audio) => {
+    await playpause({ audio, context })
   }
 
-  const onDetailedPressHandler = () => {}
+  const rowRenderer = (_, item, index, extendedState) => {
+    const { isPlaying } = extendedState
+    const activeListItem = item.id === currentAudio.id
+    return (
+      <TrackListItem
+        item={item}
+        isPlaying={isPlaying}
+        activeListItem={activeListItem}
+        onPress={() => onDotsPressHandler(item)}
+        onAudioPress={() => onAudioPressHandler(item)}
+      />
+    )
+  }
 
   return (
-    <GestureRecognizer onSwipe={(direction, state) => onSwipe(direction, state)} config={config}>
+    <GestureRecognizer
+      onSwipe={(direction, state) => onSwipe(direction, state)}
+      config={swipeConfig}
+      style={styles.flex}
+    >
       <View style={styles.container}>
-        <DropdownMenu list={playlist} onPress={onBannerPress} />
-        <View style={styles.addDelContainer}>
-          <TouchableOpacity onPress={() => setModalVisible(true)} style={styles.add}>
-            <Text style={styles.bannerAdd}>New Playlist</Text>
+        <View style={styles.topContainer}>
+          <DropdownMenu list={playlist} onPress={onBannerPress} style={{ width: width - 120 }} />
+          <TouchableOpacity style={styles.add} onPress={onAddPlaylistHandler}>
+            <MaterialIcons name="add-circle-outline" size={32} color="black" />
           </TouchableOpacity>
-          <TouchableOpacity onPress={logger} style={styles.add}>
-            <Text style={styles.bannerLog}>Log</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={clearPlaylists} style={styles.add}>
-            <Text style={styles.bannerDel}>Delete All</Text>
+          <TouchableOpacity style={styles.add} onPress={onDeletePlaylistHandler}>
+            <MaterialIcons name="delete-outline" size={32} color="black" />
           </TouchableOpacity>
         </View>
-        {playlist.map((item) => {
-          const { id } = item
-          return addToPlaylist ? (
-            <PlaylistItem key={id} item={item} onPress={onBannerPress} />
-          ) : null
-        })}
+        <View style={styles.playlistString}>
+          {playlist.length > 0 &&
+            playlist.map((item) => {
+              const { id } = item
+              return addToPlaylist ? (
+                <PlaylistItem key={id} item={item} onPress={onBannerPress} />
+              ) : null
+            })}
+        </View>
 
-        {addToPlaylist ? null : <DetailedPlaylist playlist={selectedPlaylist} />}
-
-        <ExistsModal
-          visible={existsVisible}
-          onClose={onCloseExistsModal}
-          onPress={onDetailedPressHandler}
+        <DeleteModal
+          visible={deleteModalVisible}
+          currentItem={currentItem}
+          onClose={onCloseDeleteModal}
+          onDelete={onDeleteFromPlaylist}
         />
+        <ExistsModal visible={existsVisible} onClose={onCloseExistsModal} />
         <AddPlaylistModal
           visible={modalVisible}
           onClose={onCloseAddPlaylistModal}
           onSubmit={createPlaylist}
         />
       </View>
+
+      {addToPlaylist ? null : (
+        <RecyclerListView
+          style={styles.playlist}
+          dataProvider={dataProvider.cloneWithRows(selectedPlaylist.tracks)}
+          layoutProvider={layoutProvider}
+          rowRenderer={rowRenderer}
+          extendedState={{ isPlaying }}
+        />
+      )}
     </GestureRecognizer>
   )
 }
@@ -179,7 +252,23 @@ export const Playlist = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     fledDirection: 'column',
-    justifyContent: 'center',
+    padding: 12
+  },
+  flex: {
+    flex: 1
+  },
+  topContainer: {
+    flexDirection: 'row',
+    gap: 5
+  },
+  playlist: {
+    width: Dimensions.get('window').width,
+    marginBottom: 90,
+    background: 'red',
+    flex: 1
+  },
+  playlistString: {
+    marginTop: 5,
     alignItems: 'center'
   },
   header: {
@@ -190,7 +279,6 @@ const styles = StyleSheet.create({
     padding: 10,
     height: 50,
     flexDirection: 'row',
-    backgroundColor: CREME_DARK,
     margin: 5,
     borderRadius: 10,
     width: width - 25
@@ -205,19 +293,13 @@ const styles = StyleSheet.create({
     padding: 3,
     fontSize: 16
   },
-  addDelContainer: {
-    flexDirection: 'row',
-    gap: 10,
-    width: width - 25,
-    margin: 5
-  },
   add: {
-    padding: 10,
-    height: 50,
-    backgroundColor: CREME_DARK,
+    height: 54,
+    width: 55,
+    backgroundColor: CREME,
     borderRadius: 10,
     alignItems: 'center',
-    width: width / 3 - 15
+    justifyContent: 'center'
   },
   bannerDel: {
     fontSize: 16,

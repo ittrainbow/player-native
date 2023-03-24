@@ -2,10 +2,11 @@ import React from 'react'
 import { IconButton } from '@react-native-material/core'
 import { MaterialIcons } from '@expo/vector-icons'
 
-import { color } from '../misc/color'
+import { color } from '../misc'
+
 const { MAIN } = color
 
-const PlayerButton = (props) => {
+export const PlayerButton = (props) => {
   const { iconType, size = 40, color = MAIN, onPress } = props
   const getIcon = () => {
     switch (iconType) {
@@ -17,12 +18,23 @@ const PlayerButton = (props) => {
         return 'pause'
       case 'NEXT':
         return 'skip-next'
+      case 'SHUFFLE':
+        return 'shuffle'
+      case 'SHUFFLE-ON':
+        return 'shuffle-on'
+      case 'FAVORITE':
+        return 'favorite'
+      case 'FAVORITE-OUTLINE':
+        return 'favorite-outline'
       default:
         return
     }
   }
 
-  return <IconButton onPress={onPress} icon={<MaterialIcons name={getIcon()} size={size} color={color}/>} />
+  return (
+    <IconButton
+      onPress={onPress}
+      icon={<MaterialIcons name={getIcon()} size={size} color={color} />}
+    />
+  )
 }
-
-export default PlayerButton

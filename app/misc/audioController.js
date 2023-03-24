@@ -1,8 +1,10 @@
-import { storeAudioForNextOpening } from './storeAudio'
+// import { storeAudioForNextOpening } from './storeAudio'
+import { setAsync } from './async'
 
 export const play = async ({ playbackObject, uri, audio, index, artist, title }) => {
   try {
-    await storeAudioForNextOpening({ audio, index, artist, title })
+    // await storeAudioForNextOpening({ audio, index, artist, title })
+    await setAsync('previousAudio', { audio, index, artist, title })
     return await playbackObject.loadAsync(
       { uri },
       { shouldPlay: true, progressUpdateIntervalMillis: 1000 }
@@ -31,7 +33,8 @@ export const resume = async (playbackObject) => {
 export const next = async (props) => {
   const { playbackObject, audio, index, artist, title } = props
   try {
-    await storeAudioForNextOpening({ audio, index, artist, title })
+    // await storeAudioForNextOpening({ audio, index, artist, title })
+    await setAsync('previousAudio', { audio, index, artist, title })
     await playbackObject.stopAsync()
     await playbackObject.unloadAsync()
     return await play(props)
@@ -73,7 +76,11 @@ export const playpause = async ({ audio, context }) => {
       if (isLoaded && id === audio.id) {
         if (isPlaying) {
           const status = await pause(playbackObject)
-          const newState = { soundObject: status, isPlaying: false, playbackPosition: status.positionMillis }
+          const newState = {
+            soundObject: status,
+            isPlaying: false,
+            playbackPosition: status.positionMillis
+          }
 
           return updateState(context, newState)
         } else {
@@ -95,16 +102,15 @@ export const playpause = async ({ audio, context }) => {
       }
     }
   } catch (error) {
-    console.log('audio controller select audio method error', error.message)
+    console.error('audio controller select audio method error', error.message)
   }
 }
 
-export const prevnext = async ({ value, context }) => {
+export const prevnext = async ({ value, context, nextAudio }) => {
   const {
     playbackObject,
     currentAudioIndex,
     updateState,
-    audioFiles,
     onPlaybackStatusUpdate,
     totalCount,
     getMetadata
@@ -121,7 +127,7 @@ export const prevnext = async ({ value, context }) => {
       : endOfList
       ? 0
       : currentAudioIndex + counter
-    const audio = audioFiles[index]
+    const audio = nextAudio
     const { uri } = audio
     const { artist, title } = getMetadata(uri)
 
@@ -145,6 +151,6 @@ export const prevnext = async ({ value, context }) => {
     playbackObject.setOnPlaybackStatusUpdate(onPlaybackStatusUpdate)
     return updateState(context, newState)
   } catch (error) {
-    console.log('audio controller prev/next method error', error.message)
+    console.error('audio controller prev/next method error', error.message)
   }
 }

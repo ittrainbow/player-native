@@ -1,36 +1,30 @@
 import React, { useContext, useEffect, useState, useRef } from 'react'
 import { Dimensions, StyleSheet } from 'react-native'
 import { AudioContext } from '../context/AudioProvider'
-import { RecyclerListView, LayoutProvider } from 'recyclerlistview'
+import { RecyclerListView } from 'recyclerlistview'
 import GestureRecognizer, { swipeDirections } from 'react-native-swipe-gestures'
+import { useIsFocused } from '@react-navigation/native'
 
-import { TrackListItem } from '../components/TrackListItem'
-import { color } from '../misc/color'
-import { getListItemText, getListItemTime } from '../misc/trackListItemHelpers'
-import { PlaylistModal } from '../components/PlaylistModal'
-import { playpause } from '../misc/audioController'
+import { TrackListItem, PlaylistModal } from '../components'
+import { color, swipeConfig, getLayoutProvider, playpause } from '../misc'
 
 const { BG } = color
 
 export const Tracklist = ({ navigation }) => {
   const context = useContext(AudioContext)
-  const { loadPreviousAudio, updateState, isPlaying, currentAudioIndex, dataProvider } = context
+  const { loadPreviousAudio, updateState, isPlaying, currentAudioIndex, dataProvider, currentAudio } = context
   const [currentItem, setCurrentItem] = useState({})
   const [modalVisible, setModalVisible] = useState(false)
-
-  const layoutProvider = useRef(
-    new LayoutProvider(
-      (index) => 'audio',
-      (type, dim) => {
-        dim.width = Dimensions.get('window').width
-        dim.height = 68
-      }
-    )
-  ).current
+  const layoutProvider = getLayoutProvider()
+  const focused = useIsFocused()
 
   useEffect(() => {
     loadPreviousAudio()
   }, [])
+
+  useEffect(() => {
+    focused && updateState(context, { isPlaylist: false })
+  }, [focused])
 
   const onModalClose = () => {
     setModalVisible(false)
@@ -47,26 +41,22 @@ export const Tracklist = ({ navigation }) => {
   }
 
   const onPlaylistPressHandler = () => {
-    navigation.navigate('Playlist')
+    navigation.navigate('Playlists')
     const newState = { addToPlaylist: currentItem }
     updateState(context, newState)
     setModalVisible(false)
   }
 
   const rowRenderer = (type, item, index, extendedState) => {
-    const { isPlaying, currentAudioIndex } = extendedState
-    const { filename, duration } = item
-    const { letter, trackname } = getListItemText(filename)
-    const time = getListItemTime(duration)
-    const activeListItem = currentAudioIndex === index
+    const { isPlaying } = extendedState
+    const activeListItem = item.id === currentAudio.id
 
     return (
       <TrackListItem
-        letter={letter}
+        item={item}
         isPlaying={isPlaying}
         activeListItem={activeListItem}
-        trackname={trackname}
-        time={time}
+        tracklist={true}
         onPress={() => onDotsPressHandler(item)}
         onAudioPress={() => onAudioPressHandler(item)}
       />
@@ -83,16 +73,11 @@ export const Tracklist = ({ navigation }) => {
         break
     }
   }
-
-  const config = {
-    velocityThreshold: 0.3,
-    directionalOffsetThreshold: 80
-  }
-
+  
   return (
     <GestureRecognizer
       onSwipe={(direction, state) => onSwipe(direction, state)}
-      config={config}
+      config={swipeConfig}
       style={styles.gestures}
     >
       <RecyclerListView
@@ -100,6 +85,8 @@ export const Tracklist = ({ navigation }) => {
         dataProvider={dataProvider}
         layoutProvider={layoutProvider}
         rowRenderer={rowRenderer}
+        isPlaying={isPlaying}
+        currentAudioIndex={currentAudioIndex}
         extendedState={{ isPlaying, currentAudioIndex }}
       />
 
@@ -107,7 +94,6 @@ export const Tracklist = ({ navigation }) => {
         currentItem={currentItem}
         visible={modalVisible}
         onClose={onModalClose}
-        onPlayPress={() => console.log('onPlayPress')}
         onPlaylistPress={onPlaylistPressHandler}
       />
     </GestureRecognizer>

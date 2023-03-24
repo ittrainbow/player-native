@@ -3,15 +3,15 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { MaterialIcons } from '@expo/vector-icons'
 import { StyleSheet } from 'react-native'
 
-import { Tracklist, Player, Playlist } from '../screens'
-import { color } from '../misc/color'
+import { Tracklist, Player, Playlists } from '../screens'
+import { color } from '../misc'
 const { MAIN, BG_LIGHT } = color
 
 const Tab = createBottomTabNavigator()
 const tabs = [
-  { name: 'Tracklist', component: Tracklist, icon: 'headset' },
-  { name: 'Player', component: Player, icon: 'play-circle-outline' },
-  { name: 'Playlist', component: Playlist, icon: 'list-alt' }
+  { name: 'Tracklist', component: Tracklist, icon: 'headset', id: 0 },
+  { name: 'Player', component: Player, icon: 'play-circle-outline', id: 1 },
+  { name: 'Playlists', component: Playlists, icon: 'list-alt', id: 2 }
 ]
 
 const Navigator = () => {
@@ -33,10 +33,10 @@ const Navigator = () => {
       }}
     >
       {tabs.map((tab) => {
-        const { name, component, icon } = tab
+        const { name, component, icon, id } = tab
         return (
           <Tab.Screen
-            key={Math.random()}
+            key={id}
             name={name}
             component={component}
             options={{
