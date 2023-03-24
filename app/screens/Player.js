@@ -26,7 +26,6 @@ export const Player = ({ navigation }) => {
     playbackDuration,
     getMetadata,
     soundObject,
-    track,
     shuffle,
     updateState,
     playlist,

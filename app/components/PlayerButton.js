@@ -3,6 +3,7 @@ import { IconButton } from '@react-native-material/core'
 import { MaterialIcons } from '@expo/vector-icons'
 
 import { color } from '../misc'
+
 const { MAIN } = color
 
 export const PlayerButton = (props) => {

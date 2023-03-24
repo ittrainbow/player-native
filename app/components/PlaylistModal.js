@@ -3,8 +3,8 @@ import { View, StyleSheet, Modal, Text, TouchableWithoutFeedback, Dimensions } f
 
 import { AudioContext } from '../context/AudioProvider'
 import { color } from '../misc'
-const { FONT_MEDIUM, BG, MODAL_BG, MAIN, CREME_LIGHT } = color
 
+const { FONT_MEDIUM, BG, MODAL_BG, MAIN, CREME_LIGHT } = color
 const { width } = Dimensions.get('window')
 
 export const PlaylistModal = ({ visible, onClose, currentItem, onPlaylistPress }) => {

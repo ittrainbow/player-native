@@ -4,6 +4,7 @@ import { Dropdown } from 'react-native-element-dropdown'
 
 import { AudioContext } from '../context/AudioProvider'
 import { color } from '../misc'
+
 const { CREME_DARK, CREME, BG } = color
 const { width } = Dimensions.get('window')
 

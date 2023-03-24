@@ -32,7 +32,6 @@ export const Tracklist = ({ navigation }) => {
   }
 
   const onDotsPressHandler = async (item) => {
-    console.log(11111)
     setCurrentItem(item)
     setModalVisible(true)
   }

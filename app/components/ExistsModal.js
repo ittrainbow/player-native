@@ -1,8 +1,9 @@
 import React from 'react'
 import { View, StyleSheet, Text, Modal, TouchableWithoutFeedback, Dimensions } from 'react-native'
-import { color } from '../misc/color'
-const { MAIN, MODAL_BG, FONT_MEDIUM, BG } = color
 
+import { color } from '../misc/color'
+
+const { MAIN, MODAL_BG, FONT_MEDIUM, BG } = color
 const { width, height } = Dimensions.get('window')
 
 export const ExistsModal = ({ visible, onClose }) => {

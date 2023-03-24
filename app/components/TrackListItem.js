@@ -1,29 +1,30 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import { View, StyleSheet, Text, Dimensions, TouchableOpacity } from 'react-native'
 import { MaterialIcons } from '@expo/vector-icons'
 
 import { getListItemText, getListItemTime, color } from '../misc'
+import { AudioContext } from '../context/AudioProvider'
 
-const { FONT, FONT_MEDIUM, FONT_LIGHT, BG, ICON, MAIN, CREME, CREME_DARK } = color
-const playIcon = <MaterialIcons name="play-circle-filled" size={36} color={ICON} />
-const pauseIcon = <MaterialIcons name="pause-circle-filled" size={36} color={BG} />
-
+const { FONT, FONT_MEDIUM, FONT_LIGHT, BG, ICON, MAIN, CREME } = color
 const { width } = Dimensions.get('window')
 
-export const TrackListItem = ({
-  item,
-  isPlaying,
-  activeListItem,
-  onPress,
-  onAudioPress
-}) => {
+export const TrackListItem = ({ item, isPlaying, activeListItem, onPress, onAudioPress }) => {
+  const context = useContext(AudioContext)
+  const { getMetadata } = context
   const { filename, duration } = item
-  const { letter, trackname } = getListItemText(filename)
+  const { letter } = getListItemText(filename)
+  const { artist, title } = getMetadata(filename)
   const time = getListItemTime(duration)
-  const tracknameSplit = trackname.split(' - ')
-  const artist = tracknameSplit[0]
-  const title = tracknameSplit[1]
-  const icon = activeListItem ? (isPlaying ? pauseIcon : playIcon) : letter
+  
+  const icon = activeListItem ? (
+    isPlaying ? (
+      <MaterialIcons name="pause-circle-filled" size={36} color={BG} />
+    ) : (
+      <MaterialIcons name="play-circle-filled" size={36} color={ICON} />
+    )
+  ) : (
+    letter
+  )
 
   return (
     <View
@@ -49,7 +50,7 @@ export const TrackListItem = ({
         </View>
       </TouchableOpacity>
       <View style={styles.rightContainer}>
-        <MaterialIcons name="more-vert" size={28} color="black" onPress={onPress}/>
+        <MaterialIcons name="more-vert" size={28} color="black" onPress={onPress} />
       </View>
     </View>
   )
