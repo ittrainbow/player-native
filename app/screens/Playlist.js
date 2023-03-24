@@ -12,12 +12,10 @@ import {
   TrackListItem,
   DeleteModal,
   DropdownMenu,
-  PlaylistItem,
-  getAsync,
-  setAsync
+  PlaylistItem
 } from '../components'
 import { AudioContext } from '../context/AudioProvider'
-import { playpause, getLayoutProvider, swipeConfig, color } from '../misc'
+import { playpause, getLayoutProvider, swipeConfig, color, getAsync, setAsync } from '../misc'
 const { CREME } = color
 
 const { width } = Dimensions.get('window')
@@ -99,8 +97,8 @@ export const Playlists = ({ navigation }) => {
   const deletePlaylist = async () => {
     // const playlist = await AsyncStorage.getItem('playlist')
     const playlist = await getAsync('playlist')
-    const resp = JSON.parse(response)
-    resp.splice(playlistNumber, 1)
+    // const resp = JSON.parse(response)
+    playlist.splice(playlistNumber, 1)
     // await AsyncStorage.setItem('playlist', JSON.stringify(playlist))
     await setAsync('playlist', playlist)
     const newState = {

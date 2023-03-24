@@ -149,7 +149,7 @@ class AudioProvider extends Component {
       const index = maxReached ? 0 : currentAudioIndex + 1
       const audio = this.getNextAudio(index)
       const { uri } = audio
-      const status = await next({ playbackObject, uri, audio, index, artist, title })
+      const status = await next({ playbackObject, uri, audio, index })
       const newState = {
         currentAudio: audio,
         soundObject: status,

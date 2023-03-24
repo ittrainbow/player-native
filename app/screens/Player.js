@@ -14,6 +14,8 @@ const halfWidth = width / 2
 
 export const Player = ({ navigation }) => {
   const [duration, setDuration] = useState(0)
+  const [artist, setArtist] = useState('')
+  const [title, setTitle] = useState('')
   const context = useContext(AudioContext)
   const {
     currentAudio,
@@ -30,18 +32,20 @@ export const Player = ({ navigation }) => {
     updateState,
     playlist,
     playlistNumber,
-    getNextAudio
+    getNextAudio,
+    audioFiles
   } = context
-
-  const { filename } = currentAudio
-  const { artist, title } = getMetadata(filename)
 
   useEffect(() => {
     isPlaying ? fadeIn() : fadeOut()
     if (currentAudio) {
       const { uri, duration } = currentAudio
+      const { filename } = currentAudio
+      const { artist, title } = getMetadata(filename)
       getMetadata(uri)
       setDuration(duration)
+      setArtist(artist)
+      setTitle(title)
     }
   }, [currentAudio, isPlaying])
 
@@ -68,7 +72,9 @@ export const Player = ({ navigation }) => {
   }
 
   const prevNextHandler = async (value) => {
-    const nextAudio = await getNextAudio({ value })
+    const audio = await getNextAudio({ value })
+    const random = audioFiles[Math.floor(Math.random() * totalCount)]
+    const nextAudio = audio || random
     await prevnext({ value, context, nextAudio })
   }
 
@@ -112,9 +118,9 @@ export const Player = ({ navigation }) => {
 
   const getCount = () => {
     const { id } = currentAudio
-    const list = playlist[playlistNumber].tracks
+    const list = isPlaylist ? playlist[playlistNumber].tracks : audioFiles
     const total = isPlaylist ? list.length : totalCount
-    const num = isPlaylist ? list.map((el) => el.id).indexOf(id) : currentAudioIndex
+    const num = list.map((el) => el.id).indexOf(id)
     return `${num + 1} / ${total}`
   }
 
@@ -144,6 +150,10 @@ export const Player = ({ navigation }) => {
     updateState(context, { shuffle: !shuffle })
   }
 
+  const getPlaylistName = () => {
+    return isPlaylist ? `Playlist: ${playlist[playlistNumber].title}` : `All Tracks`
+  }
+
   return (
     <Screen>
       <View style={styles.container}>
@@ -151,7 +161,10 @@ export const Player = ({ navigation }) => {
           onSwipe={(direction, state) => onSwipe(direction, state)}
           config={swipeConfig}
         >
-          <Text style={styles.audioCount}>{getCount()}</Text>
+          <View style={styles.top}>
+            <Text style={styles.playlistName}>{getPlaylistName()}</Text>
+            <Text style={styles.audioCount}>{getCount()}</Text>
+          </View>
           <Animated.View style={[styles.playerIconContainer, { opacity: fadeAnim }]}>
             <MaterialIcons name="library-music" size={240} color={MAIN} />
           </Animated.View>
@@ -208,15 +221,24 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'column'
   },
-  timeSlide: {
-    left: 25,
-    marginTop: 65
+  top: {
+    padding: 15,
+    flexDirection: 'row'
+  },
+  playlistName: {
+    textAlign: 'left',
+    color: FONT_LIGHT,
+    fontSize: 16,
+    flexGrow: 1
   },
   audioCount: {
     textAlign: 'right',
-    padding: 15,
     color: FONT_LIGHT,
     fontSize: 16
+  },
+  timeSlide: {
+    left: 25,
+    marginTop: 65
   },
   playerIconContainer: {
     alignItems: 'center',
