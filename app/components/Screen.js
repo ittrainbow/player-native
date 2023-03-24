@@ -1,10 +1,10 @@
 import React from 'react'
-import { View, StyleSheet, StatusBar } from 'react-native'
+import { View, StyleSheet } from 'react-native'
 
-import { color } from '../misc/color'
+import { color } from '../misc'
 const { BG } = color
 
-const Screen = ({ children }) => {
+export const Screen = ({ children }) => {
   return <View style={styles.container}>{children}</View>
 }
 
@@ -14,5 +14,3 @@ const styles = StyleSheet.create({
     backgroundColor: BG
   }
 })
-
-export default Screen

@@ -6,12 +6,14 @@ import { RecyclerListView } from 'recyclerlistview'
 import { useIsFocused } from '@react-navigation/native'
 import { MaterialIcons } from '@expo/vector-icons'
 
-import AddPlaylistModal from '../components/AddPlaylistModal'
-import ExistsModal from '../components/ExistsModal'
-import TrackListItem from '../components/TrackListItem'
-import DeleteModal from '../components/DeleteModal'
-import DropdownMenu from '../components/DropdownMenu'
-import PlaylistItem from '../components/PlaylistItem'
+import {
+  AddPlaylistModal,
+  ExistsModal,
+  TrackListItem,
+  DeleteModal,
+  DropdownMenu,
+  PlaylistItem
+} from '../components'
 import { AudioContext } from '../context/AudioProvider'
 import { playpause, getLayoutProvider, swipeConfig, color } from '../misc'
 const { CREME } = color

@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from 'react'
 import { View, StyleSheet, Modal, Text, TouchableWithoutFeedback, Dimensions } from 'react-native'
 
 import { AudioContext } from '../context/AudioProvider'
-import { color } from '../misc/color'
+import { color } from '../misc'
 const { FONT_MEDIUM, BG, MODAL_BG, MAIN, CREME_LIGHT } = color
 
 const { width } = Dimensions.get('window')
@@ -100,4 +100,3 @@ const styles = StyleSheet.create({
   }
 })
 
-export default DeleteModal

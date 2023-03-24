@@ -5,10 +5,9 @@ import { MaterialIcons } from '@expo/vector-icons'
 import Slider from '@react-native-community/slider'
 import GestureRecognizer, { swipeDirections } from 'react-native-swipe-gestures'
 
-import Screen from '../components/Screen'
-import PlayerButton from '../components/PlayerButton'
-import { AudioContext } from '../context/AudioProvider'
+import { Screen, PlayerButton } from '../components'
 import { pause, resume, playpause, prevnext, getListItemTime, swipeConfig, color } from '../misc'
+import { AudioContext } from '../context/AudioProvider'
 const { FONT_LIGHT, MAIN } = color
 const { width } = Dimensions.get('window')
 const halfWidth = width / 2
@@ -34,7 +33,9 @@ export const Player = ({ navigation }) => {
     playlistNumber,
     getNextAudio
   } = context
-  const { currentArtist, currentTitle } = track
+
+  const { filename } = currentAudio
+  const { artist, title } = getMetadata(filename)
 
   useEffect(() => {
     isPlaying ? fadeIn() : fadeOut()
@@ -157,10 +158,10 @@ export const Player = ({ navigation }) => {
           </Animated.View>
           <View style={styles.playerContainer}>
             <Text numberOfLine={1} style={styles.artist}>
-              {currentArtist}
+              {artist}
             </Text>
             <Text numberOfLine={1} style={styles.title}>
-              {currentTitle}
+              {title}
             </Text>
           </View>
           <View style={styles.timeSlide}>

@@ -5,7 +5,7 @@ const { MAIN, MODAL_BG, FONT_MEDIUM, BG } = color
 
 const { width, height } = Dimensions.get('window')
 
-const ExistsModal = ({ visible, onClose }) => {
+export const ExistsModal = ({ visible, onClose }) => {
   return (
     <Modal animationType="fade" transparent visible={visible}>
       <View style={styles.modal}>
@@ -51,5 +51,3 @@ const styles = StyleSheet.create({
     backgroundColor: MODAL_BG
   }
 })
-
-export default ExistsModal

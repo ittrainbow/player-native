@@ -2,10 +2,10 @@ import React from 'react'
 import { IconButton } from '@react-native-material/core'
 import { MaterialIcons } from '@expo/vector-icons'
 
-import { color } from '../misc/color'
+import { color } from '../misc'
 const { MAIN } = color
 
-const PlayerButton = (props) => {
+export const PlayerButton = (props) => {
   const { iconType, size = 40, color = MAIN, onPress } = props
   const getIcon = () => {
     switch (iconType) {
@@ -37,5 +37,3 @@ const PlayerButton = (props) => {
     />
   )
 }
-
-export default PlayerButton

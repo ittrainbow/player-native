@@ -5,12 +5,8 @@ import { RecyclerListView } from 'recyclerlistview'
 import GestureRecognizer, { swipeDirections } from 'react-native-swipe-gestures'
 import { useIsFocused } from '@react-navigation/native'
 
-import { TrackListItem } from '../components/TrackListItem'
-import { color } from '../misc/color'
-import { swipeConfig } from '../misc/swipeConfig'
-import { getLayoutProvider } from '../misc/layoutProvider'
-import { PlaylistModal } from '../components/PlaylistModal'
-import { playpause } from '../misc/audioController'
+import { TrackListItem, PlaylistModal } from '../components'
+import { color, swipeConfig, getLayoutProvider, playpause } from '../misc'
 
 const { BG } = color
 
@@ -36,6 +32,7 @@ export const Tracklist = ({ navigation }) => {
   }
 
   const onDotsPressHandler = async (item) => {
+    console.log(11111)
     setCurrentItem(item)
     setModalVisible(true)
   }

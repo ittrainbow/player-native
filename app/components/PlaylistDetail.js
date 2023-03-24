@@ -2,14 +2,14 @@ import React, { useContext, useState } from 'react'
 import { StyleSheet, View, Dimensions } from 'react-native'
 import { RecyclerListView } from 'recyclerlistview'
 
-import TrackListItem from './TrackListItem'
-import { AudioContext } from '../context/AudioProvider'
-import { getLayoutProvider, playpause } from '../misc'
 import { DeleteModal } from './DeleteModal'
+import { TrackListItem } from './TrackListItem'
+import { getLayoutProvider, playpause } from '../misc'
+import { AudioContext } from '../context/AudioProvider'
 
-const { width, height } = Dimensions.get('window')
+const { width } = Dimensions.get('window')
 
-const PlaylistDetail = ({ playlist }) => {
+export const PlaylistDetail = ({ playlist }) => {
   const [deleteModalVisible, setDeleteModalVisible] = useState(false)
   const [currentItem, setCurrentItem] = useState({})
   const { tracks } = playlist
@@ -75,8 +75,6 @@ const styles = StyleSheet.create({
   container: {
     width: width,
     height: 200,
-    marginBottom: 90,
+    marginBottom: 90
   }
 })
-
-export default PlaylistDetail

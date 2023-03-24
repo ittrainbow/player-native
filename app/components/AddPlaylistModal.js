@@ -15,7 +15,7 @@ const { MAIN, BG, MODAL_BG } = color
 
 const { width } = Dimensions.get('window')
 
-const AddPlaylistModal = ({ visible, onClose, onSubmit }) => {
+export const AddPlaylistModal = ({ visible, onClose, onSubmit }) => {
   const nameRef = useRef()
   const [playlistName, setPlaylistName] = useState('')
 
@@ -112,4 +112,3 @@ const styles = StyleSheet.create({
   }
 })
 
-export default AddPlaylistModal

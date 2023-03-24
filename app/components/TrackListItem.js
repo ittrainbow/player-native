@@ -1,7 +1,6 @@
 import React from 'react'
 import { View, StyleSheet, Text, Dimensions, TouchableOpacity } from 'react-native'
 import { MaterialIcons } from '@expo/vector-icons'
-import { Entypo } from '@expo/vector-icons'
 
 import { getListItemText, getListItemTime, color } from '../misc'
 
@@ -15,7 +14,6 @@ export const TrackListItem = ({
   item,
   isPlaying,
   activeListItem,
-  tracklist,
   onPress,
   onAudioPress
 }) => {
@@ -26,68 +24,6 @@ export const TrackListItem = ({
   const artist = tracknameSplit[0]
   const title = tracknameSplit[1]
   const icon = activeListItem ? (isPlaying ? pauseIcon : playIcon) : letter
-
-  const styles = StyleSheet.create({
-    container: {
-      flexDirection: 'row',
-      alignSelf: 'center',
-      alignItems: 'center',
-      width: width - 24,
-      height: 60,
-      marginTop: tracklist ? 5 : 0,
-      borderRadius: 10
-    },
-    opacity: {
-      padding: 5,
-      paddingTop: 9,
-      width: width - 80
-    },
-    leftContainer: {
-      flex: 1,
-      flexGrow: 7,
-      paddingLeft: 5,
-      flexDirection: 'row'
-    },
-    rightContainer: {
-      flex: 1,
-      width: 100,
-      justifyContent: 'flex-start'
-    },
-    rightIcon: {
-      width: 60,
-      height: 50,
-      paddingLeft: 25,
-      paddingTop: 15,
-      color: FONT_MEDIUM
-    },
-    thumbnailContainer: {
-      height: 42,
-      width: 42,
-      backgroundColor: 'white',
-      alignItems: 'center',
-      justifyContent: 'center',
-      borderRadius: 10,
-      borderWidth: 1,
-      borderColor: 'lightgrey'
-    },
-    thumbnail: {
-      fontSize: 22,
-      color: FONT
-    },
-    titleContainer: {
-      paddingHorizontal: 7,
-      width: width - 155
-    },
-    title: {
-      fontSize: 16,
-      color: FONT
-    },
-    duration: {
-      fontSize: 16,
-      paddingTop: 10,
-      color: FONT_LIGHT
-    }
-  })
 
   return (
     <View
@@ -113,10 +49,69 @@ export const TrackListItem = ({
         </View>
       </TouchableOpacity>
       <View style={styles.rightContainer}>
-        <Entypo style={styles.rightIcon} name="dots-three-vertical" size={20} onPress={onPress} />
+        <MaterialIcons name="more-vert" size={28} color="black" onPress={onPress}/>
       </View>
     </View>
   )
 }
 
-export default TrackListItem
+const styles = StyleSheet.create({
+  container: {
+    flexDirection: 'row',
+    alignSelf: 'center',
+    alignItems: 'center',
+    width: width - 24,
+    height: 60,
+    marginTop: 5,
+    borderRadius: 10
+  },
+  opacity: {
+    padding: 5,
+    paddingTop: 9,
+    width: width - 80
+  },
+  leftContainer: {
+    flex: 1,
+    flexGrow: 7,
+    paddingLeft: 5,
+    flexDirection: 'row'
+  },
+  rightContainer: {
+    width: 80,
+    alignItems: 'center'
+  },
+  rightIcon: {
+    width: 60,
+    height: 50,
+    paddingLeft: 25,
+    paddingTop: 15,
+    color: FONT_MEDIUM
+  },
+  thumbnailContainer: {
+    height: 42,
+    width: 42,
+    backgroundColor: 'white',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: 'lightgrey'
+  },
+  thumbnail: {
+    fontSize: 22,
+    color: FONT
+  },
+  titleContainer: {
+    paddingHorizontal: 7,
+    width: width - 155
+  },
+  title: {
+    fontSize: 16,
+    color: FONT
+  },
+  duration: {
+    fontSize: 16,
+    paddingTop: 10,
+    color: FONT_LIGHT
+  }
+})

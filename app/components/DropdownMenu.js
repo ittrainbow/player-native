@@ -3,11 +3,11 @@ import { StyleSheet, View, Dimensions } from 'react-native'
 import { Dropdown } from 'react-native-element-dropdown'
 
 import { AudioContext } from '../context/AudioProvider'
-import { color } from '../misc/color'
+import { color } from '../misc'
 const { CREME_DARK, CREME, BG } = color
 const { width } = Dimensions.get('window')
 
-const DropdownMenu = ({ list, onPress }) => {
+export const DropdownMenu = ({ list, onPress }) => {
   const context = useContext(AudioContext)
   const { updateState } = context
   const [data, setData] = useState([])
@@ -55,8 +55,6 @@ const DropdownMenu = ({ list, onPress }) => {
     </View>
   )
 }
-
-export default DropdownMenu
 
 const styles = StyleSheet.create({
   container: {
