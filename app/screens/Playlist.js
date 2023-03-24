@@ -1,18 +1,19 @@
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import React, { useContext, useState, useEffect } from 'react'
-import { StyleSheet, Text, View, TouchableOpacity, Dimensions } from 'react-native'
+import { StyleSheet, View, TouchableOpacity, Dimensions, Alert } from 'react-native'
 import GestureRecognizer, { swipeDirections } from 'react-native-swipe-gestures'
 import { RecyclerListView } from 'recyclerlistview'
 import { useIsFocused } from '@react-navigation/native'
+import { MaterialIcons } from '@expo/vector-icons'
 
 import AddPlaylistModal from '../components/AddPlaylistModal'
 import ExistsModal from '../components/ExistsModal'
-import { playpause } from '../misc/audioController'
 import TrackListItem from '../components/TrackListItem'
-import { getLayoutProvider } from '../misc/layoutProvider'
 import DeleteModal from '../components/DeleteModal'
 import DropdownMenu from '../components/DropdownMenu'
 import PlaylistItem from '../components/PlaylistItem'
+import { playpause } from '../misc/audioController'
+import { getLayoutProvider } from '../misc/layoutProvider'
 import { AudioContext } from '../context/AudioProvider'
 import { swipeConfig } from '../misc/swipeConfig'
 import { color } from '../misc/color'
@@ -88,6 +89,31 @@ export const Playlists = ({ navigation }) => {
     setCurrentItem(item)
   }
 
+  const onAddPlaylistHandler = () => {
+    setModalVisible(true)
+  }
+
+  const deletePlaylist = async () => {
+    const response = await AsyncStorage.getItem('playlist')
+    const resp = JSON.parse(response)
+    resp.splice(playlistNumber, 1)
+    await AsyncStorage.setItem('playlist', JSON.stringify(resp))
+    const newState = {
+      playlist: resp,
+      playlistNumber: 0
+    }
+    return updateState(context, newState)
+  }
+
+  const onDeletePlaylistHandler = () => {
+    playlistNumber === 0
+      ? Alert.alert('Favorites playlist is undeletable')
+      : Alert.alert('Delete playlist?', 'This operation cannot be undone', [
+          { text: 'Yes', onPress: () => deletePlaylist() },
+          { text: 'No', style: 'cancel' }
+        ])
+  }
+
   const onDeleteFromPlaylist = () => {
     const newTracks = [...playlist.tracks].filter((track) => track.id !== currentItem.id)
     const newPlaylist = { ...playlist, tracks: newTracks }
@@ -106,14 +132,6 @@ export const Playlists = ({ navigation }) => {
     }
     const newState = { playlist: JSON.parse(response) }
     return updateState(context, newState)
-  }
-
-  const logger = () => {
-    console.log('pl num', playlistNumber)
-  }
-
-  const clearPlaylists = async () => {
-    await AsyncStorage.removeItem('playlist')
   }
 
   const onBannerPress = async (playlist) => {
@@ -162,8 +180,6 @@ export const Playlists = ({ navigation }) => {
     await playpause({ audio, context })
   }
 
-  const onDetailedPressHandler = () => {}
-
   const rowRenderer = (_, item, index, extendedState) => {
     const { isPlaying } = extendedState
     const activeListItem = item.id === currentAudio.id
@@ -185,16 +201,13 @@ export const Playlists = ({ navigation }) => {
       style={styles.flex}
     >
       <View style={styles.container}>
-        <DropdownMenu list={playlist} onPress={onBannerPress} />
-        <View style={styles.addDelContainer}>
-          <TouchableOpacity onPress={() => setModalVisible(true)} style={styles.add}>
-            <Text style={styles.bannerAdd}>New Playlist</Text>
+        <View style={styles.topContainer}>
+          <DropdownMenu list={playlist} onPress={onBannerPress} style={{ width: width - 120 }} />
+          <TouchableOpacity style={styles.add} onPress={onAddPlaylistHandler}>
+            <MaterialIcons name="add-circle-outline" size={32} color="black" />
           </TouchableOpacity>
-          <TouchableOpacity onPress={logger} style={styles.add}>
-            <Text style={styles.bannerLog}>Log</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={clearPlaylists} style={styles.add}>
-            <Text style={styles.bannerDel}>Delete All</Text>
+          <TouchableOpacity style={styles.add} onPress={onDeletePlaylistHandler}>
+            <MaterialIcons name="delete-outline" size={32} color="black" />
           </TouchableOpacity>
         </View>
         <View style={styles.playlistString}>
@@ -213,11 +226,7 @@ export const Playlists = ({ navigation }) => {
           onClose={onCloseDeleteModal}
           onDelete={onDeleteFromPlaylist}
         />
-        <ExistsModal
-          visible={existsVisible}
-          onClose={onCloseExistsModal}
-          onPress={onDetailedPressHandler}
-        />
+        <ExistsModal visible={existsVisible} onClose={onCloseExistsModal} />
         <AddPlaylistModal
           visible={modalVisible}
           onClose={onCloseAddPlaylistModal}
@@ -245,6 +254,10 @@ const styles = StyleSheet.create({
   },
   flex: {
     flex: 1
+  },
+  topContainer: {
+    flexDirection: 'row',
+    gap: 5
   },
   playlist: {
     width: Dimensions.get('window').width,
@@ -278,18 +291,13 @@ const styles = StyleSheet.create({
     padding: 3,
     fontSize: 16
   },
-  addDelContainer: {
-    flexDirection: 'row',
-    gap: 10,
-    marginTop: 5
-  },
   add: {
-    padding: 10,
-    height: 50,
+    height: 54,
+    width: 55,
     backgroundColor: CREME,
     borderRadius: 10,
     alignItems: 'center',
-    width: width / 3 - 15
+    justifyContent: 'center'
   },
   bannerDel: {
     fontSize: 16,

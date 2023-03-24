@@ -66,17 +66,11 @@ class AudioProvider extends Component {
 
   permissionAlert = () => {
     Alert.alert(
-      'Требуется разрешение',
-      'Для доступа к аудио-файлам приложению требуется доступ к файловой системе',
+      'Permission needed',
+      'File system access is necessary to search through your device media library',
       [
-        {
-          text: 'Согласиться',
-          onPress: () => this.getPermission()
-        },
-        {
-          text: 'Отменить',
-          onPress: () => this.permissionAlert()
-        }
+        { text: 'Согласиться', onPress: () => this.getPermission() },
+        { text: 'Отменить', onPress: () => this.permissionAlert() }
       ]
     )
   }
