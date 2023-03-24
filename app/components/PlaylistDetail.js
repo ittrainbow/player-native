@@ -10,7 +10,7 @@ import { DeleteModal } from './DeleteModal'
 
 const { width, height } = Dimensions.get('window')
 
-const DetailedPlaylist = ({ playlist }) => {
+const PlaylistDetail = ({ playlist }) => {
   const [deleteModalVisible, setDeleteModalVisible] = useState(false)
   const [currentItem, setCurrentItem] = useState({})
   const { tracks } = playlist
@@ -81,4 +81,4 @@ const styles = StyleSheet.create({
   }
 })
 
-export default DetailedPlaylist
+export default PlaylistDetail

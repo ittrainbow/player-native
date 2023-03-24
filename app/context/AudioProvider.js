@@ -1,9 +1,9 @@
 import React, { Component } from 'react'
-import { StyleSheet, Alert, View, Text, Dimensions } from 'react-native'
+import AsyncStorage from '@react-native-async-storage/async-storage'
+import { StyleSheet, Alert, View, Text } from 'react-native'
 import * as MediaLibrary from 'expo-media-library'
 import { DataProvider } from 'recyclerlistview'
 import { Audio } from 'expo-av'
-import AsyncStorage from '@react-native-async-storage/async-storage'
 
 import { getTrackNames } from '../misc/getTrackNames'
 import { next } from '../misc/audioController'
@@ -18,6 +18,8 @@ class AudioProvider extends Component {
       audioFiles: [],
       playlist: [],
       playlistNumber: 0,
+      isPlaylist: false,
+      shuffle: false,
       addToPlaylist: null,
       permissionError: false,
       dataProvider: new DataProvider((r1, r2) => r1 !== r2),
@@ -41,13 +43,15 @@ class AudioProvider extends Component {
   }
 
   async componentDidMount() {
+    const response = await AsyncStorage.getItem('playlist')
+    const playlist = JSON.parse(response) || []
     this.getPermission()
     if (this.state.playbackObject === null) {
       await Audio.setAudioModeAsync({
         staysActiveInBackground: true
       })
       const playbackObject = new Audio.Sound()
-      this.setState({ ...this.state, playbackObject })
+      this.setState({ ...this.state, playbackObject, playlist })
     }
   }
 
@@ -134,9 +138,20 @@ class AudioProvider extends Component {
     })
   }
 
+  getNextAudio = ({ value }) => {
+    const counter = value === 'prev' ? -1 : 1
+    const { playlist, playlistNumber, isPlaylist, currentAudio, audioFiles, shuffle } = this.state
+    const list = isPlaylist ? playlist[playlistNumber].tracks : audioFiles
+    const numPlaylist = list.map((track) => track.id).indexOf(currentAudio.id) + counter
+    const num = numPlaylist === list.length ? 0 : numPlaylist
+    const rand = Math.floor(Math.random() * (isPlaylist ? list.length : audioFiles.length))
+
+    return list[shuffle ? rand : num]
+  }
+
   onPlaybackStatusUpdate = async (playbackStatus) => {
     const { positionMillis, durationMillis, isLoaded, isPlaying, didJustFinish } = playbackStatus
-    const { updateState, currentAudioIndex, audioFiles, playbackObject, totalCount } = this.state
+    const { updateState, currentAudioIndex, playbackObject, totalCount } = this.state
     const { currentArtist, currentTitle } = this.track
     const newState = {
       playbackPosition: positionMillis,
@@ -148,7 +163,7 @@ class AudioProvider extends Component {
     if (didJustFinish) {
       const maxReached = currentAudioIndex + 1 >= totalCount
       const index = maxReached ? 0 : currentAudioIndex + 1
-      const audio = audioFiles[index]
+      const audio = this.getNextAudio(index)
       const { uri } = audio
       const artist = currentArtist
       const title = currentTitle
@@ -176,10 +191,12 @@ class AudioProvider extends Component {
       playbackPosition,
       playbackDuration,
       playlist,
+      isPlaylist,
       playlistNumber,
       addToPlaylist,
       currentArtist,
-      currentTitle
+      currentTitle,
+      shuffle
     } = this.state
     if (permissionError)
       return (
@@ -206,9 +223,12 @@ class AudioProvider extends Component {
           currentArtist,
           currentTitle,
           playlist,
-          playlistNumber, 
+          isPlaylist,
+          playlistNumber,
           addToPlaylist,
+          shuffle,
           track: this.track,
+          getNextAudio: this.getNextAudio,
           loadPreviousAudio: this.loadPreviousAudio,
           updateState: this.updateState,
           onPlaybackStatusUpdate: this.onPlaybackStatusUpdate,

@@ -1,5 +1,6 @@
 import React, { useContext, useRef, useEffect, useState } from 'react'
 import { Animated, View, StyleSheet, Text, Dimensions } from 'react-native'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 import { MaterialIcons } from '@expo/vector-icons'
 import Slider from '@react-native-community/slider'
 import GestureRecognizer, { swipeDirections } from 'react-native-swipe-gestures'
@@ -23,15 +24,19 @@ export const Player = ({ navigation }) => {
     currentAudioIndex,
     totalCount,
     isPlaying,
+    isPlaylist,
     playbackObject,
     playbackPosition,
     playbackDuration,
     getMetadata,
     soundObject,
     track,
-    updateState
+    shuffle,
+    updateState,
+    playlist,
+    playlistNumber,
+    getNextAudio
   } = context
-
   const { currentArtist, currentTitle } = track
 
   useEffect(() => {
@@ -66,7 +71,8 @@ export const Player = ({ navigation }) => {
   }
 
   const prevNextHandler = async (value) => {
-    await prevnext({ value, context })
+    const nextAudio = await getNextAudio({ value })
+    await prevnext({ value, context, nextAudio })
   }
 
   const playPauseHandler = async () => {
@@ -97,7 +103,7 @@ export const Player = ({ navigation }) => {
     const { SWIPE_LEFT, SWIPE_RIGHT } = swipeDirections
     switch (gestureName) {
       case SWIPE_LEFT:
-        navigation.navigate('Playlist')
+        navigation.navigate('Playlists')
         break
       case SWIPE_RIGHT:
         navigation.navigate('Tracklist')
@@ -107,6 +113,40 @@ export const Player = ({ navigation }) => {
     }
   }
 
+  const getCount = () => {
+    const { id } = currentAudio
+    const list = playlist[playlistNumber].tracks
+    const total = isPlaylist ? list.length : totalCount
+    const num = isPlaylist ? list.map((el) => el.id).indexOf(id) : currentAudioIndex
+    return `${num + 1} / ${total}`
+  }
+
+  const checkFav = () => {
+    const favs = playlist
+      .filter((list) => list.title === 'Favorites')[0]
+      .tracks.map((track) => track.id)
+    return favs.filter((el) => el === currentAudio.id).length === 1
+  }
+
+  const onFavHandler = async () => {
+    const favPlaylistNumber = playlist.map((list) => list.title).indexOf('Favorites')
+    const getTracks = [...playlist[favPlaylistNumber].tracks]
+    let newTracks
+    if (!checkFav()) newTracks = getTracks.concat([currentAudio])
+    else {
+      getTracks.splice(getTracks.map((track) => track.id).indexOf(currentAudio.id), 1)
+      newTracks = [...getTracks]
+    }
+    const newPlaylist = [...playlist]
+    newPlaylist[favPlaylistNumber].tracks = newTracks
+    updateState(context, { playlist: newPlaylist })
+    return await AsyncStorage.setItem('playlist', JSON.stringify(newPlaylist))
+  }
+
+  const shuffleHandler = () => {
+    updateState(context, { shuffle: !shuffle })
+  }
+
   return (
     <Screen>
       <View style={styles.container}>
@@ -114,9 +154,7 @@ export const Player = ({ navigation }) => {
           onSwipe={(direction, state) => onSwipe(direction, state)}
           config={swipeConfig}
         >
-          <Text style={styles.audioCount}>
-            {currentAudioIndex + 1} / {totalCount}
-          </Text>
+          <Text style={styles.audioCount}>{getCount()}</Text>
           <Animated.View style={[styles.playerIconContainer, { opacity: fadeAnim }]}>
             <MaterialIcons name="library-music" size={240} color={MAIN} />
           </Animated.View>
@@ -148,9 +186,19 @@ export const Player = ({ navigation }) => {
             />
           </View>
           <View style={styles.playerButtons}>
+            <PlayerButton
+              onPress={onFavHandler}
+              iconType={checkFav() ? 'FAVORITE' : 'FAVORITE-OUTLINE'}
+              size={28}
+            />
             <PlayerButton onPress={() => prevNextHandler('prev')} iconType={'PREV'} />
             <PlayerButton onPress={playPauseHandler} iconType={isPlaying ? 'PAUSE' : 'PLAY'} />
             <PlayerButton onPress={() => prevNextHandler('next')} iconType={'NEXT'} />
+            <PlayerButton
+              onPress={shuffleHandler}
+              iconType={shuffle ? 'SHUFFLE-ON' : 'SHUFFLE'}
+              size={30}
+            />
           </View>
         </GestureRecognizer>
       </View>
@@ -220,7 +268,8 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     paddingTop: 25,
-    gap: 40,
-    left: width / 2 - 110
+    gap: 20,
+    aligiItems: 'center',
+    justifyContent: 'center'
   }
 })

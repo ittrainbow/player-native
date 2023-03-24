@@ -3,6 +3,7 @@ import { Dimensions, StyleSheet } from 'react-native'
 import { AudioContext } from '../context/AudioProvider'
 import { RecyclerListView } from 'recyclerlistview'
 import GestureRecognizer, { swipeDirections } from 'react-native-swipe-gestures'
+import { useIsFocused } from '@react-navigation/native'
 
 import { TrackListItem } from '../components/TrackListItem'
 import { color } from '../misc/color'
@@ -19,10 +20,15 @@ export const Tracklist = ({ navigation }) => {
   const [currentItem, setCurrentItem] = useState({})
   const [modalVisible, setModalVisible] = useState(false)
   const layoutProvider = getLayoutProvider()
+  const focused = useIsFocused()
 
   useEffect(() => {
     loadPreviousAudio()
   }, [])
+
+  useEffect(() => {
+    focused && updateState(context, { isPlaylist: false })
+  }, [focused])
 
   const onModalClose = () => {
     setModalVisible(false)
@@ -39,7 +45,7 @@ export const Tracklist = ({ navigation }) => {
   }
 
   const onPlaylistPressHandler = () => {
-    navigation.navigate('Playlist')
+    navigation.navigate('Playlists')
     const newState = { addToPlaylist: currentItem }
     updateState(context, newState)
     setModalVisible(false)

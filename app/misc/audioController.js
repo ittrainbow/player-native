@@ -73,7 +73,11 @@ export const playpause = async ({ audio, context }) => {
       if (isLoaded && id === audio.id) {
         if (isPlaying) {
           const status = await pause(playbackObject)
-          const newState = { soundObject: status, isPlaying: false, playbackPosition: status.positionMillis }
+          const newState = {
+            soundObject: status,
+            isPlaying: false,
+            playbackPosition: status.positionMillis
+          }
 
           return updateState(context, newState)
         } else {
@@ -99,12 +103,11 @@ export const playpause = async ({ audio, context }) => {
   }
 }
 
-export const prevnext = async ({ value, context }) => {
+export const prevnext = async ({ value, context, nextAudio }) => {
   const {
     playbackObject,
     currentAudioIndex,
     updateState,
-    audioFiles,
     onPlaybackStatusUpdate,
     totalCount,
     getMetadata
@@ -121,7 +124,7 @@ export const prevnext = async ({ value, context }) => {
       : endOfList
       ? 0
       : currentAudioIndex + counter
-    const audio = audioFiles[index]
+    const audio = nextAudio
     const { uri } = audio
     const { artist, title } = getMetadata(uri)
 

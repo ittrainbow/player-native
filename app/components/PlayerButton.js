@@ -17,12 +17,25 @@ const PlayerButton = (props) => {
         return 'pause'
       case 'NEXT':
         return 'skip-next'
+      case 'SHUFFLE':
+        return 'shuffle'
+      case 'SHUFFLE-ON':
+        return 'shuffle-on'
+      case 'FAVORITE':
+        return 'favorite'
+      case 'FAVORITE-OUTLINE':
+        return 'favorite-outline'
       default:
         return
     }
   }
 
-  return <IconButton onPress={onPress} icon={<MaterialIcons name={getIcon()} size={size} color={color}/>} />
+  return (
+    <IconButton
+      onPress={onPress}
+      icon={<MaterialIcons name={getIcon()} size={size} color={color} />}
+    />
+  )
 }
 
 export default PlayerButton

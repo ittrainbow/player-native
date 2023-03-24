@@ -3,6 +3,7 @@ import React, { useContext, useState, useEffect } from 'react'
 import { StyleSheet, Text, View, TouchableOpacity, Dimensions } from 'react-native'
 import GestureRecognizer, { swipeDirections } from 'react-native-swipe-gestures'
 import { RecyclerListView } from 'recyclerlistview'
+import { useIsFocused } from '@react-navigation/native'
 
 import AddPlaylistModal from '../components/AddPlaylistModal'
 import ExistsModal from '../components/ExistsModal'
@@ -23,7 +24,7 @@ const initialPlaylist = (title = '', tracks = []) => {
   return { id: Date.now(), title, tracks }
 }
 
-export const Playlist = ({ navigation }) => {
+export const Playlists = ({ navigation }) => {
   const [modalVisible, setModalVisible] = useState(false)
   const [existsVisible, setExistsVisible] = useState(false)
   const [currentItem, setCurrentItem] = useState({})
@@ -37,15 +38,18 @@ export const Playlist = ({ navigation }) => {
     playlistNumber,
     dataProvider,
     isPlaying,
-    currentAudioIndex,
     currentAudio
   } = context
-
+  const focused = useIsFocused()
   const layoutProvider = getLayoutProvider()
 
   useEffect(() => {
     !playlist.length && renderPlaylist()
   }, [])
+
+  useEffect(() => {
+    focused && updateState(context, { isPlaylist: true })
+  }, [focused])
 
   useEffect(() => {
     playlist.length && setSelectedPlaylist(playlist[playlistNumber])
@@ -104,7 +108,9 @@ export const Playlist = ({ navigation }) => {
     return updateState(context, newState)
   }
 
-  const logger = () => {}
+  const logger = () => {
+    console.log('pl num', playlistNumber)
+  }
 
   const clearPlaylists = async () => {
     await AsyncStorage.removeItem('playlist')
@@ -171,6 +177,7 @@ export const Playlist = ({ navigation }) => {
       />
     )
   }
+
   return (
     <GestureRecognizer
       onSwipe={(direction, state) => onSwipe(direction, state)}
@@ -190,12 +197,15 @@ export const Playlist = ({ navigation }) => {
             <Text style={styles.bannerDel}>Delete All</Text>
           </TouchableOpacity>
         </View>
-        {playlist.map((item) => {
-          const { id } = item
-          return addToPlaylist ? (
-            <PlaylistItem key={id} item={item} onPress={onBannerPress} />
-          ) : null
-        })}
+        <View style={styles.playlistString}>
+          {playlist.length > 0 &&
+            playlist.map((item) => {
+              const { id } = item
+              return addToPlaylist ? (
+                <PlaylistItem key={id} item={item} onPress={onBannerPress} />
+              ) : null
+            })}
+        </View>
 
         <DeleteModal
           visible={deleteModalVisible}
@@ -231,7 +241,7 @@ export const Playlist = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     fledDirection: 'column',
-    padding: 12,
+    padding: 12
   },
   flex: {
     flex: 1
@@ -241,6 +251,10 @@ const styles = StyleSheet.create({
     marginBottom: 90,
     background: 'red',
     flex: 1
+  },
+  playlistString: {
+    marginTop: 5,
+    alignItems: 'center'
   },
   header: {
     flex: 1,
@@ -267,7 +281,7 @@ const styles = StyleSheet.create({
   addDelContainer: {
     flexDirection: 'row',
     gap: 10,
-    marginTop: 5,
+    marginTop: 5
   },
   add: {
     padding: 10,

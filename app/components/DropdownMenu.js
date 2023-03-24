@@ -1,12 +1,15 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useContext } from 'react'
 import { StyleSheet, View, Dimensions } from 'react-native'
 import { Dropdown } from 'react-native-element-dropdown'
 
+import { AudioContext } from '../context/AudioProvider'
 import { color } from '../misc/color'
 const { CREME_DARK, CREME, BG } = color
 const { width } = Dimensions.get('window')
 
 const DropdownMenu = ({ list, onPress }) => {
+  const context = useContext(AudioContext)
+  const { updateState } = context
   const [data, setData] = useState([])
   const [value, setValue] = useState(null)
   const [isFocus, setIsFocus] = useState(false)
@@ -23,8 +26,9 @@ const DropdownMenu = ({ list, onPress }) => {
   }, [list])
 
   const onPressHandler = (item) => {
-    const { _index } = item
-    onPress(list[_index])
+    const { _index: index } = item
+    onPress(list[index])
+    updateState(context, { playlistNumber: index })
   }
 
   return (
@@ -59,13 +63,8 @@ const styles = StyleSheet.create({
     width: width - 24,
     marginBottom: 5
   },
-  z: {
-    width: width - 24,
-    left: 12,
-    zIndex: 999
-  },
   dropdown: {
-    height: 60,
+    height: 55,
     borderColor: 'grey',
     borderWidth: 1,
     borderRadius: 8,
@@ -75,10 +74,10 @@ const styles = StyleSheet.create({
   containerStyle: {
     backgroundColor: BG,
     borderRadius: 10,
-    padding: 2
+    padding: 3
   },
   itemContainerStyle: {
-    borderRadius: 10,
+    borderRadius: 10
   },
   placeholderStyle: {
     fontSize: 16
