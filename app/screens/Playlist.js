@@ -12,11 +12,8 @@ import TrackListItem from '../components/TrackListItem'
 import DeleteModal from '../components/DeleteModal'
 import DropdownMenu from '../components/DropdownMenu'
 import PlaylistItem from '../components/PlaylistItem'
-import { playpause } from '../misc/audioController'
-import { getLayoutProvider } from '../misc/layoutProvider'
 import { AudioContext } from '../context/AudioProvider'
-import { swipeConfig } from '../misc/swipeConfig'
-import { color } from '../misc/color'
+import { playpause, getLayoutProvider, swipeConfig, color } from '../misc'
 const { CREME } = color
 
 const { width } = Dimensions.get('window')

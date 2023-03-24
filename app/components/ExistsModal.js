@@ -49,7 +49,6 @@ const styles = StyleSheet.create({
     left: 0,
     bottom: 5,
     backgroundColor: MODAL_BG
-    // backgroundColor: 'red'
   }
 })
 

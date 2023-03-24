@@ -3,8 +3,7 @@ import { View, StyleSheet, Text, Dimensions, TouchableOpacity } from 'react-nati
 import { MaterialIcons } from '@expo/vector-icons'
 import { Entypo } from '@expo/vector-icons'
 
-import { getListItemText, getListItemTime } from '../misc/trackListItemHelpers'
-import { color } from '../misc/color'
+import { getListItemText, getListItemTime, color } from '../misc'
 
 const { FONT, FONT_MEDIUM, FONT_LIGHT, BG, ICON, MAIN, CREME, CREME_DARK } = color
 const playIcon = <MaterialIcons name="play-circle-filled" size={36} color={ICON} />

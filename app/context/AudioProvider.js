@@ -5,8 +5,7 @@ import * as MediaLibrary from 'expo-media-library'
 import { DataProvider } from 'recyclerlistview'
 import { Audio } from 'expo-av'
 
-import { getTrackNames } from '../misc/getTrackNames'
-import { next } from '../misc/audioController'
+import { getTrackNames, next } from '../misc'
 
 export const AudioContext = React.createContext()
 

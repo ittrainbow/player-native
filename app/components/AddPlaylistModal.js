@@ -10,7 +10,7 @@ import {
 } from 'react-native'
 import { MaterialIcons } from '@expo/vector-icons'
 
-import { color } from '../misc/color'
+import { color } from '../misc'
 const { MAIN, BG, MODAL_BG } = color
 
 const { width } = Dimensions.get('window')
@@ -25,7 +25,7 @@ const AddPlaylistModal = ({ visible, onClose, onSubmit }) => {
 
   const submitHandler = () => {
     if (playlistName.trim()) {
-      onSubmit(playlistName) 
+      onSubmit(playlistName)
       setPlaylistName('')
     }
     onClose()

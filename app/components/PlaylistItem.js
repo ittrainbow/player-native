@@ -1,5 +1,6 @@
 import { StyleSheet, Text, TouchableOpacity, Dimensions } from 'react-native'
-import { color } from '../misc/color'
+
+import { color } from '../misc'
 const { CREME_DARK } = color
 const { width } = Dimensions.get('window')
 

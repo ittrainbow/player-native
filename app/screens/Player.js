@@ -8,10 +8,7 @@ import GestureRecognizer, { swipeDirections } from 'react-native-swipe-gestures'
 import Screen from '../components/Screen'
 import PlayerButton from '../components/PlayerButton'
 import { AudioContext } from '../context/AudioProvider'
-import { getListItemTime } from '../misc/trackListItemHelpers'
-import { pause, resume, playpause, prevnext } from '../misc/audioController'
-import { swipeConfig } from '../misc/swipeConfig'
-import { color } from '../misc/color'
+import { pause, resume, playpause, prevnext, getListItemTime, swipeConfig, color } from '../misc'
 const { FONT_LIGHT, MAIN } = color
 const { width } = Dimensions.get('window')
 const halfWidth = width / 2

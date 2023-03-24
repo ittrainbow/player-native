@@ -4,8 +4,7 @@ import { RecyclerListView } from 'recyclerlistview'
 
 import TrackListItem from './TrackListItem'
 import { AudioContext } from '../context/AudioProvider'
-import { getLayoutProvider } from '../misc/layoutProvider'
-import { playpause } from '../misc/audioController'
+import { getLayoutProvider, playpause } from '../misc'
 import { DeleteModal } from './DeleteModal'
 
 const { width, height } = Dimensions.get('window')
@@ -77,7 +76,6 @@ const styles = StyleSheet.create({
     width: width,
     height: 200,
     marginBottom: 90,
-    // backgroundColor: BG
   }
 })
 
