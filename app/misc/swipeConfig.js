@@ -1,4 +1,4 @@
 export const swipeConfig = {
-  velocityThreshold: 0.2,
-  directionalOffsetThreshold: 60
+  velocityThreshold: 0.1,
+  directionalOffsetThreshold: 50
 }

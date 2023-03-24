@@ -1,8 +1,10 @@
-import { storeAudioForNextOpening } from './storeAudio'
+// import { storeAudioForNextOpening } from './storeAudio'
+import { setAsync } from './async'
 
 export const play = async ({ playbackObject, uri, audio, index, artist, title }) => {
   try {
-    await storeAudioForNextOpening({ audio, index, artist, title })
+    // await storeAudioForNextOpening({ audio, index, artist, title })
+    await setAsync('previousAudio', { audio, index, artist, title })
     return await playbackObject.loadAsync(
       { uri },
       { shouldPlay: true, progressUpdateIntervalMillis: 1000 }
@@ -31,7 +33,8 @@ export const resume = async (playbackObject) => {
 export const next = async (props) => {
   const { playbackObject, audio, index, artist, title } = props
   try {
-    await storeAudioForNextOpening({ audio, index, artist, title })
+    // await storeAudioForNextOpening({ audio, index, artist, title })
+    await setAsync('previousAudio', { audio, index, artist, title })
     await playbackObject.stopAsync()
     await playbackObject.unloadAsync()
     return await play(props)

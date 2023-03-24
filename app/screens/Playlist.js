@@ -12,7 +12,9 @@ import {
   TrackListItem,
   DeleteModal,
   DropdownMenu,
-  PlaylistItem
+  PlaylistItem,
+  getAsync,
+  setAsync
 } from '../components'
 import { AudioContext } from '../context/AudioProvider'
 import { playpause, getLayoutProvider, swipeConfig, color } from '../misc'
@@ -59,7 +61,8 @@ export const Playlists = ({ navigation }) => {
   const onCloseExistsModal = () => setExistsVisible(false)
 
   const createPlaylist = async (playlistName) => {
-    const response = await AsyncStorage.getItem('playlist')
+    // const response = await AsyncStorage.getItem('playlist')    
+    const response = await getAsync('playlist')
 
     if (response !== null) {
       const tracks = []
@@ -73,7 +76,8 @@ export const Playlists = ({ navigation }) => {
         playlist: updatedPlaylist
       }
       updateState(context, newState)
-      await AsyncStorage.setItem('playlist', JSON.stringify(updatedPlaylist))
+      // await AsyncStorage.setItem('playlist', JSON.stringify(updatedPlaylist))
+      await setAsync('playlist', updatedPlaylist)
     }
     setModalVisible(false)
   }
@@ -93,12 +97,14 @@ export const Playlists = ({ navigation }) => {
   }
 
   const deletePlaylist = async () => {
-    const response = await AsyncStorage.getItem('playlist')
+    // const playlist = await AsyncStorage.getItem('playlist')
+    const playlist = await getAsync('playlist')
     const resp = JSON.parse(response)
     resp.splice(playlistNumber, 1)
-    await AsyncStorage.setItem('playlist', JSON.stringify(resp))
+    // await AsyncStorage.setItem('playlist', JSON.stringify(playlist))
+    await setAsync('playlist', playlist)
     const newState = {
-      playlist: resp,
+      playlist,
       playlistNumber: 0
     }
     return updateState(context, newState)
@@ -120,14 +126,16 @@ export const Playlists = ({ navigation }) => {
   }
 
   const renderPlaylist = async () => {
-    const response = await AsyncStorage.getItem('playlist')
+    // const response = await AsyncStorage.getItem('playlist')
+    const response = await getAsync('playlist')
     if (response === null) {
       const defaultPlaylist = initialPlaylist('Favorites', [])
 
       const updatedPlaylist = [...playlist, defaultPlaylist]
       const newState = { playlist: [...updatedPlaylist] }
       updateState(context, newState)
-      return await AsyncStorage.setItem('playlist', JSON.stringify(updatedPlaylist))
+      // await AsyncStorage.setItem('playlist', JSON.stringify(updatedPlaylist))
+      return await setAsync('playlist', updatedPlaylist)
     }
     const newState = { playlist: JSON.parse(response) }
     return updateState(context, newState)
@@ -135,12 +143,13 @@ export const Playlists = ({ navigation }) => {
 
   const onBannerPress = async (playlist) => {
     if (addToPlaylist) {
-      const response = await AsyncStorage.getItem('playlist')
+      // const response = await AsyncStorage.getItem('playlist')
+      const response = await getAsync('playlist')
       let updatedList = []
       let alreadyInPlaylist = false
 
       if (response !== null) {
-        updatedList = JSON.parse(response).filter((list) => {
+        updatedList = response.filter((list) => {
           if (list.id === playlist.id) {
             alreadyInPlaylist = list.tracks.map((track) => track.id).includes(addToPlaylist.id)
             if (alreadyInPlaylist) {
@@ -158,7 +167,8 @@ export const Playlists = ({ navigation }) => {
         return updateState(context, { addToPlaylist: null })
       }
       updateState(context, { addToPlaylist: null, playlist: updatedList })
-      AsyncStorage.setItem('playlist', JSON.stringify(updatedList))
+      // AsyncStorage.setItem('playlist', JSON.stringify(updatedList))
+      setAsync('playlist', updatedList)
     }
 
     setSelectedPlaylist(playlist)
