@@ -87,9 +87,7 @@ class AudioProvider extends Component {
 
     this.setState({ ...this.state, totalCount })
 
-    const data = [...audioFiles, ...media.assets].filter((el) =>
-      el.uri.includes('/0/Music/mp3') ? el : null
-    )
+    const data = [...audioFiles, ...media.assets].filter(el => el.duration > 90)
 
     this.setState({
       ...this.state,

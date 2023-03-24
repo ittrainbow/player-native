@@ -190,7 +190,6 @@ const styles = StyleSheet.create({
     padding: 10,
     height: 50,
     flexDirection: 'row',
-    backgroundColor: CREME_DARK,
     margin: 5,
     borderRadius: 10,
     width: width - 25
@@ -214,7 +213,7 @@ const styles = StyleSheet.create({
   add: {
     padding: 10,
     height: 50,
-    backgroundColor: CREME_DARK,
+    backgroundColor: CREME,
     borderRadius: 10,
     alignItems: 'center',
     width: width / 3 - 15

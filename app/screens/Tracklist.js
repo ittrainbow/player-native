@@ -56,17 +56,15 @@ export const Tracklist = ({ navigation }) => {
   const rowRenderer = (type, item, index, extendedState) => {
     const { isPlaying, currentAudioIndex } = extendedState
     const { filename, duration } = item
-    const { letter, trackname } = getListItemText(filename)
     const time = getListItemTime(duration)
     const activeListItem = currentAudioIndex === index
 
     return (
       <TrackListItem
-        letter={letter}
+        item={item}
         isPlaying={isPlaying}
         activeListItem={activeListItem}
-        trackname={trackname}
-        time={time}
+        tracklist={true}
         onPress={() => onDotsPressHandler(item)}
         onAudioPress={() => onAudioPressHandler(item)}
       />

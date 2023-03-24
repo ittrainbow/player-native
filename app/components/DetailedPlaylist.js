@@ -2,31 +2,34 @@ import React from 'react'
 import { View, ScrollView, StyleSheet, Text, TouchableOpacity, Dimensions } from 'react-native'
 
 import { getTrackNames } from '../misc/getTrackNames'
+import TrackListItem from './TrackListItem'
 import { getListItemTime } from '../misc/trackListItemHelpers'
 import { color } from '../misc/color'
-const { CREME, CREME_GREY, CREME_DARK } = color
+const { CREME_DARK } = color
 const { width, height } = Dimensions.get('window')
-import TrackListItem from './TrackListItem'
 
 const DetailedPlaylist = ({ playlist }) => {
   const renderTrack = (track) => {
-    const { id, uri, duration } = track
-    const time = getListItemTime(duration)
-    const { artist, title } = getTrackNames(uri)
-    const string = `${artist} - ${title}`
+    const { id, uri, duration, filename } = track
+    // const time = getListItemTime(duration)
+    // const { artist, title } = getTrackNames(uri)
+    // const string = `${artist} - ${title}`
     return (
       <TouchableOpacity key={id} style={styles.itemContainer}>
-        <Text style={styles.itemTrackname}>
+        <TrackListItem 
+          item={track}
+        />
+        {/* <Text style={styles.itemTrackname}>
           {string.length > 35 ? string.substring(0, 32) + '...' : string}
         </Text>
-        <Text style={styles.itemTime}>{time}</Text>
+        <Text style={styles.itemTime}>{time}</Text> */}
       </TouchableOpacity>
     )
   }
   const { title, tracks } = playlist
   return (
     <View style={styles.container}>
-      <Text style={styles.playlistHeader}>{title}</Text>
+      {/* <Text style={styles.playlistHeader}>{title}</Text> */}
       <ScrollView contentContainerStyle={styles.containerScroll}>
         {tracks.map((track) => renderTrack(track))}
       </ScrollView>
@@ -37,10 +40,9 @@ const DetailedPlaylist = ({ playlist }) => {
 const styles = StyleSheet.create({
   container: {
     marginTop: 5,
-    padding: 10,
     gap: 10,
     width: width - 25,
-    backgroundColor: CREME_DARK,
+    // backgroundColor: CREME_DARK,
     justifyContent: 'center',
     borderRadius: 10,
     height: height - 277
@@ -58,11 +60,6 @@ const styles = StyleSheet.create({
   },
   itemContainer: {
     flexDirection: 'row',
-    // backgroundColor: CREME_GREY,
-    borderWidth: 1,
-    borderColor: CREME_GREY,
-    borderRadius: 10,
-    padding: 10
   },
   itemTrackname: {
     fontSize: 16,

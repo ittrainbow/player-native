@@ -3,7 +3,7 @@ import { StyleSheet, View, Dimensions } from 'react-native'
 import { Dropdown } from 'react-native-element-dropdown'
 
 import { color } from '../misc/color'
-const { CREME_DARK, BG } = color
+const { CREME_DARK, CREME, BG } = color
 const { width } = Dimensions.get('window')
 
 const DropdownMenu = ({ list, onPress }) => {
@@ -64,7 +64,7 @@ const styles = StyleSheet.create({
     borderColor: 'grey',
     borderWidth: 1,
     borderRadius: 8,
-    backgroundColor: CREME_DARK,
+    backgroundColor: CREME,
     paddingHorizontal: 14
   },
   containerStyle: {
@@ -73,10 +73,7 @@ const styles = StyleSheet.create({
     padding: 2
   },
   itemContainerStyle: {
-    borderWidth: 0.5,
-    borderColor: 'black',
     borderRadius: 10,
-    margin: 2
   },
   placeholderStyle: {
     fontSize: 16
