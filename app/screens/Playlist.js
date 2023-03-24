@@ -1,4 +1,3 @@
-import AsyncStorage from '@react-native-async-storage/async-storage'
 import React, { useContext, useState, useEffect } from 'react'
 import { StyleSheet, View, TouchableOpacity, Dimensions, Alert } from 'react-native'
 import GestureRecognizer, { swipeDirections } from 'react-native-swipe-gestures'
@@ -59,7 +58,6 @@ export const Playlists = ({ navigation }) => {
   const onCloseExistsModal = () => setExistsVisible(false)
 
   const createPlaylist = async (playlistName) => {
-    // const response = await AsyncStorage.getItem('playlist')    
     const response = await getAsync('playlist')
 
     if (response !== null) {
@@ -74,7 +72,6 @@ export const Playlists = ({ navigation }) => {
         playlist: updatedPlaylist
       }
       updateState(context, newState)
-      // await AsyncStorage.setItem('playlist', JSON.stringify(updatedPlaylist))
       await setAsync('playlist', updatedPlaylist)
     }
     setModalVisible(false)
@@ -86,6 +83,7 @@ export const Playlists = ({ navigation }) => {
   }
 
   const onDotsPressHandler = (item) => {
+    console.log(0, item)
     setDeleteModalVisible(true)
     setCurrentItem(item)
   }
@@ -95,11 +93,8 @@ export const Playlists = ({ navigation }) => {
   }
 
   const deletePlaylist = async () => {
-    // const playlist = await AsyncStorage.getItem('playlist')
     const playlist = await getAsync('playlist')
-    // const resp = JSON.parse(response)
     playlist.splice(playlistNumber, 1)
-    // await AsyncStorage.setItem('playlist', JSON.stringify(playlist))
     await setAsync('playlist', playlist)
     const newState = {
       playlist,
@@ -117,14 +112,17 @@ export const Playlists = ({ navigation }) => {
         ])
   }
 
-  const onDeleteFromPlaylist = () => {
-    const newTracks = [...playlist.tracks].filter((track) => track.id !== currentItem.id)
-    const newPlaylist = { ...playlist, tracks: newTracks }
-    console.log(4, newPlaylist)
+  const onDeleteFromPlaylist = async () => {
+    const { id } = currentItem
+    const newTracks = [...playlist[playlistNumber].tracks].filter((track) => track.id !== id)
+    const newPlaylist = [...playlist]
+    newPlaylist[playlistNumber].tracks = newTracks
+    updateState(context, { playlist: newPlaylist })
+    setDeleteModalVisible(false)
+    return await setAsync('playlist', newPlaylist)
   }
 
   const renderPlaylist = async () => {
-    // const response = await AsyncStorage.getItem('playlist')
     const response = await getAsync('playlist')
     if (response === null) {
       const defaultPlaylist = initialPlaylist('Favorites', [])
@@ -132,7 +130,6 @@ export const Playlists = ({ navigation }) => {
       const updatedPlaylist = [...playlist, defaultPlaylist]
       const newState = { playlist: [...updatedPlaylist] }
       updateState(context, newState)
-      // await AsyncStorage.setItem('playlist', JSON.stringify(updatedPlaylist))
       return await setAsync('playlist', updatedPlaylist)
     }
     const newState = { playlist: JSON.parse(response) }
@@ -141,7 +138,6 @@ export const Playlists = ({ navigation }) => {
 
   const onBannerPress = async (playlist) => {
     if (addToPlaylist) {
-      // const response = await AsyncStorage.getItem('playlist')
       const response = await getAsync('playlist')
       let updatedList = []
       let alreadyInPlaylist = false
@@ -165,7 +161,6 @@ export const Playlists = ({ navigation }) => {
         return updateState(context, { addToPlaylist: null })
       }
       updateState(context, { addToPlaylist: null, playlist: updatedList })
-      // AsyncStorage.setItem('playlist', JSON.stringify(updatedList))
       setAsync('playlist', updatedList)
     }
 
