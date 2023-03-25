@@ -49,7 +49,7 @@ export const Tracklist = ({ navigation }) => {
 
   const rowRenderer = (type, item, index, extendedState) => {
     const { isPlaying } = extendedState
-    const activeListItem = item.id === currentAudio.id
+    const activeListItem = currentAudio ? item.id === currentAudio.id : false
 
     return (
       <TrackListItem

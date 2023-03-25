@@ -10,23 +10,33 @@ const { width } = Dimensions.get('window')
 
 export const DropdownMenu = ({ list, onPress }) => {
   const context = useContext(AudioContext)
-  const { updateState } = context
+  const { updateState, playlist, playlistNumber } = context
   const [data, setData] = useState([])
   const [value, setValue] = useState(null)
   const [isFocus, setIsFocus] = useState(false)
 
   useEffect(() => {
-    const newData = list.map((list) => {
-      const { title, tracks } = list
-      const num = tracks.length
-      const numString = `${title}: ${num} ${num === 1 ? 'song' : 'songs'}`
-      return { label: numString }
-    })
+    if (list) {
+      const newData = list.map((list) => {
+        const { title, tracks } = list
+        const num = tracks.length
+        const numString = `${title}: ${num} ${num === 1 ? 'song' : 'songs'}`
+        return { label: numString }
+      })
 
-    setData(newData)
+      setData(newData)
+    }
   }, [list])
 
+  // useEffect(() => {
+  //   const { title, tracks } = playlist[playlistNumber]
+  //   const num = tracks.length
+  //   const numString = `${title}: ${num} ${num === 1 ? 'song' : 'songs'}`
+  //   setValue(numString)
+  // }, [playlistNumber])
+
   const onPressHandler = (item) => {
+    console.log(item)
     const { _index: index } = item
     onPress(list[index])
     updateState(context, { playlistNumber: index })
@@ -48,7 +58,6 @@ export const DropdownMenu = ({ list, onPress }) => {
         onFocus={() => setIsFocus(true)}
         onBlur={() => setIsFocus(false)}
         onChange={(item) => {
-          setValue(item.value)
           setIsFocus(false)
           onPressHandler(item)
         }}

@@ -39,8 +39,7 @@ export const Player = ({ navigation }) => {
   useEffect(() => {
     isPlaying ? fadeIn() : fadeOut()
     if (currentAudio) {
-      const { uri, duration } = currentAudio
-      const { filename } = currentAudio
+      const { uri, duration, filename } = currentAudio
       const { artist, title } = getMetadata(filename)
       getMetadata(uri)
       setDuration(duration)
@@ -121,6 +120,7 @@ export const Player = ({ navigation }) => {
     const list = isPlaylist ? playlist[playlistNumber].tracks : audioFiles
     const total = isPlaylist ? list.length : totalCount
     const num = list.map((el) => el.id).indexOf(id)
+
     return `${num + 1} / ${total}`
   }
 
@@ -128,6 +128,7 @@ export const Player = ({ navigation }) => {
     const favs = playlist
       .filter((list) => list.title === 'Favorites')[0]
       .tracks.map((track) => track.id)
+      
     return favs.filter((el) => el === currentAudio.id).length === 1
   }
 

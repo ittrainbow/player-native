@@ -5,7 +5,9 @@ import * as MediaLibrary from 'expo-media-library'
 import { DataProvider } from 'recyclerlistview'
 import { Audio } from 'expo-av'
 
-import { getTrackNames, next, getAsync } from '../misc'
+import { getTrackNames, next, setAsync, getAsync, initials } from '../misc'
+
+const { initialPlaylist } = initials
 
 export const AudioContext = React.createContext()
 
@@ -15,7 +17,7 @@ class AudioProvider extends Component {
 
     this.state = {
       audioFiles: [],
-      playlist: [],
+      playlist: initialPlaylist,
       playlistNumber: 0,
       isPlaylist: false,
       shuffle: false,
@@ -36,7 +38,6 @@ class AudioProvider extends Component {
 
   async componentDidMount() {
     const playlist = await getAsync('playlist')
-    // const playlist = JSON.parse(response) || []
     this.getPermission()
     if (this.state.playbackObject === null) {
       await Audio.setAudioModeAsync({

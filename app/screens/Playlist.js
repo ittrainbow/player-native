@@ -19,7 +19,7 @@ const { CREME } = color
 
 const { width } = Dimensions.get('window')
 
-const initialPlaylist = (title = '', tracks = []) => {
+export const initialPlaylist = (title = '', tracks = []) => {
   return { id: Date.now(), title, tracks }
 }
 
@@ -27,7 +27,7 @@ export const Playlists = ({ navigation }) => {
   const [modalVisible, setModalVisible] = useState(false)
   const [existsVisible, setExistsVisible] = useState(false)
   const [currentItem, setCurrentItem] = useState({})
-  const [selectedPlaylist, setSelectedPlaylist] = useState(initialPlaylist())
+  
   const [deleteModalVisible, setDeleteModalVisible] = useState(false)
   const context = useContext(AudioContext)
   const {
@@ -50,9 +50,10 @@ export const Playlists = ({ navigation }) => {
     focused && updateState(context, { isPlaylist: true })
   }, [focused])
 
-  useEffect(() => {
-    playlist.length && setSelectedPlaylist(playlist[playlistNumber])
-  }, [playlist, playlistNumber])
+  // useEffect(() => {
+  //   console.log('playlist changed')
+  //   playlist.length && setSelectedPlaylist(playlist[playlistNumber])
+  // }, [playlist, playlistNumber])
 
   const onCloseAddPlaylistModal = () => setModalVisible(false)
   const onCloseExistsModal = () => setExistsVisible(false)
@@ -83,7 +84,6 @@ export const Playlists = ({ navigation }) => {
   }
 
   const onDotsPressHandler = (item) => {
-    console.log(0, item)
     setDeleteModalVisible(true)
     setCurrentItem(item)
   }
@@ -137,6 +137,8 @@ export const Playlists = ({ navigation }) => {
   }
 
   const onBannerPress = async (playlist) => {
+    const { id: modifiedPlaylistID } = playlist
+    const playlistNumber = context.playlist.map(list => list.id).indexOf(modifiedPlaylistID)
     if (addToPlaylist) {
       const response = await getAsync('playlist')
       let updatedList = []
@@ -160,11 +162,11 @@ export const Playlists = ({ navigation }) => {
       if (alreadyInPlaylist) {
         return updateState(context, { addToPlaylist: null })
       }
-      updateState(context, { addToPlaylist: null, playlist: updatedList })
-      setAsync('playlist', updatedList)
+      updateState(context, { addToPlaylist: null, playlist: updatedList, playlistNumber })
+      await setAsync('playlist', updatedList)
     }
 
-    setSelectedPlaylist(playlist)
+    // setSelectedPlaylist(playlist)
   }
 
   const onSwipe = (gestureName) => {
@@ -239,7 +241,7 @@ export const Playlists = ({ navigation }) => {
       {addToPlaylist ? null : (
         <RecyclerListView
           style={styles.playlist}
-          dataProvider={dataProvider.cloneWithRows(selectedPlaylist.tracks)}
+          dataProvider={dataProvider.cloneWithRows(playlist[playlistNumber].tracks)}
           layoutProvider={layoutProvider}
           rowRenderer={rowRenderer}
           extendedState={{ isPlaying }}
