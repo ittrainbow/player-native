@@ -15,7 +15,7 @@ export const TrackListItem = ({ item, isPlaying, activeListItem, onPress, onAudi
   const { letter } = getListItemText(filename)
   const { artist, title } = getMetadata(filename)
   const time = getListItemTime(duration)
-  
+
   const icon = activeListItem ? (
     isPlaying ? (
       <MaterialIcons name="pause-circle-filled" size={36} color={BG} />
@@ -30,7 +30,7 @@ export const TrackListItem = ({ item, isPlaying, activeListItem, onPress, onAudi
     <View
       style={{
         ...styles.container,
-        backgroundColor: activeListItem ? MAIN : CREME
+        backgroundColor: activeListItem ? MAIN : CREME,
       }}
     >
       <TouchableOpacity style={styles.opacity} onPress={onAudioPress} onLongPress={onPress}>
@@ -69,7 +69,6 @@ const styles = StyleSheet.create({
   opacity: {
     padding: 5,
     paddingTop: 9,
-    width: width - 80
   },
   leftContainer: {
     flex: 1,
@@ -79,7 +78,8 @@ const styles = StyleSheet.create({
   },
   rightContainer: {
     width: 80,
-    alignItems: 'center'
+    alignItems: 'center',
+    right: 28
   },
   rightIcon: {
     width: 60,

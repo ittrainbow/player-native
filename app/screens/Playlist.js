@@ -27,7 +27,6 @@ export const Playlists = ({ navigation }) => {
   const [modalVisible, setModalVisible] = useState(false)
   const [existsVisible, setExistsVisible] = useState(false)
   const [currentItem, setCurrentItem] = useState({})
-  
   const [deleteModalVisible, setDeleteModalVisible] = useState(false)
   const context = useContext(AudioContext)
   const {
@@ -49,11 +48,6 @@ export const Playlists = ({ navigation }) => {
   useEffect(() => {
     focused && updateState(context, { isPlaylist: true })
   }, [focused])
-
-  // useEffect(() => {
-  //   console.log('playlist changed')
-  //   playlist.length && setSelectedPlaylist(playlist[playlistNumber])
-  // }, [playlist, playlistNumber])
 
   const onCloseAddPlaylistModal = () => setModalVisible(false)
   const onCloseExistsModal = () => setExistsVisible(false)
@@ -138,7 +132,7 @@ export const Playlists = ({ navigation }) => {
 
   const onBannerPress = async (playlist) => {
     const { id: modifiedPlaylistID } = playlist
-    const playlistNumber = context.playlist.map(list => list.id).indexOf(modifiedPlaylistID)
+    const playlistNumber = context.playlist.map((list) => list.id).indexOf(modifiedPlaylistID)
     if (addToPlaylist) {
       const response = await getAsync('playlist')
       let updatedList = []
@@ -202,11 +196,11 @@ export const Playlists = ({ navigation }) => {
     <GestureRecognizer
       onSwipe={(direction, state) => onSwipe(direction, state)}
       config={swipeConfig}
-      style={styles.flex}
+      style={{ flex: 1 }}
     >
       <View style={styles.container}>
         <View style={styles.topContainer}>
-          <DropdownMenu list={playlist} onPress={onBannerPress} style={{ width: width - 120 }} />
+          <DropdownMenu style={{ width: width - 120 }} />
           <TouchableOpacity style={styles.add} onPress={onAddPlaylistHandler}>
             <MaterialIcons name="add-circle-outline" size={32} color="black" />
           </TouchableOpacity>
@@ -214,16 +208,22 @@ export const Playlists = ({ navigation }) => {
             <MaterialIcons name="delete-outline" size={32} color="black" />
           </TouchableOpacity>
         </View>
-        <View style={styles.playlistString}>
-          {playlist.length > 0 &&
-            playlist.map((item) => {
-              const { id } = item
-              return addToPlaylist ? (
-                <PlaylistItem key={id} item={item} onPress={onBannerPress} />
-              ) : null
-            })}
-        </View>
+        {!!addToPlaylist &&
+          playlist.length > 0 &&
+          playlist.map((item) => {
+            const { id } = item
+            return <PlaylistItem key={id} item={item} onPress={onBannerPress} />
+          })}
 
+        {!!addToPlaylist ? null : (
+          <RecyclerListView
+            style={{ flex: 1 }}
+            dataProvider={dataProvider.cloneWithRows(playlist[playlistNumber].tracks)}
+            layoutProvider={layoutProvider}
+            rowRenderer={rowRenderer}
+            extendedState={{ isPlaying }}
+          />
+        )}
         <DeleteModal
           visible={deleteModalVisible}
           currentItem={currentItem}
@@ -237,16 +237,6 @@ export const Playlists = ({ navigation }) => {
           onSubmit={createPlaylist}
         />
       </View>
-
-      {addToPlaylist ? null : (
-        <RecyclerListView
-          style={styles.playlist}
-          dataProvider={dataProvider.cloneWithRows(playlist[playlistNumber].tracks)}
-          layoutProvider={layoutProvider}
-          rowRenderer={rowRenderer}
-          extendedState={{ isPlaying }}
-        />
-      )}
     </GestureRecognizer>
   )
 }
@@ -254,7 +244,8 @@ export const Playlists = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     fledDirection: 'column',
-    padding: 12
+    padding: 12,
+    flex: 1
   },
   flex: {
     flex: 1
@@ -263,60 +254,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 5
   },
-  playlist: {
-    width: Dimensions.get('window').width,
-    marginBottom: 90,
-    background: 'red',
-    flex: 1
-  },
-  playlistString: {
-    marginTop: 5,
-    alignItems: 'center'
-  },
-  header: {
-    flex: 1,
-    flexDirection: 'row'
-  },
-  banner: {
-    padding: 10,
-    height: 50,
-    flexDirection: 'row',
-    margin: 5,
-    borderRadius: 10,
-    width: width - 25
-  },
-  bannerLeft: {
-    padding: 3,
-    flexGrow: 1,
-    fontSize: 16
-  },
-  bannerRight: {
-    opacity: 0.25,
-    padding: 3,
-    fontSize: 16
-  },
+  playlist: {},
   add: {
-    height: 54,
-    width: 55,
+    height: 56,
+    width: 56,
     backgroundColor: CREME,
     borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center'
-  },
-  bannerDel: {
-    fontSize: 16,
-    padding: 3
-  },
-  bannerAdd: {
-    fontSize: 16,
-    padding: 3
-  },
-  bannerLog: {
-    fontSize: 16,
-    padding: 3
-  },
-  listElement: {
-    padding: 5,
-    backgroundColor: CREME
   }
 })

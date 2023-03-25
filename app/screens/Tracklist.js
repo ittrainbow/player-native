@@ -12,7 +12,14 @@ const { BG } = color
 
 export const Tracklist = ({ navigation }) => {
   const context = useContext(AudioContext)
-  const { loadPreviousAudio, updateState, isPlaying, currentAudioIndex, dataProvider, currentAudio } = context
+  const {
+    loadPreviousAudio,
+    updateState,
+    isPlaying,
+    currentAudioIndex,
+    dataProvider,
+    currentAudio
+  } = context
   const [currentItem, setCurrentItem] = useState({})
   const [modalVisible, setModalVisible] = useState(false)
   const layoutProvider = getLayoutProvider()
@@ -23,7 +30,7 @@ export const Tracklist = ({ navigation }) => {
   }, [])
 
   useEffect(() => {
-    focused && updateState(context, { isPlaylist: false })
+    focused && updateState(context, { isPlaylist: false, addToPlaylist: null })
   }, [focused])
 
   const onModalClose = () => {
@@ -73,7 +80,7 @@ export const Tracklist = ({ navigation }) => {
         break
     }
   }
-  
+
   return (
     <GestureRecognizer
       onSwipe={(direction, state) => onSwipe(direction, state)}

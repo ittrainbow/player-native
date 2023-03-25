@@ -1,4 +1,4 @@
-import { StyleSheet, Text, TouchableOpacity, Dimensions } from 'react-native'
+import { StyleSheet, Text, TouchableOpacity, View, Dimensions } from 'react-native'
 
 import { color } from '../misc'
 
@@ -20,23 +20,25 @@ export const PlaylistItem = ({ item, onPress }) => {
 
 const styles = StyleSheet.create({
   banner: {
-    padding: 10,
-    height: 50,
+    paddingVertical: 13,
+    height: 56,
     flexDirection: 'row',
     backgroundColor: CREME_DARK,
-    margin: 5,
+    marginTop: 4,
+    marginBottom: 3,
     borderRadius: 10,
-    width: width - 25
+    width: width - 25,
+    paddingHorizontal: 10
   },
   bannerLeft: {
     padding: 3,
     fontSize: 16,
     flexGrow: 1,
-    width: 100,
   },
   bannerRight: {
-    opacity: 0.25,
+    opacity: 0.35,
     padding: 3,
-    fontSize: 16
+    fontSize: 16,
+    width: 65
   }
 })
