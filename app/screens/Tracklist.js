@@ -5,8 +5,9 @@ import { RecyclerListView } from 'recyclerlistview'
 import GestureRecognizer, { swipeDirections } from 'react-native-swipe-gestures'
 import { useIsFocused } from '@react-navigation/native'
 
-import { TrackListItem, PlaylistModal } from '../components'
+import { TrackListItem } from '../components'
 import { color, swipeConfig, getLayoutProvider, playpause } from '../misc'
+import { AddToPlaylistModal } from '../modals'
 
 const { BG } = color
 
@@ -97,7 +98,7 @@ export const Tracklist = ({ navigation }) => {
         extendedState={{ isPlaying, currentAudioIndex }}
       />
 
-      <PlaylistModal
+      <AddToPlaylistModal
         currentItem={currentItem}
         visible={modalVisible}
         onClose={onModalClose}

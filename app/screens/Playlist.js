@@ -1,12 +1,12 @@
 import React, { useContext, useState, useEffect } from 'react'
-import { StyleSheet, View, TouchableOpacity, Dimensions, Alert } from 'react-native'
+import { StyleSheet, View, Text, TouchableOpacity, Dimensions, Alert } from 'react-native'
 import GestureRecognizer, { swipeDirections } from 'react-native-swipe-gestures'
 import { RecyclerListView } from 'recyclerlistview'
 import { useIsFocused } from '@react-navigation/native'
 import { MaterialIcons } from '@expo/vector-icons'
 
 import {
-  AddPlaylistModal,
+  // AddPlaylistModal,
   ExistsModal,
   TrackListItem,
   DeleteModal,
@@ -14,8 +14,9 @@ import {
   PlaylistItem
 } from '../components'
 import { AudioContext } from '../context/AudioProvider'
+import { CreatePlaylistModal } from '../modals/CreatePlaylistModal'
 import { playpause, getLayoutProvider, swipeConfig, color, getAsync, setAsync } from '../misc'
-const { CREME } = color
+const { CREME, CREME_DARK } = color
 
 const { width } = Dimensions.get('window')
 
@@ -24,7 +25,8 @@ export const initialPlaylist = (title = '', tracks = []) => {
 }
 
 export const Playlists = ({ navigation }) => {
-  const [modalVisible, setModalVisible] = useState(false)
+  // const [modalVisible, setModalVisible] = useState(false)
+  const [createPlaylistModalVisible, setCreatePlaylistModalVisible] = useState(false)
   const [existsVisible, setExistsVisible] = useState(false)
   const [currentItem, setCurrentItem] = useState({})
   const [deleteModalVisible, setDeleteModalVisible] = useState(false)
@@ -42,14 +44,14 @@ export const Playlists = ({ navigation }) => {
   const layoutProvider = getLayoutProvider()
 
   useEffect(() => {
-    !playlist.length && renderPlaylist()
+    !playlist.length && renderDefaultPlaylist()
   }, [])
 
   useEffect(() => {
     focused && updateState(context, { isPlaylist: true })
   }, [focused])
 
-  const onCloseAddPlaylistModal = () => setModalVisible(false)
+  const onCloseAddPlaylistModal = () => setCreatePlaylistModalVisible(false)
   const onCloseExistsModal = () => setExistsVisible(false)
 
   const createPlaylist = async (playlistName) => {
@@ -69,7 +71,7 @@ export const Playlists = ({ navigation }) => {
       updateState(context, newState)
       await setAsync('playlist', updatedPlaylist)
     }
-    setModalVisible(false)
+    setCreatePlaylistModalVisible(false)
   }
 
   const onCloseDeleteModal = () => {
@@ -83,7 +85,7 @@ export const Playlists = ({ navigation }) => {
   }
 
   const onAddPlaylistHandler = () => {
-    setModalVisible(true)
+    setCreatePlaylistModalVisible(true)
   }
 
   const deletePlaylist = async () => {
@@ -116,7 +118,7 @@ export const Playlists = ({ navigation }) => {
     return await setAsync('playlist', newPlaylist)
   }
 
-  const renderPlaylist = async () => {
+  const renderDefaultPlaylist = async () => {
     const response = await getAsync('playlist')
     if (response === null) {
       const defaultPlaylist = initialPlaylist('Favorites', [])
@@ -159,8 +161,6 @@ export const Playlists = ({ navigation }) => {
       updateState(context, { addToPlaylist: null, playlist: updatedList, playlistNumber })
       await setAsync('playlist', updatedList)
     }
-
-    // setSelectedPlaylist(playlist)
   }
 
   const onSwipe = (gestureName) => {
@@ -202,28 +202,35 @@ export const Playlists = ({ navigation }) => {
         <View style={styles.topContainer}>
           <DropdownMenu style={{ width: width - 120 }} />
           <TouchableOpacity style={styles.add} onPress={onAddPlaylistHandler}>
-            <MaterialIcons name="add-circle-outline" size={32} color="black" />
+            <MaterialIcons name="add-circle-outline" size={28} color="black" />
           </TouchableOpacity>
           <TouchableOpacity style={styles.add} onPress={onDeletePlaylistHandler}>
-            <MaterialIcons name="delete-outline" size={32} color="black" />
+            <MaterialIcons name="delete-outline" size={28} color="black" />
           </TouchableOpacity>
         </View>
-        {!!addToPlaylist &&
-          playlist.length > 0 &&
-          playlist.map((item) => {
-            const { id } = item
-            return <PlaylistItem key={id} item={item} onPress={onBannerPress} />
-          })}
+        <View style={styles.headerContainer}>
+          <Text style={styles.headerLeft}>Playlist: {playlist[playlistNumber].title}</Text>
+          <Text style={styles.headerRight}>Tracks: {playlist[playlistNumber].tracks.length}</Text>
+        </View>
 
-        {!!addToPlaylist ? null : (
+        <View style={{ marginTop: 3 }}>
+          {!!addToPlaylist &&
+            playlist.map((item) => {
+              const { id } = item
+              return <PlaylistItem key={id} item={item} onPress={onBannerPress} />
+            })}
+        </View>
+
+        {!addToPlaylist ? (
           <RecyclerListView
-            style={{ flex: 1 }}
+            style={styles.list}
             dataProvider={dataProvider.cloneWithRows(playlist[playlistNumber].tracks)}
             layoutProvider={layoutProvider}
             rowRenderer={rowRenderer}
             extendedState={{ isPlaying }}
           />
-        )}
+        ) : null}
+
         <DeleteModal
           visible={deleteModalVisible}
           currentItem={currentItem}
@@ -231,8 +238,8 @@ export const Playlists = ({ navigation }) => {
           onDelete={onDeleteFromPlaylist}
         />
         <ExistsModal visible={existsVisible} onClose={onCloseExistsModal} />
-        <AddPlaylistModal
-          visible={modalVisible}
+        <CreatePlaylistModal
+          visible={createPlaylistModalVisible}
           onClose={onCloseAddPlaylistModal}
           onSubmit={createPlaylist}
         />
@@ -245,7 +252,8 @@ const styles = StyleSheet.create({
   container: {
     fledDirection: 'column',
     padding: 12,
-    flex: 1
+    flex: 1,
+    marginBottom: 78
   },
   flex: {
     flex: 1
@@ -254,13 +262,32 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 5
   },
-  playlist: {},
+  list: {
+    flex: 1,
+    marginTop: 3
+  },
   add: {
-    height: 56,
+    height: 46,
     width: 56,
-    backgroundColor: CREME,
+    backgroundColor: CREME_DARK,
     borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center'
+  },
+  headerContainer: {
+    paddingTop: 10,
+    paddingHorizontal: 15,
+    flexDirection: 'row'
+  },
+  headerLeft: {
+    fontSize: 17,
+    fontWeight: 700,
+    color: CREME,
+    flexGrow: 1
+  },
+  headerRight: {
+    fontSize: 17,
+    fontWeight: 700,
+    color: CREME
   }
 })

@@ -5,7 +5,7 @@ import { MaterialIcons } from '@expo/vector-icons'
 import Slider from '@react-native-community/slider'
 import GestureRecognizer, { swipeDirections } from 'react-native-swipe-gestures'
 
-import { Screen, PlayerButton } from '../components'
+import { PlayerButton } from '../components'
 import { pause, resume, playpause, prevnext, getListItemTime, swipeConfig, color } from '../misc'
 import { AudioContext } from '../context/AudioProvider'
 const { FONT_LIGHT, MAIN } = color
@@ -19,7 +19,6 @@ export const Player = ({ navigation }) => {
   const context = useContext(AudioContext)
   const {
     currentAudio,
-    currentAudioIndex,
     totalCount,
     isPlaying,
     isPlaylist,
@@ -128,7 +127,7 @@ export const Player = ({ navigation }) => {
     const favs = playlist
       .filter((list) => list.title === 'Favorites')[0]
       .tracks.map((track) => track.id)
-      
+
     return favs.filter((el) => el === currentAudio.id).length === 1
   }
 
@@ -156,64 +155,62 @@ export const Player = ({ navigation }) => {
   }
 
   return (
-    <Screen>
-      <View style={styles.container}>
-        <GestureRecognizer
-          onSwipe={(direction, state) => onSwipe(direction, state)}
-          config={swipeConfig}
-        >
-          <View style={styles.top}>
-            <Text style={styles.playlistName}>{getPlaylistName()}</Text>
-            <Text style={styles.audioCount}>{getCount()}</Text>
-          </View>
-          <Animated.View style={[styles.playerIconContainer, { opacity: fadeAnim }]}>
-            <MaterialIcons name="library-music" size={240} color={MAIN} />
-          </Animated.View>
-          <View style={styles.playerContainer}>
-            <Text numberOfLine={1} style={styles.artist}>
-              {artist}
+    <View style={styles.container}>
+      <GestureRecognizer
+        onSwipe={(direction, state) => onSwipe(direction, state)}
+        config={swipeConfig}
+      >
+        <View style={styles.top}>
+          <Text style={styles.playlistName}>{getPlaylistName()}</Text>
+          <Text style={styles.audioCount}>{getCount()}</Text>
+        </View>
+        <Animated.View style={[styles.playerIconContainer, { opacity: fadeAnim }]}>
+          <MaterialIcons name="library-music" size={240} color={MAIN} />
+        </Animated.View>
+        <View style={styles.playerContainer}>
+          <Text numberOfLine={1} style={styles.artist}>
+            {artist}
+          </Text>
+          <Text numberOfLine={1} style={styles.title}>
+            {title}
+          </Text>
+        </View>
+        <View style={styles.timeSlide}>
+          <View style={styles.timer}>
+            <Text style={styles.timerTextLeft}>{getTime(playbackPosition)}</Text>
+            <Text style={styles.timerTextRight}>
+              {getListItemTime(playbackDuration ? playbackDuration / 1000 : duration)}
             </Text>
-            <Text numberOfLine={1} style={styles.title}>
-              {title}
-            </Text>
           </View>
-          <View style={styles.timeSlide}>
-            <View style={styles.timer}>
-              <Text style={styles.timerTextLeft}>{getTime(playbackPosition)}</Text>
-              <Text style={styles.timerTextRight}>
-                {getListItemTime(playbackDuration ? playbackDuration / 1000 : duration)}
-              </Text>
-            </View>
-            <Slider
-              style={styles.slider}
-              minimumValue={0}
-              maximumValue={1}
-              value={calculateSlider()}
-              minimumTrackTintColor="#FFFFFF"
-              maximumTrackTintColor="#000000"
-              onValueChange={(value) => slideChangeHandler(value * duration * 1000)}
-              onSlidingStart={slidePauseHandler}
-              onSlidingComplete={slideResumeHandler}
-            />
-          </View>
-          <View style={styles.playerButtons}>
-            <PlayerButton
-              onPress={onFavHandler}
-              iconType={checkFav() ? 'FAVORITE' : 'FAVORITE-OUTLINE'}
-              size={28}
-            />
-            <PlayerButton onPress={() => prevNextHandler('prev')} iconType={'PREV'} />
-            <PlayerButton onPress={playPauseHandler} iconType={isPlaying ? 'PAUSE' : 'PLAY'} />
-            <PlayerButton onPress={() => prevNextHandler('next')} iconType={'NEXT'} />
-            <PlayerButton
-              onPress={shuffleHandler}
-              iconType={shuffle ? 'SHUFFLE-ON' : 'SHUFFLE'}
-              size={30}
-            />
-          </View>
-        </GestureRecognizer>
-      </View>
-    </Screen>
+          <Slider
+            style={styles.slider}
+            minimumValue={0}
+            maximumValue={1}
+            value={calculateSlider()}
+            minimumTrackTintColor="#FFFFFF"
+            maximumTrackTintColor="#000000"
+            onValueChange={(value) => slideChangeHandler(value * duration * 1000)}
+            onSlidingStart={slidePauseHandler}
+            onSlidingComplete={slideResumeHandler}
+          />
+        </View>
+        <View style={styles.playerButtons}>
+          <PlayerButton
+            onPress={onFavHandler}
+            iconType={checkFav() ? 'FAVORITE' : 'FAVORITE-OUTLINE'}
+            size={28}
+          />
+          <PlayerButton onPress={() => prevNextHandler('prev')} iconType={'PREV'} />
+          <PlayerButton onPress={playPauseHandler} iconType={isPlaying ? 'PAUSE' : 'PLAY'} />
+          <PlayerButton onPress={() => prevNextHandler('next')} iconType={'NEXT'} />
+          <PlayerButton
+            onPress={shuffleHandler}
+            iconType={shuffle ? 'SHUFFLE-ON' : 'SHUFFLE'}
+            size={30}
+          />
+        </View>
+      </GestureRecognizer>
+    </View>
   )
 }
 

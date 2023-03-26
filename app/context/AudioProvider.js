@@ -5,7 +5,7 @@ import * as MediaLibrary from 'expo-media-library'
 import { DataProvider } from 'recyclerlistview'
 import { Audio } from 'expo-av'
 
-import { getTrackNames, next, setAsync, getAsync, initials } from '../misc'
+import { getTrackNames, next, getAsync, initials } from '../misc'
 
 const { initialPlaylist } = initials
 

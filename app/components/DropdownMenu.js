@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useContext } from 'react'
-import { StyleSheet, View, Dimensions } from 'react-native'
+import { StyleSheet, View, Dimensions, TouchableWithoutFeedback } from 'react-native'
 import { Dropdown } from 'react-native-element-dropdown'
 
 import { AudioContext } from '../context/AudioProvider'
 import { color } from '../misc'
 
-const { CREME_DARK, CREME, BG } = color
+const { CREME_DARK, CREME, BG, MODAL_BG } = color
 const { width } = Dimensions.get('window')
 
 export const DropdownMenu = () => {
@@ -28,7 +28,8 @@ export const DropdownMenu = () => {
   }, [playlist])
 
   const onPressHandler = (item) => {
-    updateState(context, { playlistNumber: item._index })
+    const { _index: index } = item
+    updateState(context, { playlistNumber: index })
   }
 
   return (
@@ -38,45 +39,59 @@ export const DropdownMenu = () => {
         placeholderStyle={styles.placeholderStyle}
         data={data}
         value={value}
+        label="123"
         labelField="label"
         valueField="value"
-        activeColor={CREME_DARK}
+        activeColor={CREME}
         containerStyle={styles.containerStyle}
         itemContainerStyle={styles.itemContainerStyle}
-        placeholder={!isFocus ? 'Select playlist' : ''}
+        placeholder="Select item"
         onFocus={() => setIsFocus(true)}
         onBlur={() => setIsFocus(false)}
         onChange={(item) => {
           setValue(item.value)
-          setIsFocus(false)
           onPressHandler(item)
+          setIsFocus(false)
         }}
       />
+      <TouchableWithoutFeedback onPress={() => setIsFocus(false)}>
+        <View style={styles.modalBG} />
+      </TouchableWithoutFeedback>
     </View>
   )
 }
 
 const styles = StyleSheet.create({
   container: {
-    width: width - 146,
-    marginBottom: 0
+    width: width - 146
   },
   dropdown: {
-    height: 56,
-    borderColor: 'grey',
+    height: 46,
+    zIndex: 10,
     borderRadius: 10,
-    backgroundColor: CREME,
+    backgroundColor: CREME_DARK,
     paddingHorizontal: 14,
-    marginBottom: 3,
+    marginBottom: 3
   },
   containerStyle: {
     backgroundColor: BG,
     borderRadius: 10,
-    width: width - 24
+    borderColor: BG,
+    width: width - 24,
+    marginTop: 2
   },
   itemContainerStyle: {
     borderRadius: 10,
-    marginHorizontal: 2,
-    marginVertical: 1
+    marginVertical: 5,
+    height: 56
+  },
+  modalBG: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    left: 0,
+    bottom: 5,
+    backgroundColor: MODAL_BG,
+    opacity: .2
   }
 })
