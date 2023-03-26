@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
-import { initials } from './initials'
+import { initials } from './getInitials'
 const { initialPlaylist } = initials
 
 export const getAsync = async (value) => {

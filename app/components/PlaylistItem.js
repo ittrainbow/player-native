@@ -1,15 +1,17 @@
-import { StyleSheet, Text, TouchableOpacity, View, Dimensions } from 'react-native'
+import { StyleSheet, Text, TouchableOpacity, Dimensions } from 'react-native'
 
-import { color } from '../misc'
-
-const { CREME_DARK } = color
+import { getColors } from '../helpers'
+const { CREME, CREME_LIGHT } = getColors
 const { width } = Dimensions.get('window')
 
-export const PlaylistItem = ({ item, onPress }) => {
-  const { tracks, title } = item
+export const PlaylistItem = ({ list, index, onPress, active }) => {
+  const { tracks, title } = list
   const num = tracks.length
   return (
-    <TouchableOpacity style={styles.banner} onPress={() => onPress(item)}>
+    <TouchableOpacity
+      style={{ ...styles.banner, backgroundColor: active ? CREME : CREME_LIGHT }}
+      onPress={() => onPress(index)}
+    >
       <Text style={styles.bannerLeft}>{title}</Text>
       <Text style={styles.bannerRight}>
         {num} {num === 1 ? 'song' : 'songs'}
@@ -20,20 +22,19 @@ export const PlaylistItem = ({ item, onPress }) => {
 
 const styles = StyleSheet.create({
   banner: {
-    paddingVertical: 13,
-    height: 56,
+    paddingVertical: 15,
     flexDirection: 'row',
-    backgroundColor: CREME_DARK,
-    marginTop: 4,
-    marginBottom: 3,
+    margin: 5,
     borderRadius: 10,
-    width: width - 25,
+    borderWidth: 1,
+    borderColor: CREME,
+    width: width - 90,
     paddingHorizontal: 10
   },
   bannerLeft: {
     padding: 3,
     fontSize: 16,
-    flexGrow: 1,
+    flexGrow: 1
   },
   bannerRight: {
     opacity: 0.35,

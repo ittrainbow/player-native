@@ -1,14 +1,14 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { View, StyleSheet, Modal, Text, TouchableWithoutFeedback, Dimensions } from 'react-native'
 
-import { AudioContext } from '../context/AudioProvider'
-import { color } from '../misc'
+import { Context } from '../context'
+import { getColors } from '../helpers'
 
-const { FONT_MEDIUM, BG, MODAL_BG, MAIN, CREME_LIGHT } = color
+const { FONT_MEDIUM, BG, MODAL_BG, MAIN, CREME_LIGHT } = getColors
 const { width } = Dimensions.get('window')
 
-export const DeleteModal = ({ visible, onClose, currentItem, onDelete }) => {
-  const { getMetadata } = useContext(AudioContext)
+export const AddToPlaylistModal = ({ visible, onClose, currentItem, onPlaylistPress }) => {
+  const { getMetadata } = useContext(Context)
   const [artist, setArtist] = useState(null)
   const [title, setTitle] = useState(null)
 
@@ -22,16 +22,16 @@ export const DeleteModal = ({ visible, onClose, currentItem, onDelete }) => {
   }, [visible])
 
   return (
-    <Modal animationType="fade" transparent visible={visible} style={styles.container}>
+    <Modal animationType="fade" transparent visible={visible} >
       <View style={styles.modal}>
         <View style={styles.titleContainer}>
           <Text style={styles.title}>{artist}</Text>
           <Text style={styles.title}>{title}</Text>
         </View>
         <View style={styles.buttonsContainer}>
-          <TouchableWithoutFeedback onPress={onDelete}>
+          <TouchableWithoutFeedback onPress={onPlaylistPress}>
             <View style={styles.centered}>
-              <Text style={styles.option}>Delete from playlist</Text>
+              <Text style={styles.option}>Add to playlist</Text>
             </View>
           </TouchableWithoutFeedback>
         </View>
@@ -44,9 +44,6 @@ export const DeleteModal = ({ visible, onClose, currentItem, onDelete }) => {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    bottom: 0
-  },
   centered: {
     backgroundColor: CREME_LIGHT,
     borderRadius: 10,
@@ -55,9 +52,9 @@ const styles = StyleSheet.create({
   },
   modal: {
     position: 'absolute',
-    bottom: 75,
-    right: 20,
-    left: 20,
+    bottom: 90,
+    right: 25,
+    left: 25,
     backgroundColor: MAIN,
     alignItems: 'center',
     borderWidth: 2,
@@ -95,8 +92,7 @@ const styles = StyleSheet.create({
     top: 0,
     right: 0,
     left: 0,
-    bottom: 5,
+    bottom: 0,
     backgroundColor: MODAL_BG
   }
 })
-

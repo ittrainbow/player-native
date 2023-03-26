@@ -2,14 +2,14 @@ import React, { useContext } from 'react'
 import { View, StyleSheet, Text, Dimensions, TouchableOpacity } from 'react-native'
 import { MaterialIcons } from '@expo/vector-icons'
 
-import { getListItemText, getListItemTime, color } from '../misc'
-import { AudioContext } from '../context/AudioProvider'
+import { getListItemText, getListItemTime, getColors } from '../helpers'
+import { Context } from '../context'
 
-const { FONT, FONT_MEDIUM, FONT_LIGHT, BG, ICON, MAIN, CREME } = color
+const { FONT, FONT_MEDIUM, FONT_LIGHT, BG, ICON, MAIN, CREME } = getColors
 const { width } = Dimensions.get('window')
 
-export const TrackListItem = ({ item, isPlaying, activeListItem, onPress, onAudioPress }) => {
-  const context = useContext(AudioContext)
+export const TracklistItem = ({ item, isPlaying, activeListItem, onPress, onAudioPress }) => {
+  const context = useContext(Context)
   const { getMetadata } = context
   const { filename, duration } = item
   const { letter } = getListItemText(filename)

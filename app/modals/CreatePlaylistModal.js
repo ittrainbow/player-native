@@ -10,12 +10,11 @@ import {
   TouchableWithoutFeedback
 } from 'react-native'
 
-import { color } from '../misc'
-
-const { MAIN, BG, MODAL_BG } = color
+import { getColors } from '../helpers'
+const { MAIN, BG, MODAL_BG } = getColors
 const { width } = Dimensions.get('window')
 
-export const AddPlaylistModal = ({ visible, onClose, onSubmit }) => {
+export const CreatePlaylistModal = ({ visible, onClose, onSubmit }) => {
   const nameRef = useRef()
   const [playlistName, setPlaylistName] = useState('')
 
@@ -32,7 +31,7 @@ export const AddPlaylistModal = ({ visible, onClose, onSubmit }) => {
   }
 
   return (
-    <Modal animationType="fade" transparent visible={visible} style={styles.container}>
+    <Modal animationType="fade" transparent visible={visible} >
       <View style={styles.modal}>
         <View style={styles.inputContainer}>
           <Text style={styles.modalHeader}>Create new playlist</Text>
@@ -59,15 +58,10 @@ export const AddPlaylistModal = ({ visible, onClose, onSubmit }) => {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    padding: 20,
-    bottom: 0
-  },
   modal: {
     position: 'absolute',
-    right: 25,
     left: 25,
-    top: 100,
+    bottom: 90,
     borderRadius: 10,
     transition: '1s',
     zIndex: 10
@@ -94,7 +88,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     borderColor: BG,
     fontSize: 20,
-    padding: 5
+    padding: 10
   },
   icon: {
     padding: 10,
@@ -107,7 +101,7 @@ const styles = StyleSheet.create({
     top: 0,
     right: 0,
     left: 0,
-    bottom: 5,
+    bottom: 0,
     backgroundColor: MODAL_BG
   }
 })

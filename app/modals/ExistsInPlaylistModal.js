@@ -1,12 +1,12 @@
 import React from 'react'
 import { View, StyleSheet, Text, Modal, TouchableWithoutFeedback, Dimensions } from 'react-native'
 
-import { color } from '../misc/color'
+import { getColors } from '../helpers'
 
-const { MAIN, MODAL_BG, FONT_MEDIUM, BG } = color
+const { MAIN, MODAL_BG, FONT_MEDIUM, BG } = getColors
 const { width, height } = Dimensions.get('window')
 
-export const ExistsModal = ({ visible, onClose }) => {
+export const ExistsInPlaylistModal = ({ visible, onClose }) => {
   return (
     <Modal animationType="fade" transparent visible={visible}>
       <View style={styles.modal}>
@@ -26,7 +26,7 @@ const styles = StyleSheet.create({
   modal: {
     position: 'absolute',
     padding: 20,
-    bottom: height / 2 - 75,
+    bottom: 90,
     left: 25,
     gap: 30,
     width: width - 50,
@@ -48,7 +48,7 @@ const styles = StyleSheet.create({
     top: 0,
     right: 0,
     left: 0,
-    bottom: 5,
+    bottom: 0,
     backgroundColor: MODAL_BG
   }
 })

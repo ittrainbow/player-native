@@ -4,8 +4,8 @@ import { MaterialIcons } from '@expo/vector-icons'
 import { StyleSheet } from 'react-native'
 
 import { Tracklist, Player, Playlists } from '../screens'
-import { color } from '../misc'
-const { MAIN, BG_LIGHT } = color
+import { getColors } from '../helpers'
+const { MAIN, BG_LIGHT } = getColors
 
 const Tab = createBottomTabNavigator()
 const tabs = [
