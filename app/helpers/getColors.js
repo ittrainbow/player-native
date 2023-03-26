@@ -1,4 +1,4 @@
-export const color = {
+export const getColors = {
   MAIN: '#fff',
   PLAYER: '#02d8c1',
   FONT: '#303d49',

@@ -1,17 +1,16 @@
 import React, { Component } from 'react'
-import AsyncStorage from '@react-native-async-storage/async-storage'
 import { StyleSheet, Alert, View, Text } from 'react-native'
 import * as MediaLibrary from 'expo-media-library'
 import { DataProvider } from 'recyclerlistview'
 import { Audio } from 'expo-av'
 
-import { getTrackNames, next, getAsync, initials } from '../misc'
+import { getTrackNames, next, getAsync, initials } from '../helpers'
 
 const { initialPlaylist } = initials
 
-export const AudioContext = React.createContext()
+export const Context = React.createContext()
 
-class AudioProvider extends Component {
+class ContextProvider extends Component {
   constructor(props) {
     super(props)
 
@@ -90,7 +89,6 @@ class AudioProvider extends Component {
   }
 
   loadPreviousAudio = async () => {
-    // const previousAudio = await AsyncStorage.getItem('previousAudio')
     const previousAudio = await getAsync('previousAudio')
     const { audio, index } = previousAudio ? previousAudio : null
     const { audioFiles } = this.state
@@ -189,7 +187,7 @@ class AudioProvider extends Component {
         </View>
       )
     return (
-      <AudioContext.Provider
+      <Context.Provider
         value={{
           audioFiles,
           dataProvider,
@@ -214,23 +212,12 @@ class AudioProvider extends Component {
         }}
       >
         {this.props.children}
-      </AudioContext.Provider>
+      </Context.Provider>
     )
   }
 }
 
 const styles = StyleSheet.create({
-  audioProviderError: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center'
-  },
-  audioProviderErrorText: {
-    fontSize: 25,
-    textAlign: 'center',
-    color: 'red',
-    padding: 15
-  }
 })
 
-export default AudioProvider
+export default ContextProvider

@@ -6,9 +6,9 @@ import Slider from '@react-native-community/slider'
 import GestureRecognizer, { swipeDirections } from 'react-native-swipe-gestures'
 
 import { PlayerButton } from '../components'
-import { pause, resume, playpause, prevnext, getListItemTime, swipeConfig, color } from '../misc'
-import { AudioContext } from '../context/AudioProvider'
-const { FONT_LIGHT, MAIN } = color
+import { pause, resume, playpause, prevnext, getListItemTime, swipeConfig, getColors } from '../helpers'
+import { Context } from '../context'
+const { FONT_LIGHT, MAIN } = getColors
 const { width } = Dimensions.get('window')
 const halfWidth = width / 2
 
@@ -16,7 +16,7 @@ export const Player = ({ navigation }) => {
   const [duration, setDuration] = useState(0)
   const [artist, setArtist] = useState('')
   const [title, setTitle] = useState('')
-  const context = useContext(AudioContext)
+  const context = useContext(Context)
   const {
     currentAudio,
     totalCount,

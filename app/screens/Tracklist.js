@@ -1,18 +1,18 @@
 import React, { useContext, useEffect, useState, useRef } from 'react'
 import { Dimensions, StyleSheet } from 'react-native'
-import { AudioContext } from '../context/AudioProvider'
+import { Context } from '../context'
 import { RecyclerListView } from 'recyclerlistview'
 import GestureRecognizer, { swipeDirections } from 'react-native-swipe-gestures'
 import { useIsFocused } from '@react-navigation/native'
 
-import { TrackListItem } from '../components'
-import { color, swipeConfig, getLayoutProvider, playpause } from '../misc'
+import { TracklistItem } from '../components'
+import { getColors, swipeConfig, getLayoutProvider, playpause } from '../helpers'
 import { AddToPlaylistModal } from '../modals'
 
-const { BG } = color
+const { BG } = getColors
 
 export const Tracklist = ({ navigation }) => {
-  const context = useContext(AudioContext)
+  const context = useContext(Context)
   const {
     loadPreviousAudio,
     updateState,
@@ -60,7 +60,7 @@ export const Tracklist = ({ navigation }) => {
     const activeListItem = currentAudio ? item.id === currentAudio.id : false
 
     return (
-      <TrackListItem
+      <TracklistItem
         item={item}
         isPlaying={isPlaying}
         activeListItem={activeListItem}

@@ -1,14 +1,13 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { View, StyleSheet, Modal, Text, TouchableWithoutFeedback, Dimensions } from 'react-native'
 
-import { AudioContext } from '../context/AudioProvider'
-import { color } from '../misc'
-
-const { FONT_MEDIUM, BG, MODAL_BG, MAIN, CREME_LIGHT } = color
+import { Context } from '../context'
+import { getColors } from '../helpers'
+const { FONT_MEDIUM, BG, MODAL_BG, MAIN, CREME_LIGHT } = getColors
 const { width } = Dimensions.get('window')
 
 export const DeleteFromPlaylistModal = ({ visible, onClose, currentItem, onDelete }) => {
-  const { getMetadata } = useContext(AudioContext)
+  const { getMetadata } = useContext(Context)
   const [artist, setArtist] = useState(null)
   const [title, setTitle] = useState(null)
 

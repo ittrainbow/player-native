@@ -10,9 +10,8 @@ import {
   TouchableWithoutFeedback
 } from 'react-native'
 
-import { color } from '../misc'
-
-const { MAIN, BG, MODAL_BG } = color
+import { getColors } from '../helpers'
+const { MAIN, BG, MODAL_BG } = getColors
 const { width } = Dimensions.get('window')
 
 export const CreatePlaylistModal = ({ visible, onClose, onSubmit }) => {

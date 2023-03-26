@@ -1,7 +1,7 @@
-import { StyleSheet, Text, TouchableOpacity, View, Dimensions } from 'react-native'
+import { StyleSheet, Text, TouchableOpacity, Dimensions } from 'react-native'
 
-import { color } from '../misc'
-const { CREME, CREME_LIGHT } = color
+import { getColors } from '../helpers'
+const { CREME, CREME_LIGHT } = getColors
 const { width } = Dimensions.get('window')
 
 export const PlaylistItem = ({ list, index, onPress, active }) => {

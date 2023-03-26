@@ -3,10 +3,10 @@ import { NavigationContainer, DarkTheme } from '@react-navigation/native'
 import { StatusBar } from 'react-native'
 
 import Navigator from './app/navigation/Navigator'
-import AudioProvider from './app/context/AudioProvider'
-import { color } from './app/misc/color'
+import ContextProvider from './app/context'
+import { getColors } from './app/helpers'
 
-const { BG } = color
+const { BG } = getColors
 
 export default function App() {
   const MyTheme = {
@@ -20,11 +20,11 @@ export default function App() {
   }
 
   return (
-    <AudioProvider>
+    <ContextProvider>
       <NavigationContainer theme={MyTheme}>
         <StatusBar backgroundColor={BG} />
         <Navigator />
       </NavigationContainer>
-    </AudioProvider>
+    </ContextProvider>
   )
 }

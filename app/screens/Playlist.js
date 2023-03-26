@@ -5,12 +5,12 @@ import { RecyclerListView } from 'recyclerlistview'
 import { useIsFocused } from '@react-navigation/native'
 import { MaterialIcons } from '@expo/vector-icons'
 
-import { TrackListItem, DropdownMenu, PlaylistItem } from '../components'
-import { AudioContext } from '../context/AudioProvider'
+import { TracklistItem, DropdownMenu, PlaylistItem } from '../components'
+import { Context } from '../context'
 import { CreatePlaylistModal, ExistsInPlaylistModal, DeleteFromPlaylistModal } from '../modals'
-import { playpause, getLayoutProvider, swipeConfig, color, getAsync, setAsync } from '../misc'
+import { playpause, getLayoutProvider, swipeConfig, getColors, getAsync, setAsync } from '../helpers'
 import ChoosePlaylistModal from '../modals/ChoosePlaylistModal'
-const { CREME, CREME_DARK } = color
+const { CREME, CREME_DARK } = getColors
 
 const { width } = Dimensions.get('window')
 
@@ -24,7 +24,7 @@ export const Playlists = ({ navigation }) => {
   const [deleteFromPlaylistModalVisible, setDeleteFromPlaylistModalVisible] = useState(false)
   const [choosePlaylistModalVisible, setChoosePlaylistModalVisible] = useState(false)
   const [currentItem, setCurrentItem] = useState({})
-  const context = useContext(AudioContext)
+  const context = useContext(Context)
   const {
     playlist,
     addToPlaylist,
@@ -158,7 +158,7 @@ export const Playlists = ({ navigation }) => {
     const { isPlaying } = extendedState
     const activeListItem = item.id === currentAudio.id
     return (
-      <TrackListItem
+      <TracklistItem
         item={item}
         isPlaying={isPlaying}
         activeListItem={activeListItem}
@@ -275,15 +275,15 @@ const styles = StyleSheet.create({
     fontSize: 17,
     fontWeight: 600
   },
-  fontLight: { 
-    color: CREME 
+  fontLight: {
+    color: CREME
   },
-  addLarge: { 
+  addLarge: {
     flexGrow: 5,
     paddingLeft: 15
   },
-  add: { 
-    flexGrow: 1, 
-    alignItems: 'center' 
+  add: {
+    flexGrow: 1,
+    alignItems: 'center'
   }
 })

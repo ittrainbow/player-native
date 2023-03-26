@@ -1,9 +1,9 @@
 import React from 'react'
 import { View, StyleSheet, Text, Modal, TouchableWithoutFeedback, Dimensions } from 'react-native'
 
-import { color } from '../misc/color'
+import { getColors } from '../helpers'
 
-const { MAIN, MODAL_BG, FONT_MEDIUM, BG } = color
+const { MAIN, MODAL_BG, FONT_MEDIUM, BG } = getColors
 const { width, height } = Dimensions.get('window')
 
 export const ExistsInPlaylistModal = ({ visible, onClose }) => {

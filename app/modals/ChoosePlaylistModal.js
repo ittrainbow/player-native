@@ -1,13 +1,13 @@
 import React, { useContext } from 'react'
 import { View, StyleSheet, Modal, Text, TouchableWithoutFeedback } from 'react-native'
 
-import { AudioContext } from '../context/AudioProvider'
+import { Context } from '../context'
 import { PlaylistItem } from '../components'
-import { color } from '../misc'
-const { MODAL_BG, MAIN, BG } = color
+import { getColors } from '../helpers'
+const { MODAL_BG, MAIN, BG } = getColors
 
 const ChoosePlaylistModal = ({ visible, onClose }) => {
-  const context = useContext(AudioContext)
+  const context = useContext(Context)
   const { playlist, playlistNumber, updateState } = context
 
   const onPress = (playlistNumber) => {
