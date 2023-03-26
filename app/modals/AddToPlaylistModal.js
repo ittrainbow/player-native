@@ -22,7 +22,7 @@ export const AddToPlaylistModal = ({ visible, onClose, currentItem, onPlaylistPr
   }, [visible])
 
   return (
-    <Modal animationType="fade" transparent visible={visible} style={styles.container}>
+    <Modal animationType="fade" transparent visible={visible} >
       <View style={styles.modal}>
         <View style={styles.titleContainer}>
           <Text style={styles.title}>{artist}</Text>
@@ -44,9 +44,6 @@ export const AddToPlaylistModal = ({ visible, onClose, currentItem, onPlaylistPr
 }
 
 const styles = StyleSheet.create({
-  container: {
-    bottom: 0
-  },
   centered: {
     backgroundColor: CREME_LIGHT,
     borderRadius: 10,
@@ -55,9 +52,9 @@ const styles = StyleSheet.create({
   },
   modal: {
     position: 'absolute',
-    bottom: 75,
-    right: 20,
-    left: 20,
+    bottom: 90,
+    right: 25,
+    left: 25,
     backgroundColor: MAIN,
     alignItems: 'center',
     borderWidth: 2,
@@ -95,7 +92,7 @@ const styles = StyleSheet.create({
     top: 0,
     right: 0,
     left: 0,
-    bottom: 5,
+    bottom: 0,
     backgroundColor: MODAL_BG
   }
 })

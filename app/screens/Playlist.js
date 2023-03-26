@@ -5,17 +5,11 @@ import { RecyclerListView } from 'recyclerlistview'
 import { useIsFocused } from '@react-navigation/native'
 import { MaterialIcons } from '@expo/vector-icons'
 
-import {
-  // AddPlaylistModal,
-  ExistsModal,
-  TrackListItem,
-  DeleteModal,
-  DropdownMenu,
-  PlaylistItem
-} from '../components'
+import { TrackListItem, DropdownMenu, PlaylistItem } from '../components'
 import { AudioContext } from '../context/AudioProvider'
-import { CreatePlaylistModal } from '../modals/CreatePlaylistModal'
+import { CreatePlaylistModal, ExistsInPlaylistModal, DeleteFromPlaylistModal } from '../modals'
 import { playpause, getLayoutProvider, swipeConfig, color, getAsync, setAsync } from '../misc'
+import ChoosePlaylistModal from '../modals/ChoosePlaylistModal'
 const { CREME, CREME_DARK } = color
 
 const { width } = Dimensions.get('window')
@@ -25,11 +19,11 @@ export const initialPlaylist = (title = '', tracks = []) => {
 }
 
 export const Playlists = ({ navigation }) => {
-  // const [modalVisible, setModalVisible] = useState(false)
   const [createPlaylistModalVisible, setCreatePlaylistModalVisible] = useState(false)
-  const [existsVisible, setExistsVisible] = useState(false)
+  const [existsInPlaylistModalVisible, setExistsInPlaylistModalVisible] = useState(false)
+  const [deleteFromPlaylistModalVisible, setDeleteFromPlaylistModalVisible] = useState(false)
+  const [choosePlaylistModalVisible, setChoosePlaylistModalVisible] = useState(false)
   const [currentItem, setCurrentItem] = useState({})
-  const [deleteModalVisible, setDeleteModalVisible] = useState(false)
   const context = useContext(AudioContext)
   const {
     playlist,
@@ -51,41 +45,23 @@ export const Playlists = ({ navigation }) => {
     focused && updateState(context, { isPlaylist: true })
   }, [focused])
 
-  const onCloseAddPlaylistModal = () => setCreatePlaylistModalVisible(false)
-  const onCloseExistsModal = () => setExistsVisible(false)
-
-  const createPlaylist = async (playlistName) => {
-    const response = await getAsync('playlist')
-
-    if (response !== null) {
-      const tracks = []
-      const newList = initialPlaylist(playlistName, tracks)
-
-      addToPlaylist && tracks.push(addToPlaylist)
-
-      const updatedPlaylist = [...playlist, newList]
-      const newState = {
-        addToPlaylist: null,
-        playlist: updatedPlaylist
-      }
-      updateState(context, newState)
-      await setAsync('playlist', updatedPlaylist)
-    }
-    setCreatePlaylistModalVisible(false)
+  const createPlaylistHandler = async (playlistName) => {
+    const tracks = addToPlaylist ? [addToPlaylist] : []
+    const updatedPlaylist = [...playlist, initialPlaylist(playlistName, tracks)]
+    const newState = { addToPlaylist: null, playlist: updatedPlaylist }
+    updateState(context, newState)
+    await setAsync('playlist', updatedPlaylist)
+    return setCreatePlaylistModalVisible(false)
   }
 
-  const onCloseDeleteModal = () => {
-    setDeleteModalVisible(false)
-    setCurrentItem({})
+  const onCloseDeleteFromPlaylistModal = () => {
+    setDeleteFromPlaylistModalVisible(false)
+    return setCurrentItem({})
   }
 
   const onDotsPressHandler = (item) => {
-    setDeleteModalVisible(true)
-    setCurrentItem(item)
-  }
-
-  const onAddPlaylistHandler = () => {
-    setCreatePlaylistModalVisible(true)
+    setDeleteFromPlaylistModalVisible(true)
+    return setCurrentItem(item)
   }
 
   const deletePlaylist = async () => {
@@ -108,13 +84,13 @@ export const Playlists = ({ navigation }) => {
         ])
   }
 
-  const onDeleteFromPlaylist = async () => {
+  const deleteFromPlaylistHandler = async () => {
     const { id } = currentItem
     const newTracks = [...playlist[playlistNumber].tracks].filter((track) => track.id !== id)
     const newPlaylist = [...playlist]
     newPlaylist[playlistNumber].tracks = newTracks
     updateState(context, { playlist: newPlaylist })
-    setDeleteModalVisible(false)
+    setDeleteFromPlaylistModalVisible(false)
     return await setAsync('playlist', newPlaylist)
   }
 
@@ -145,7 +121,7 @@ export const Playlists = ({ navigation }) => {
           if (list.id === playlist.id) {
             alreadyInPlaylist = list.tracks.map((track) => track.id).includes(addToPlaylist.id)
             if (alreadyInPlaylist) {
-              setExistsVisible(true)
+              setExistsInPlaylistModalVisible(true)
               return
             }
             list.tracks = [...list.tracks, addToPlaylist]
@@ -200,17 +176,32 @@ export const Playlists = ({ navigation }) => {
     >
       <View style={styles.container}>
         <View style={styles.topContainer}>
-          <DropdownMenu style={{ width: width - 120 }} />
-          <TouchableOpacity style={styles.add} onPress={onAddPlaylistHandler}>
+          <TouchableOpacity
+            style={{ ...styles.addLarge, ...styles.button }}
+            onPress={() => setChoosePlaylistModalVisible(true)}
+          >
+            <Text style={styles.header}>Select playlist</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={{ ...styles.add, ...styles.button }}
+            onPress={() => setCreatePlaylistModalVisible(true)}
+          >
             <MaterialIcons name="add-circle-outline" size={28} color="black" />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.add} onPress={onDeletePlaylistHandler}>
+          <TouchableOpacity
+            style={{ ...styles.add, ...styles.button }}
+            onPress={onDeletePlaylistHandler}
+          >
             <MaterialIcons name="delete-outline" size={28} color="black" />
           </TouchableOpacity>
         </View>
         <View style={styles.headerContainer}>
-          <Text style={styles.headerLeft}>Playlist: {playlist[playlistNumber].title}</Text>
-          <Text style={styles.headerRight}>Tracks: {playlist[playlistNumber].tracks.length}</Text>
+          <Text style={{ ...styles.header, ...styles.fontLight, flexGrow: 1 }}>
+            Playlist: {playlist[playlistNumber].title}
+          </Text>
+          <Text style={{ ...styles.header, ...styles.fontLight }}>
+            Tracks: {playlist[playlistNumber].tracks.length}
+          </Text>
         </View>
 
         <View style={{ marginTop: 3 }}>
@@ -230,18 +221,24 @@ export const Playlists = ({ navigation }) => {
             extendedState={{ isPlaying }}
           />
         ) : null}
-
-        <DeleteModal
-          visible={deleteModalVisible}
-          currentItem={currentItem}
-          onClose={onCloseDeleteModal}
-          onDelete={onDeleteFromPlaylist}
+        <ChoosePlaylistModal
+          visible={choosePlaylistModalVisible}
+          onClose={() => setChoosePlaylistModalVisible(false)}
         />
-        <ExistsModal visible={existsVisible} onClose={onCloseExistsModal} />
+        <DeleteFromPlaylistModal
+          visible={deleteFromPlaylistModalVisible}
+          currentItem={currentItem}
+          onClose={onCloseDeleteFromPlaylistModal}
+          onDelete={deleteFromPlaylistHandler}
+        />
+        <ExistsInPlaylistModal
+          visible={existsInPlaylistModalVisible}
+          onClose={() => setExistsInPlaylistModalVisible(false)}
+        />
         <CreatePlaylistModal
           visible={createPlaylistModalVisible}
-          onClose={onCloseAddPlaylistModal}
-          onSubmit={createPlaylist}
+          onClose={() => setCreatePlaylistModalVisible(false)}
+          onSubmit={createPlaylistHandler}
         />
       </View>
     </GestureRecognizer>
@@ -255,23 +252,18 @@ const styles = StyleSheet.create({
     flex: 1,
     marginBottom: 78
   },
-  flex: {
-    flex: 1
-  },
   topContainer: {
     flexDirection: 'row',
-    gap: 5
+    gap: 5,
+    height: 46
   },
   list: {
     flex: 1,
     marginTop: 3
   },
-  add: {
-    height: 46,
-    width: 56,
+  button: {
     backgroundColor: CREME_DARK,
     borderRadius: 10,
-    alignItems: 'center',
     justifyContent: 'center'
   },
   headerContainer: {
@@ -279,15 +271,19 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     flexDirection: 'row'
   },
-  headerLeft: {
+  header: {
     fontSize: 17,
-    fontWeight: 700,
-    color: CREME,
-    flexGrow: 1
+    fontWeight: 600
   },
-  headerRight: {
-    fontSize: 17,
-    fontWeight: 700,
-    color: CREME
+  fontLight: { 
+    color: CREME 
+  },
+  addLarge: { 
+    flexGrow: 5,
+    paddingLeft: 15
+  },
+  add: { 
+    flexGrow: 1, 
+    alignItems: 'center' 
   }
 })
