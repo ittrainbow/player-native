@@ -2,7 +2,7 @@ import React, { useContext } from 'react'
 import { View, StyleSheet, Modal, Text, TouchableWithoutFeedback } from 'react-native'
 
 import { Context } from '../context'
-import { PlaylistItem } from '../components'
+import { ChoosePlaylistItem } from '../components'
 import { getColors } from '../helpers'
 const { MODAL_BG, MAIN, BG } = getColors
 
@@ -19,11 +19,11 @@ const ChoosePlaylistModal = ({ visible, onClose }) => {
     <Modal animationType="fade" transparent visible={visible}>
       <View style={styles.modal}>
         <Text style={styles.header}>Select playlist</Text>
-        {playlist.map((list, index) => {
+        {playlist.map((item, index) => {
           return (
-            <PlaylistItem
+            <ChoosePlaylistItem
               key={index}
-              list={list}
+              item={item}
               index={index}
               onPress={onPress}
               active={playlistNumber === index}

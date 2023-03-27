@@ -55,8 +55,9 @@ export const Playlists = ({ navigation }) => {
 
   const createPlaylistHandler = async (playlistName) => {
     const tracks = addToPlaylist ? [addToPlaylist] : []
+    const playlistNumber = playlist.length
     const updatedPlaylist = [...playlist, initialPlaylist(playlistName, tracks)]
-    const newState = { addToPlaylist: null, playlist: updatedPlaylist }
+    const newState = { addToPlaylist: null, playlist: updatedPlaylist, playlistNumber }
     updateState(context, newState)
     await setAsync('playlist', updatedPlaylist)
     return setCreatePlaylistModalVisible(false)
@@ -167,6 +168,7 @@ export const Playlists = ({ navigation }) => {
       { text: 'Yes', onPress: () => getFiles({ reload: true }) },
       { text: 'No', style: 'cancel' }
     ])
+    updateState(context, { playlistNumber: 0 })
   }
 
   const rowRenderer = (_, item, index, extendedState) => {
@@ -180,6 +182,19 @@ export const Playlists = ({ navigation }) => {
         onPress={() => onDotsPressHandler(item)}
         onAudioPress={() => onAudioPressHandler(item)}
       />
+    )
+  }
+
+  const headerRenderer = () => {
+    return (
+      <View style={styles.headerContainer}>
+        <Text style={{ ...styles.header, ...styles.fontLight, flexGrow: 1 }}>
+          Playlist: {playlist[playlistNumber].title}
+        </Text>
+        <Text style={{ ...styles.header, ...styles.fontLight }}>
+          Tracks: {playlist[playlistNumber].tracks.length}
+        </Text>
+      </View>
     )
   }
 
@@ -216,16 +231,9 @@ export const Playlists = ({ navigation }) => {
             <MaterialIcons name="refresh" size={28} color="black" />
           </TouchableOpacity>
         </View>
-        <View style={styles.headerContainer}>
-          <Text style={{ ...styles.header, ...styles.fontLight, flexGrow: 1 }}>
-            Playlist: {playlist[playlistNumber].title}
-          </Text>
-          <Text style={{ ...styles.header, ...styles.fontLight }}>
-            Tracks: {playlist[playlistNumber].tracks.length}
-          </Text>
-        </View>
+        {!addToPlaylist ? headerRenderer() : null}
 
-        <View style={{ marginTop: 3 }}>
+        <View style={{ marginTop: 5 }}>
           {!!addToPlaylist &&
             playlist.map((item) => {
               const { id } = item
