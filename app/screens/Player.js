@@ -3,10 +3,18 @@ import { Animated, View, StyleSheet, Text, Dimensions } from 'react-native'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { MaterialIcons } from '@expo/vector-icons'
 import Slider from '@react-native-community/slider'
-import GestureRecognizer, { swipeDirections } from 'react-native-swipe-gestures'
+// import GestureRecognizer, { swipeDirections } from 'react-native-swipe-gestures'
 
 import { PlayerButton } from '../components'
-import { pause, resume, playpause, prevnext, getListItemTime, swipeConfig, getColors } from '../helpers'
+import {
+  pause,
+  resume,
+  playpause,
+  prevnext,
+  getListItemTime,
+  swipeConfig,
+  getColors
+} from '../helpers'
 import { Context } from '../context'
 const { FONT_LIGHT, MAIN } = getColors
 const { width } = Dimensions.get('window')
@@ -156,60 +164,60 @@ export const Player = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <GestureRecognizer
+      {/* <GestureRecognizer
         onSwipe={(direction, state) => onSwipe(direction, state)}
         config={swipeConfig}
-      >
-        <View style={styles.top}>
-          <Text style={styles.playlistName}>{getPlaylistName()}</Text>
-          <Text style={styles.audioCount}>{getCount()}</Text>
-        </View>
-        <Animated.View style={[styles.playerIconContainer, { opacity: fadeAnim }]}>
-          <MaterialIcons name="library-music" size={240} color={MAIN} />
-        </Animated.View>
-        <View style={styles.playerContainer}>
-          <Text numberOfLine={1} style={styles.artist}>
-            {artist}
+      > */}
+      <View style={styles.headerContainer}>
+        <Text style={styles.headerPlaylistName}>{getPlaylistName()}</Text>
+        <Text style={styles.headerAudioCount}>{getCount()}</Text>
+      </View>
+      <Animated.View style={[styles.playerIcon, { opacity: fadeAnim }]}>
+        <MaterialIcons name="library-music" size={240} color={MAIN} />
+      </Animated.View>
+      <View style={styles.titleContainer}>
+        <Text numberOfLine={1} style={styles.titleArtist}>
+          {artist}
+        </Text>
+        <Text numberOfLine={1} style={styles.titleTitle}>
+          {title}
+        </Text>
+      </View>
+      <View style={styles.timerContainer}>
+        <View style={styles.timer}>
+          <Text style={styles.timerTextLeft}>{getTime(playbackPosition)}</Text>
+          <Text style={styles.timerTextRight}>
+            {getListItemTime(playbackDuration ? playbackDuration / 1000 : duration)}
           </Text>
-          <Text numberOfLine={1} style={styles.title}>
-            {title}
-          </Text>
         </View>
-        <View style={styles.timeSlide}>
-          <View style={styles.timer}>
-            <Text style={styles.timerTextLeft}>{getTime(playbackPosition)}</Text>
-            <Text style={styles.timerTextRight}>
-              {getListItemTime(playbackDuration ? playbackDuration / 1000 : duration)}
-            </Text>
-          </View>
-          <Slider
-            style={styles.slider}
-            minimumValue={0}
-            maximumValue={1}
-            value={calculateSlider()}
-            minimumTrackTintColor="#FFFFFF"
-            maximumTrackTintColor="#000000"
-            onValueChange={(value) => slideChangeHandler(value * duration * 1000)}
-            onSlidingStart={slidePauseHandler}
-            onSlidingComplete={slideResumeHandler}
-          />
-        </View>
-        <View style={styles.playerButtons}>
-          <PlayerButton
-            onPress={onFavHandler}
-            iconType={checkFav() ? 'FAVORITE' : 'FAVORITE-OUTLINE'}
-            size={28}
-          />
-          <PlayerButton onPress={() => prevNextHandler('prev')} iconType={'PREV'} />
-          <PlayerButton onPress={playPauseHandler} iconType={isPlaying ? 'PAUSE' : 'PLAY'} />
-          <PlayerButton onPress={() => prevNextHandler('next')} iconType={'NEXT'} />
-          <PlayerButton
-            onPress={shuffleHandler}
-            iconType={shuffle ? 'SHUFFLE-ON' : 'SHUFFLE'}
-            size={30}
-          />
-        </View>
-      </GestureRecognizer>
+        <Slider
+          style={styles.timerSlider}
+          minimumValue={0}
+          maximumValue={1}
+          value={calculateSlider()}
+          minimumTrackTintColor="#FFFFFF"
+          maximumTrackTintColor="#000000"
+          onValueChange={(value) => slideChangeHandler(value * duration * 1000)}
+          onSlidingStart={slidePauseHandler}
+          onSlidingComplete={slideResumeHandler}
+        />
+      </View>
+      <View style={styles.playerButtons}>
+        <PlayerButton
+          onPress={onFavHandler}
+          iconType={checkFav() ? 'FAVORITE' : 'FAVORITE-OUTLINE'}
+          size={28}
+        />
+        <PlayerButton onPress={() => prevNextHandler('prev')} iconType={'PREV'} />
+        <PlayerButton onPress={playPauseHandler} iconType={isPlaying ? 'PAUSE' : 'PLAY'} />
+        <PlayerButton onPress={() => prevNextHandler('next')} iconType={'NEXT'} />
+        <PlayerButton
+          onPress={shuffleHandler}
+          iconType={shuffle ? 'SHUFFLE-ON' : 'SHUFFLE'}
+          size={30}
+        />
+      </View>
+      {/* </GestureRecognizer> */}
     </View>
   )
 }
@@ -219,47 +227,49 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'column'
   },
-  top: {
+  //header
+  headerContainer: {
     padding: 15,
     flexDirection: 'row'
   },
-  playlistName: {
+  headerPlaylistName: {
     textAlign: 'left',
     color: FONT_LIGHT,
     fontSize: 16,
     flexGrow: 1
   },
-  audioCount: {
+  headerAudioCount: {
     textAlign: 'right',
     color: FONT_LIGHT,
     fontSize: 16
   },
-  timeSlide: {
-    left: 25,
-    marginTop: 65
-  },
-  playerIconContainer: {
+  //player
+  playerIcon: {
     alignItems: 'center',
     justifyContent: 'center',
-    height: 280
+    height: 280,
   },
-  playerContainer: {
-    flex: 1,
+  //title
+  titleContainer: {
     alignItems: 'center'
   },
-  artist: {
+  titleArtist: {
     fontSize: 22,
     color: FONT_LIGHT,
     alignItems: 'center',
     justifyContent: 'center',
     height: 35
   },
-  title: {
+  titleTitle: {
     fontSize: 22,
     color: FONT_LIGHT,
     alignItems: 'center',
     justifyContent: 'center',
     height: 35
+  },
+  // slider
+  timerContainer: {
+    left: 25,
   },
   timer: {
     flexDirection: 'row',
@@ -276,11 +286,12 @@ const styles = StyleSheet.create({
     color: FONT_LIGHT,
     textAlign: 'right'
   },
-  slider: {
+  timerSlider: {
     marginTop: 15,
     width: width - 50,
     height: 40
   },
+  //buttons
   playerButtons: {
     flex: 1,
     flexDirection: 'row',

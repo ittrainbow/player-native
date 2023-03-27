@@ -1,8 +1,8 @@
 import React, { useContext, useEffect, useState, useRef } from 'react'
-import { Dimensions, StyleSheet } from 'react-native'
+import { Dimensions, StyleSheet, View } from 'react-native'
 import { Context } from '../context'
 import { RecyclerListView } from 'recyclerlistview'
-import GestureRecognizer, { swipeDirections } from 'react-native-swipe-gestures'
+// import GestureRecognizer, { swipeDirections } from 'react-native-swipe-gestures'
 import { useIsFocused } from '@react-navigation/native'
 
 import { TracklistItem } from '../components'
@@ -83,11 +83,12 @@ export const Tracklist = ({ navigation }) => {
   }
 
   return (
-    <GestureRecognizer
-      onSwipe={(direction, state) => onSwipe(direction, state)}
-      config={swipeConfig}
-      style={styles.gestures}
-    >
+    // <GestureRecognizer
+    //   onSwipe={(direction, state) => onSwipe(direction, state)}
+    //   config={swipeConfig}
+    //   style={styles.gestures}
+    // >
+    <View style={{ flex: 1 }}>
       <RecyclerListView
         style={styles.container}
         dataProvider={dataProvider}
@@ -104,7 +105,8 @@ export const Tracklist = ({ navigation }) => {
         onClose={onModalClose}
         onPlaylistPress={onPlaylistPressHandler}
       />
-    </GestureRecognizer>
+    </View>
+    // </GestureRecognizer>
   )
 }
 
@@ -113,8 +115,5 @@ const styles = StyleSheet.create({
     width: Dimensions.get('window').width,
     marginBottom: 90,
     backgroundColor: BG
-  },
-  gestures: {
-    flex: 1
   }
 })

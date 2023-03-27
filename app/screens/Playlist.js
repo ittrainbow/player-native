@@ -1,6 +1,6 @@
 import React, { useContext, useState, useEffect } from 'react'
 import { StyleSheet, View, Text, TouchableOpacity, Dimensions, Alert } from 'react-native'
-import GestureRecognizer, { swipeDirections } from 'react-native-swipe-gestures'
+// import GestureRecognizer, { swipeDirections } from 'react-native-swipe-gestures'
 import { RecyclerListView } from 'recyclerlistview'
 import { useIsFocused } from '@react-navigation/native'
 import { MaterialIcons } from '@expo/vector-icons'
@@ -199,78 +199,78 @@ export const Playlists = ({ navigation }) => {
   }
 
   return (
-    <GestureRecognizer
-      onSwipe={(direction, state) => onSwipe(direction, state)}
-      config={swipeConfig}
-      style={{ flex: 1 }}
-    >
-      <View style={styles.container}>
-        <View style={styles.topContainer}>
-          <TouchableOpacity
-            style={{ ...styles.addLarge, ...styles.button }}
-            onPress={() => setChoosePlaylistModalVisible(true)}
-          >
-            <Text style={styles.header}>Select playlist</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={{ ...styles.add, ...styles.button }}
-            onPress={() => setCreatePlaylistModalVisible(true)}
-          >
-            <MaterialIcons name="add-circle-outline" size={28} color="black" />
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={{ ...styles.add, ...styles.button }}
-            onPress={onDeletePlaylistHandler}
-          >
-            <MaterialIcons name="delete-outline" size={28} color="black" />
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={{ ...styles.add, ...styles.button }}
-            onPress={onRefreshTracksHandler}
-          >
-            <MaterialIcons name="refresh" size={28} color="black" />
-          </TouchableOpacity>
-        </View>
-        {!addToPlaylist ? headerRenderer() : null}
-
-        <View style={{ marginTop: 5 }}>
-          {!!addToPlaylist &&
-            playlist.map((item) => {
-              const { id } = item
-              return <PlaylistItem key={id} item={item} onPress={onBannerPress} />
-            })}
-        </View>
-
-        {!addToPlaylist ? (
-          <RecyclerListView
-            style={styles.list}
-            dataProvider={dataProvider.cloneWithRows(playlist[playlistNumber].tracks)}
-            layoutProvider={layoutProvider}
-            rowRenderer={rowRenderer}
-            extendedState={{ isPlaying }}
-          />
-        ) : null}
-        <ChoosePlaylistModal
-          visible={choosePlaylistModalVisible}
-          onClose={() => setChoosePlaylistModalVisible(false)}
-        />
-        <DeleteFromPlaylistModal
-          visible={deleteFromPlaylistModalVisible}
-          currentItem={currentItem}
-          onClose={onCloseDeleteFromPlaylistModal}
-          onDelete={deleteFromPlaylistHandler}
-        />
-        <ExistsInPlaylistModal
-          visible={existsInPlaylistModalVisible}
-          onClose={() => setExistsInPlaylistModalVisible(false)}
-        />
-        <CreatePlaylistModal
-          visible={createPlaylistModalVisible}
-          onClose={() => setCreatePlaylistModalVisible(false)}
-          onSubmit={createPlaylistHandler}
-        />
+    // <GestureRecognizer
+    //   onSwipe={(direction, state) => onSwipe(direction, state)}
+    //   config={swipeConfig}
+    //   style={{ flex: 1 }}
+    // >
+    <View style={styles.container}>
+      <View style={styles.topContainer}>
+        <TouchableOpacity
+          style={{ ...styles.addLarge, ...styles.button }}
+          onPress={() => setChoosePlaylistModalVisible(true)}
+        >
+          <Text style={styles.header}>Select playlist</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={{ ...styles.add, ...styles.button }}
+          onPress={() => setCreatePlaylistModalVisible(true)}
+        >
+          <MaterialIcons name="add-circle-outline" size={28} color="black" />
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={{ ...styles.add, ...styles.button }}
+          onPress={onDeletePlaylistHandler}
+        >
+          <MaterialIcons name="delete-outline" size={28} color="black" />
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={{ ...styles.add, ...styles.button }}
+          onPress={onRefreshTracksHandler}
+        >
+          <MaterialIcons name="refresh" size={28} color="black" />
+        </TouchableOpacity>
       </View>
-    </GestureRecognizer>
+      {!addToPlaylist ? headerRenderer() : null}
+
+      <View style={{ marginTop: 5 }}>
+        {!!addToPlaylist &&
+          playlist.map((item) => {
+            const { id } = item
+            return <PlaylistItem key={id} item={item} onPress={onBannerPress} />
+          })}
+      </View>
+
+      {!addToPlaylist ? (
+        <RecyclerListView
+          style={styles.list}
+          dataProvider={dataProvider.cloneWithRows(playlist[playlistNumber].tracks)}
+          layoutProvider={layoutProvider}
+          rowRenderer={rowRenderer}
+          extendedState={{ isPlaying }}
+        />
+      ) : null}
+      <ChoosePlaylistModal
+        visible={choosePlaylistModalVisible}
+        onClose={() => setChoosePlaylistModalVisible(false)}
+      />
+      <DeleteFromPlaylistModal
+        visible={deleteFromPlaylistModalVisible}
+        currentItem={currentItem}
+        onClose={onCloseDeleteFromPlaylistModal}
+        onDelete={deleteFromPlaylistHandler}
+      />
+      <ExistsInPlaylistModal
+        visible={existsInPlaylistModalVisible}
+        onClose={() => setExistsInPlaylistModalVisible(false)}
+      />
+      <CreatePlaylistModal
+        visible={createPlaylistModalVisible}
+        onClose={() => setCreatePlaylistModalVisible(false)}
+        onSubmit={createPlaylistHandler}
+      />
+    </View>
+    // </GestureRecognizer>
   )
 }
 
