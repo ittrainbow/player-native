@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { View, StyleSheet, Modal, Text, TouchableWithoutFeedback, Dimensions } from 'react-native'
 
-import { Context } from '../context'
+import { Context } from '../context/Context'
 import { getColors } from '../helpers'
 
 const { FONT_MEDIUM, BG, MODAL_BG, MAIN, CREME_LIGHT } = getColors

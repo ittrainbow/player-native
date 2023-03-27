@@ -1,9 +1,7 @@
 import React, { useContext, useRef, useEffect, useState } from 'react'
 import { Animated, View, StyleSheet, Text, Dimensions } from 'react-native'
-import AsyncStorage from '@react-native-async-storage/async-storage'
 import { MaterialIcons } from '@expo/vector-icons'
 import Slider from '@react-native-community/slider'
-// import GestureRecognizer, { swipeDirections } from 'react-native-swipe-gestures'
 
 import { PlayerButton } from '../components'
 import {
@@ -12,15 +10,15 @@ import {
   playpause,
   prevnext,
   getListItemTime,
-  swipeConfig,
-  getColors
+  getColors,
+  setAsync
 } from '../helpers'
-import { Context } from '../context'
+import { Context } from '../context/Context'
 const { FONT_LIGHT, MAIN } = getColors
 const { width } = Dimensions.get('window')
 const halfWidth = width / 2
 
-export const Player = ({ navigation }) => {
+export const Player = () => {
   const [duration, setDuration] = useState(0)
   const [artist, setArtist] = useState('')
   const [title, setTitle] = useState('')
@@ -44,7 +42,6 @@ export const Player = ({ navigation }) => {
   } = context
 
   useEffect(() => {
-    isPlaying ? fadeIn() : fadeOut()
     if (currentAudio) {
       const { uri, duration, filename } = currentAudio
       const { artist, title } = getMetadata(filename)
@@ -53,7 +50,11 @@ export const Player = ({ navigation }) => {
       setArtist(artist)
       setTitle(title)
     }
-  }, [currentAudio, isPlaying])
+  }, [currentAudio])
+
+  useEffect(() => {
+    isPlaying ? fadeIn() : fadeOut()
+  }, [isPlaying])
 
   const fadeAnim = useRef(new Animated.Value(0)).current
 
@@ -108,22 +109,8 @@ export const Player = ({ navigation }) => {
     return updateState(context, { playbackPosition: stamp })
   }
 
-  const onSwipe = (gestureName) => {
-    const { SWIPE_LEFT, SWIPE_RIGHT } = swipeDirections
-    switch (gestureName) {
-      case SWIPE_LEFT:
-        navigation.navigate('Playlists')
-        break
-      case SWIPE_RIGHT:
-        navigation.navigate('Tracklist')
-        break
-      default:
-        break
-    }
-  }
-
   const getCount = () => {
-    const { id } = currentAudio
+    const { id } = currentAudio ? currentAudio : 0
     const list = isPlaylist ? playlist[playlistNumber].tracks : audioFiles
     const total = isPlaylist ? list.length : totalCount
     const num = list.map((el) => el.id).indexOf(id)
@@ -132,11 +119,13 @@ export const Player = ({ navigation }) => {
   }
 
   const checkFav = () => {
-    const favs = playlist
-      .filter((list) => list.title === 'Favorites')[0]
-      .tracks.map((track) => track.id)
+    if (currentAudio) {
+      const favs = playlist
+        .filter((list) => list.title === 'Favorites')[0]
+        .tracks.map((track) => track.id)
 
-    return favs.filter((el) => el === currentAudio.id).length === 1
+      return favs.filter((el) => el === currentAudio.id).length === 1
+    }
   }
 
   const onFavHandler = async () => {
@@ -151,7 +140,7 @@ export const Player = ({ navigation }) => {
     const newPlaylist = [...playlist]
     newPlaylist[favPlaylistNumber].tracks = newTracks
     updateState(context, { playlist: newPlaylist })
-    return await AsyncStorage.setItem('playlist', JSON.stringify(newPlaylist))
+    return await setAsync('playlist', newPlaylist)
   }
 
   const shuffleHandler = () => {
@@ -164,10 +153,6 @@ export const Player = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      {/* <GestureRecognizer
-        onSwipe={(direction, state) => onSwipe(direction, state)}
-        config={swipeConfig}
-      > */}
       <View style={styles.headerContainer}>
         <Text style={styles.headerPlaylistName}>{getPlaylistName()}</Text>
         <Text style={styles.headerAudioCount}>{getCount()}</Text>
@@ -217,7 +202,6 @@ export const Player = ({ navigation }) => {
           size={30}
         />
       </View>
-      {/* </GestureRecognizer> */}
     </View>
   )
 }
@@ -247,7 +231,7 @@ const styles = StyleSheet.create({
   playerIcon: {
     alignItems: 'center',
     justifyContent: 'center',
-    height: 280,
+    height: 280
   },
   //title
   titleContainer: {
@@ -269,7 +253,7 @@ const styles = StyleSheet.create({
   },
   // slider
   timerContainer: {
-    left: 25,
+    left: 25
   },
   timer: {
     flexDirection: 'row',

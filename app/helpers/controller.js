@@ -42,7 +42,7 @@ export const next = async (props) => {
   }
 }
 
-export const playpause = async ({ audio, context }) => {
+export const playpause = async ({ audio, context, isPlaylist }) => {
   const {
     soundObject,
     playbackObject,
@@ -62,6 +62,7 @@ export const playpause = async ({ audio, context }) => {
       const newState = {
         currentAudio: audio,
         soundObject: status,
+        isPlaylist,
         isPlaying: true,
         currentAudioIndex: index
       }
@@ -77,6 +78,7 @@ export const playpause = async ({ audio, context }) => {
           const status = await pause(playbackObject)
           const newState = {
             soundObject: status,
+            isPlaylist,
             isPlaying: false,
             playbackPosition: status.positionMillis
           }
@@ -94,6 +96,7 @@ export const playpause = async ({ audio, context }) => {
           currentAudio: audio,
           soundObject: status,
           isPlaying: true,
+          isPlaylist,
           currentAudioIndex: index
         }
 

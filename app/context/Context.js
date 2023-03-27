@@ -3,6 +3,7 @@ import { StyleSheet, Alert, View, Text } from 'react-native'
 import * as MediaLibrary from 'expo-media-library'
 import { DataProvider } from 'recyclerlistview'
 import { Audio } from 'expo-av'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 
 import { getTrackNames, next, getAsync, setAsync, initials } from '../helpers'
 
@@ -15,7 +16,7 @@ class ContextProvider extends Component {
     super(props)
 
     this.state = {
-      audioFiles: [],
+      audioFiles: null,
       playlist: initialPlaylist,
       playlistNumber: 0,
       isPlaylist: false,
@@ -47,6 +48,20 @@ class ContextProvider extends Component {
     }
   }
 
+  loadPreviousAudio = async () => {
+    const previousAudio = await getAsync('previousAudio')
+    let currentAudio, currentAudioIndex
+    if (previousAudio) {
+      const { audio, index} = previousAudio
+      currentAudio = audio
+      currentAudioIndex = index
+    } else {
+      currentAudio = this.state.audioFiles[0]
+      currentAudioIndex = 0
+    }
+    this.setState({ ...this.state, currentAudio, currentAudioIndex })
+  }
+
   getMetadata = (uri) => {
     const { artist, title } = getTrackNames(uri)
 
@@ -64,19 +79,6 @@ class ContextProvider extends Component {
     )
   }
 
-  getReload = async () => {
-    let media = await MediaLibrary.getAssetsAsync({ mediaType: 'audio' })
-    const { totalCount } = media
-
-    media = await MediaLibrary.getAssetsAsync({
-      mediaType: 'audio',
-      first: totalCount
-    })
-    tracks = [...media.assets].filter((el) => el.duration > 90)
-    await setAsync('tracks', tracks)
-    return tracks
-  }
-
   getFiles = async ({ reload }) => {
     const { dataProvider } = this.state
     let tracks = await getAsync('tracks')
@@ -84,7 +86,7 @@ class ContextProvider extends Component {
     if (tracks === null || tracks.length < 10 || reload) {
       let media = await MediaLibrary.getAssetsAsync({ mediaType: 'audio' })
       const { totalCount } = media
-  
+
       media = await MediaLibrary.getAssetsAsync({
         mediaType: 'audio',
         first: totalCount
@@ -99,17 +101,6 @@ class ContextProvider extends Component {
       audioFiles: tracks,
       totalCount: tracks.length
     })
-  }
-
-  loadPreviousAudio = async () => {
-    const previousAudio = await getAsync('previousAudio')
-    const { audio, index } = previousAudio ? previousAudio : null
-    const { audioFiles } = this.state
-
-    const currentAudio = previousAudio ? audio : audioFiles[0]
-    const currentAudioIndex = previousAudio ? index : 0
-
-    this.setState({ ...this.state, currentAudio, currentAudioIndex })
   }
 
   getPermission = async () => {
@@ -140,22 +131,26 @@ class ContextProvider extends Component {
     const counter = value === 'prev' ? -1 : 1
     const { playlist, playlistNumber, isPlaylist, currentAudio, audioFiles, shuffle } = this.state
     const list = isPlaylist ? playlist[playlistNumber].tracks : audioFiles
-    const numPlaylist = list.map((track) => track.id).indexOf(currentAudio.id) + counter
+    const numPlaylist = currentAudio
+      ? list.map((track) => track.id).indexOf(currentAudio.id) + counter
+      : 0
     const num = numPlaylist === list.length ? 0 : numPlaylist
     const rand = Math.floor(Math.random() * (isPlaylist ? list.length : audioFiles.length))
 
-    return list[shuffle ? rand : num]
+    const response = list[shuffle ? rand : num]
+    return response
   }
 
   onPlaybackStatusUpdate = async (playbackStatus) => {
     const { positionMillis, durationMillis, isLoaded, isPlaying, didJustFinish } = playbackStatus
     const { updateState, currentAudioIndex, playbackObject, totalCount } = this.state
+    const { context } = this
     const newState = {
       playbackPosition: positionMillis,
       playbackDuration: durationMillis
     }
 
-    isLoaded && isPlaying && updateState(this, newState)
+    isLoaded && isPlaying && updateState(context, newState)
 
     if (didJustFinish) {
       const maxReached = currentAudioIndex + 1 >= totalCount

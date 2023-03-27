@@ -3,7 +3,7 @@ import { NavigationContainer, DarkTheme } from '@react-navigation/native'
 import { StatusBar } from 'react-native'
 
 import Navigator from './app/navigation/Navigator'
-import ContextProvider from './app/context'
+import ContextProvider from './app/context/Context'
 import { getColors } from './app/helpers'
 
 const { BG } = getColors

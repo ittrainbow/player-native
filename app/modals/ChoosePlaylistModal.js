@@ -1,7 +1,7 @@
 import React, { useContext } from 'react'
 import { View, StyleSheet, Modal, Text, TouchableWithoutFeedback } from 'react-native'
 
-import { Context } from '../context'
+import { Context } from '../context/Context'
 import { ChoosePlaylistItem } from '../components'
 import { getColors } from '../helpers'
 const { MODAL_BG, MAIN, BG } = getColors

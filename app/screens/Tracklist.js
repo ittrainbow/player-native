@@ -1,12 +1,10 @@
-import React, { useContext, useEffect, useState, useRef } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { Dimensions, StyleSheet, View } from 'react-native'
-import { Context } from '../context'
+import { Context } from '../context/Context'
 import { RecyclerListView } from 'recyclerlistview'
-// import GestureRecognizer, { swipeDirections } from 'react-native-swipe-gestures'
-import { useIsFocused } from '@react-navigation/native'
 
 import { TracklistItem } from '../components'
-import { getColors, swipeConfig, getLayoutProvider, playpause } from '../helpers'
+import { getColors, getLayoutProvider, playpause } from '../helpers'
 import { AddToPlaylistModal } from '../modals'
 
 const { BG } = getColors
@@ -15,6 +13,7 @@ export const Tracklist = ({ navigation }) => {
   const context = useContext(Context)
   const {
     loadPreviousAudio,
+    audioFiles,
     updateState,
     isPlaying,
     currentAudioIndex,
@@ -24,28 +23,24 @@ export const Tracklist = ({ navigation }) => {
   const [currentItem, setCurrentItem] = useState({})
   const [modalVisible, setModalVisible] = useState(false)
   const layoutProvider = getLayoutProvider()
-  const focused = useIsFocused()
 
   useEffect(() => {
-    loadPreviousAudio()
-  }, [])
-
-  useEffect(() => {
-    focused && updateState(context, { isPlaylist: false, addToPlaylist: null })
-  }, [focused])
+    audioFiles && loadPreviousAudio()
+  }, [audioFiles])
 
   const onModalClose = () => {
     setModalVisible(false)
-    setCurrentItem({})
+    return setCurrentItem({})
   }
 
   const onDotsPressHandler = async (item) => {
     setCurrentItem(item)
-    setModalVisible(true)
+    return setModalVisible(true)
   }
 
   const onAudioPressHandler = async (audio) => {
-    await playpause({ audio, context })
+    updateState(context, { isPlaylist: false, addToPlaylist: null })
+    return await playpause({ audio, context, isPlaylist: false })
   }
 
   const onPlaylistPressHandler = () => {
@@ -71,23 +66,7 @@ export const Tracklist = ({ navigation }) => {
     )
   }
 
-  const onSwipe = (gestureName) => {
-    const { SWIPE_LEFT } = swipeDirections
-    switch (gestureName) {
-      case SWIPE_LEFT:
-        navigation.navigate('Player')
-        break
-      default:
-        break
-    }
-  }
-
   return (
-    // <GestureRecognizer
-    //   onSwipe={(direction, state) => onSwipe(direction, state)}
-    //   config={swipeConfig}
-    //   style={styles.gestures}
-    // >
     <View style={{ flex: 1 }}>
       <RecyclerListView
         style={styles.container}
@@ -106,7 +85,6 @@ export const Tracklist = ({ navigation }) => {
         onPlaylistPress={onPlaylistPressHandler}
       />
     </View>
-    // </GestureRecognizer>
   )
 }
 

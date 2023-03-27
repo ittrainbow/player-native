@@ -1,31 +1,21 @@
 import React, { useContext, useState, useEffect } from 'react'
-import { StyleSheet, View, Text, TouchableOpacity, Dimensions, Alert } from 'react-native'
-// import GestureRecognizer, { swipeDirections } from 'react-native-swipe-gestures'
+import { StyleSheet, View, Text, TouchableOpacity, Alert } from 'react-native'
 import { RecyclerListView } from 'recyclerlistview'
 import { useIsFocused } from '@react-navigation/native'
 import { MaterialIcons } from '@expo/vector-icons'
 
-import { TracklistItem, DropdownMenu, PlaylistItem } from '../components'
-import { Context } from '../context'
+import { TracklistItem, PlaylistItem } from '../components'
+import { Context } from '../context/Context'
 import { CreatePlaylistModal, ExistsInPlaylistModal, DeleteFromPlaylistModal } from '../modals'
-import {
-  playpause,
-  getLayoutProvider,
-  swipeConfig,
-  getColors,
-  getAsync,
-  setAsync
-} from '../helpers'
+import { playpause, getLayoutProvider, getColors, getAsync, setAsync } from '../helpers'
 import ChoosePlaylistModal from '../modals/ChoosePlaylistModal'
 const { CREME, CREME_DARK } = getColors
-
-const { width } = Dimensions.get('window')
 
 export const initialPlaylist = (title = '', tracks = []) => {
   return { id: Date.now(), title, tracks }
 }
 
-export const Playlists = ({ navigation }) => {
+export const Playlists = () => {
   const [createPlaylistModalVisible, setCreatePlaylistModalVisible] = useState(false)
   const [existsInPlaylistModalVisible, setExistsInPlaylistModalVisible] = useState(false)
   const [deleteFromPlaylistModalVisible, setDeleteFromPlaylistModalVisible] = useState(false)
@@ -48,10 +38,6 @@ export const Playlists = ({ navigation }) => {
   useEffect(() => {
     !playlist.length && renderDefaultPlaylist()
   }, [])
-
-  useEffect(() => {
-    focused && updateState(context, { isPlaylist: true })
-  }, [focused])
 
   const createPlaylistHandler = async (playlistName) => {
     const tracks = addToPlaylist ? [addToPlaylist] : []
@@ -148,19 +134,9 @@ export const Playlists = ({ navigation }) => {
     }
   }
 
-  const onSwipe = (gestureName) => {
-    const { SWIPE_RIGHT } = swipeDirections
-    switch (gestureName) {
-      case SWIPE_RIGHT:
-        navigation.navigate('Player')
-        break
-      default:
-        break
-    }
-  }
-
   const onAudioPressHandler = async (audio) => {
-    await playpause({ audio, context })
+    updateState(context, { isPlaylist: true })
+    return await playpause({ audio, context, isPlaylist: true })
   }
 
   const onRefreshTracksHandler = () => {
@@ -199,11 +175,6 @@ export const Playlists = ({ navigation }) => {
   }
 
   return (
-    // <GestureRecognizer
-    //   onSwipe={(direction, state) => onSwipe(direction, state)}
-    //   config={swipeConfig}
-    //   style={{ flex: 1 }}
-    // >
     <View style={styles.container}>
       <View style={styles.topContainer}>
         <TouchableOpacity
@@ -270,7 +241,6 @@ export const Playlists = ({ navigation }) => {
         onSubmit={createPlaylistHandler}
       />
     </View>
-    // </GestureRecognizer>
   )
 }
 

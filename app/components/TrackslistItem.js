@@ -3,7 +3,7 @@ import { View, StyleSheet, Text, Dimensions, TouchableOpacity } from 'react-nati
 import { MaterialIcons } from '@expo/vector-icons'
 
 import { getListItemText, getListItemTime, getColors } from '../helpers'
-import { Context } from '../context'
+import { Context } from '../context/Context'
 
 const { FONT, FONT_MEDIUM, FONT_LIGHT, BG, ICON, MAIN, CREME } = getColors
 const { width } = Dimensions.get('window')
