@@ -103,7 +103,6 @@ export const Playlists = () => {
   }
 
   const onBannerPress = async (playlist) => {
-    console.log(111, playlist)
     const { id: modifiedPlaylistID } = playlist
     const playlistNumber = context.playlist.map((list) => list.id).indexOf(modifiedPlaylistID)
     if (addToPlaylist) {
