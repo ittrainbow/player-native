@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from 'react'
 import { Dimensions, StyleSheet, View } from 'react-native'
 import { Context } from '../context/Context'
 import { RecyclerListView } from 'recyclerlistview'
+import { useIsFocused } from '@react-navigation/native'
 
 import { TracklistItem } from '../components'
 import { getColors, getLayoutProvider, playpause } from '../helpers'
@@ -10,6 +11,7 @@ import { AddToPlaylistModal } from '../modals'
 const { BG } = getColors
 
 export const Tracklist = ({ navigation }) => {
+  const focused = useIsFocused()
   const context = useContext(Context)
   const {
     loadPreviousAudio,
@@ -27,6 +29,10 @@ export const Tracklist = ({ navigation }) => {
   useEffect(() => {
     audioFiles && loadPreviousAudio()
   }, [audioFiles])
+
+  useEffect(() => {
+    if (focused) updateState({ ...context, addToPlaylist: null })
+  }, [focused])
 
   const onModalClose = () => {
     setModalVisible(false)

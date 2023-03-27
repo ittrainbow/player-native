@@ -3,7 +3,7 @@ import { StyleSheet, View, Text, TouchableOpacity, Alert } from 'react-native'
 import { RecyclerListView } from 'recyclerlistview'
 import { MaterialIcons } from '@expo/vector-icons'
 
-import { TracklistItem, PlaylistItem } from '../components'
+import { TracklistItem, PlaylistListItem } from '../components'
 import { LoadingMessage } from '../UI'
 import { Context } from '../context/Context'
 import { CreatePlaylistModal, ExistsInPlaylistModal, DeleteFromPlaylistModal, ChoosePlaylistModal } from '../modals'
@@ -103,6 +103,7 @@ export const Playlists = () => {
   }
 
   const onBannerPress = async (playlist) => {
+    console.log(111, playlist)
     const { id: modifiedPlaylistID } = playlist
     const playlistNumber = context.playlist.map((list) => list.id).indexOf(modifiedPlaylistID)
     if (addToPlaylist) {
@@ -205,9 +206,9 @@ export const Playlists = () => {
 
       <View style={{ marginTop: 5 }}>
         {!!addToPlaylist &&
-          playlist.map((item) => {
-            const { id } = item
-            return <PlaylistItem key={id} item={item} onPress={onBannerPress} />
+          playlist.map((list) => {
+            const { id } = list
+            return <PlaylistListItem key={id} list={list} onPress={onBannerPress} />
           })}
       </View>
 

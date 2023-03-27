@@ -1,3 +1,2 @@
-export * from './ChoosePlaylistItem'
-export * from './PlaylistItem'
+export * from './PlaylistListItem'
 export * from './TrackslistItem'

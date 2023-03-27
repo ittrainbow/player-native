@@ -2,6 +2,7 @@ import React, { useContext, useRef, useEffect, useState } from 'react'
 import { Animated, View, StyleSheet, Text, Dimensions } from 'react-native'
 import { MaterialIcons } from '@expo/vector-icons'
 import Slider from '@react-native-community/slider'
+import { useIsFocused } from '@react-navigation/native'
 
 import { PlayerButton } from '../UI'
 import {
@@ -19,6 +20,7 @@ const { width } = Dimensions.get('window')
 const halfWidth = width / 2
 
 export const Player = () => {
+  const focused = useIsFocused()
   const [duration, setDuration] = useState(0)
   const [artist, setArtist] = useState('')
   const [title, setTitle] = useState('')
@@ -40,6 +42,10 @@ export const Player = () => {
     getNextAudio,
     audioFiles
   } = context
+  
+  useEffect(() => {
+    if (focused) updateState({ ...context, addToPlaylist: null })
+  }, [focused])
 
   useEffect(() => {
     if (currentAudio) {
