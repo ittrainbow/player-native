@@ -8,7 +8,14 @@ import { MaterialIcons } from '@expo/vector-icons'
 import { TracklistItem, DropdownMenu, PlaylistItem } from '../components'
 import { Context } from '../context'
 import { CreatePlaylistModal, ExistsInPlaylistModal, DeleteFromPlaylistModal } from '../modals'
-import { playpause, getLayoutProvider, swipeConfig, getColors, getAsync, setAsync } from '../helpers'
+import {
+  playpause,
+  getLayoutProvider,
+  swipeConfig,
+  getColors,
+  getAsync,
+  setAsync
+} from '../helpers'
 import ChoosePlaylistModal from '../modals/ChoosePlaylistModal'
 const { CREME, CREME_DARK } = getColors
 
@@ -32,7 +39,8 @@ export const Playlists = ({ navigation }) => {
     playlistNumber,
     dataProvider,
     isPlaying,
-    currentAudio
+    currentAudio,
+    getFiles
   } = context
   const focused = useIsFocused()
   const layoutProvider = getLayoutProvider()
@@ -154,6 +162,13 @@ export const Playlists = ({ navigation }) => {
     await playpause({ audio, context })
   }
 
+  const onRefreshTracksHandler = () => {
+    Alert.alert('Refresh tracks?', 'This operation will refresh all the media data', [
+      { text: 'Yes', onPress: () => getFiles({ reload: true }) },
+      { text: 'No', style: 'cancel' }
+    ])
+  }
+
   const rowRenderer = (_, item, index, extendedState) => {
     const { isPlaying } = extendedState
     const activeListItem = item.id === currentAudio.id
@@ -193,6 +208,12 @@ export const Playlists = ({ navigation }) => {
             onPress={onDeletePlaylistHandler}
           >
             <MaterialIcons name="delete-outline" size={28} color="black" />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={{ ...styles.add, ...styles.button }}
+            onPress={onRefreshTracksHandler}
+          >
+            <MaterialIcons name="refresh" size={28} color="black" />
           </TouchableOpacity>
         </View>
         <View style={styles.headerContainer}>

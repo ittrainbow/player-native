@@ -5,7 +5,7 @@ const { initialPlaylist } = initials
 
 export const getAsync = async (value) => {
   const response = await AsyncStorage.getItem(value)
-  const empty = response.length < 10 && value === 'playlist'
+  const empty = (response === null || response.length < 10) && value === 'playlist'
   
   if (empty) await AsyncStorage.setItem('playlist', JSON.stringify(initialPlaylist))
   const result = empty ? initialPlaylist : JSON.parse(response)

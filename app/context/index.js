@@ -4,7 +4,7 @@ import * as MediaLibrary from 'expo-media-library'
 import { DataProvider } from 'recyclerlistview'
 import { Audio } from 'expo-av'
 
-import { getTrackNames, next, getAsync, initials } from '../helpers'
+import { getTrackNames, next, getAsync, setAsync, initials } from '../helpers'
 
 const { initialPlaylist } = initials
 
@@ -53,8 +53,6 @@ class ContextProvider extends Component {
     return { artist, title }
   }
 
-  logMetadata = () => {}
-
   permissionAlert = () => {
     Alert.alert(
       'Permission needed',
@@ -66,8 +64,7 @@ class ContextProvider extends Component {
     )
   }
 
-  getFiles = async () => {
-    const { dataProvider, audioFiles } = this.state
+  getReload = async () => {
     let media = await MediaLibrary.getAssetsAsync({ mediaType: 'audio' })
     const { totalCount } = media
 
@@ -75,16 +72,32 @@ class ContextProvider extends Component {
       mediaType: 'audio',
       first: totalCount
     })
+    tracks = [...media.assets].filter((el) => el.duration > 90)
+    await setAsync('tracks', tracks)
+    return tracks
+  }
 
-    this.setState({ ...this.state, totalCount })
+  getFiles = async ({ reload }) => {
+    const { dataProvider } = this.state
+    let tracks = await getAsync('tracks')
 
-    const data = [...audioFiles, ...media.assets].filter((el) => el.duration > 90)
+    if (tracks === null || tracks.length < 10 || reload) {
+      let media = await MediaLibrary.getAssetsAsync({ mediaType: 'audio' })
+      const { totalCount } = media
+  
+      media = await MediaLibrary.getAssetsAsync({
+        mediaType: 'audio',
+        first: totalCount
+      })
+      tracks = [...media.assets].filter((el) => el.duration > 90)
+      await setAsync('tracks', tracks)
+    }
 
     this.setState({
       ...this.state,
-      dataProvider: dataProvider.cloneWithRows(data),
-      audioFiles: data,
-      totalCount: data.length
+      dataProvider: dataProvider.cloneWithRows(tracks),
+      audioFiles: tracks,
+      totalCount: tracks.length
     })
   }
 
@@ -105,14 +118,15 @@ class ContextProvider extends Component {
     const notGrantedCanAsk = async () => {
       const { status, canAskAgain } = await MediaLibrary.requestPermissionsAsync()
 
-      status === 'denied' && canAskAgain && this.permissionAlert()
-      status === 'granted' && this.getFiles()
-      status === 'denied' && !canAskAgain && this.setState({ ...this.state, permissionError: true })
+      if (status === 'denied') canAskAgain && this.permissionAlert()
+      if (status === 'granted') this.getFiles({ reload: false })
+      if (status === 'denied' && !canAskAgain)
+        this.setState({ ...this.state, permissionError: true })
     }
 
-    granted && this.getFiles()
-    !granted && !canAskAgain && this.setState({ ...this.state, permissionError: true })
-    !granted && canAskAgain && notGrantedCanAsk()
+    if (granted) this.getFiles({ reload: false })
+    else if (canAskAgain) notGrantedCanAsk()
+    else this.setState({ ...this.state, permissionError: true })
   }
 
   updateState = (prevState, newState = {}) => {
@@ -208,7 +222,8 @@ class ContextProvider extends Component {
           loadPreviousAudio: this.loadPreviousAudio,
           updateState: this.updateState,
           onPlaybackStatusUpdate: this.onPlaybackStatusUpdate,
-          getMetadata: this.getMetadata
+          getMetadata: this.getMetadata,
+          getFiles: this.getFiles
         }}
       >
         {this.props.children}
@@ -217,7 +232,6 @@ class ContextProvider extends Component {
   }
 }
 
-const styles = StyleSheet.create({
-})
+const styles = StyleSheet.create({})
 
 export default ContextProvider
