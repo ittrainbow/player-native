@@ -1,14 +1,13 @@
 import React, { useContext, useState, useEffect } from 'react'
 import { StyleSheet, View, Text, TouchableOpacity, Alert } from 'react-native'
 import { RecyclerListView } from 'recyclerlistview'
-import { useIsFocused } from '@react-navigation/native'
 import { MaterialIcons } from '@expo/vector-icons'
 
 import { TracklistItem, PlaylistItem } from '../components'
+import { LoadingMessage } from '../UI'
 import { Context } from '../context/Context'
-import { CreatePlaylistModal, ExistsInPlaylistModal, DeleteFromPlaylistModal } from '../modals'
+import { CreatePlaylistModal, ExistsInPlaylistModal, DeleteFromPlaylistModal, ChoosePlaylistModal } from '../modals'
 import { playpause, getLayoutProvider, getColors, getAsync, setAsync } from '../helpers'
-import ChoosePlaylistModal from '../modals/ChoosePlaylistModal'
 const { CREME, CREME_DARK } = getColors
 
 export const initialPlaylist = (title = '', tracks = []) => {
@@ -30,9 +29,9 @@ export const Playlists = () => {
     dataProvider,
     isPlaying,
     currentAudio,
-    getFiles
+    getFiles,
+    isLoading
   } = context
-  const focused = useIsFocused()
   const layoutProvider = getLayoutProvider()
 
   useEffect(() => {
@@ -202,7 +201,7 @@ export const Playlists = () => {
           <MaterialIcons name="refresh" size={28} color="black" />
         </TouchableOpacity>
       </View>
-      {!addToPlaylist ? headerRenderer() : null}
+      {!addToPlaylist && !isLoading ? headerRenderer() : null}
 
       <View style={{ marginTop: 5 }}>
         {!!addToPlaylist &&
@@ -212,7 +211,7 @@ export const Playlists = () => {
           })}
       </View>
 
-      {!addToPlaylist ? (
+      {!addToPlaylist && !isLoading ? (
         <RecyclerListView
           style={styles.list}
           dataProvider={dataProvider.cloneWithRows(playlist[playlistNumber].tracks)}
@@ -221,6 +220,8 @@ export const Playlists = () => {
           extendedState={{ isPlaying }}
         />
       ) : null}
+
+      {isLoading ? <LoadingMessage /> : null}
       <ChoosePlaylistModal
         visible={choosePlaylistModalVisible}
         onClose={() => setChoosePlaylistModalVisible(false)}
@@ -250,6 +251,14 @@ const styles = StyleSheet.create({
     padding: 12,
     flex: 1,
     marginBottom: 78
+  },
+  loading: {
+    color: CREME,
+    fontSize: 20,
+    fontWeight: 700,
+    marginTop: 50,
+    alignItems: 'center',
+    justifyContent: 'center'
   },
   topContainer: {
     flexDirection: 'row',

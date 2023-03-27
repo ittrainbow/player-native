@@ -18,6 +18,7 @@ class ContextProvider extends Component {
     this.state = {
       audioFiles: null,
       playlist: initialPlaylist,
+      isLoading: false,
       playlistNumber: 0,
       isPlaylist: false,
       shuffle: false,
@@ -52,7 +53,7 @@ class ContextProvider extends Component {
     const previousAudio = await getAsync('previousAudio')
     let currentAudio, currentAudioIndex
     if (previousAudio) {
-      const { audio, index} = previousAudio
+      const { audio, index } = previousAudio
       currentAudio = audio
       currentAudioIndex = index
     } else {
@@ -80,6 +81,7 @@ class ContextProvider extends Component {
   }
 
   getFiles = async ({ reload }) => {
+    this.setState({ ...this.state, isLoading: true })
     const { dataProvider } = this.state
     let tracks = await getAsync('tracks')
 
@@ -95,11 +97,17 @@ class ContextProvider extends Component {
       await setAsync('tracks', tracks)
     }
 
+    if (reload) {
+      await setAsync('playlist', initialPlaylist)
+      this.setState({ ...this.state, playlist: initialPlaylist })
+    }
+
     this.setState({
       ...this.state,
       dataProvider: dataProvider.cloneWithRows(tracks),
       audioFiles: tracks,
-      totalCount: tracks.length
+      totalCount: tracks.length,
+      isLoading: false
     })
   }
 
@@ -184,7 +192,8 @@ class ContextProvider extends Component {
       isPlaylist,
       playlistNumber,
       addToPlaylist,
-      shuffle
+      shuffle,
+      isLoading
     } = this.state
     if (permissionError)
       return (
@@ -213,6 +222,7 @@ class ContextProvider extends Component {
           playlistNumber,
           addToPlaylist,
           shuffle,
+          isLoading,
           getNextAudio: this.getNextAudio,
           loadPreviousAudio: this.loadPreviousAudio,
           updateState: this.updateState,

@@ -6,7 +6,7 @@ import { ChoosePlaylistItem } from '../components'
 import { getColors } from '../helpers'
 const { MODAL_BG, MAIN, BG } = getColors
 
-const ChoosePlaylistModal = ({ visible, onClose }) => {
+export const ChoosePlaylistModal = ({ visible, onClose }) => {
   const context = useContext(Context)
   const { playlist, playlistNumber, updateState } = context
 
@@ -72,5 +72,3 @@ const styles = StyleSheet.create({
     backgroundColor: MODAL_BG
   }
 })
-
-export default ChoosePlaylistModal

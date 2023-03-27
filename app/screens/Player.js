@@ -3,7 +3,7 @@ import { Animated, View, StyleSheet, Text, Dimensions } from 'react-native'
 import { MaterialIcons } from '@expo/vector-icons'
 import Slider from '@react-native-community/slider'
 
-import { PlayerButton } from '../components'
+import { PlayerButton } from '../UI'
 import {
   pause,
   resume,
