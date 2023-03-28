@@ -2,16 +2,25 @@ import React, { useContext } from 'react'
 import { View, StyleSheet, Modal, Text, TouchableWithoutFeedback } from 'react-native'
 
 import { Context } from '../context/Context'
-import { ChoosePlaylistItem, PlaylistListItem } from '../components'
+import {
+  // ChoosePlaylistItem,
+  PlaylistListItem
+} from '../components'
 import { getColors } from '../helpers'
 const { MODAL_BG, MAIN, BG } = getColors
 
 export const ChoosePlaylistModal = ({ visible, onClose }) => {
   const context = useContext(Context)
-  const { playlist, playlistNumber, updateState } = context
+  const {
+    playlist,
+    playlistNumber,
+    // update1State,
+    setPlaylistNumber
+  } = context
 
   const onPress = (playlistNumber) => {
-    updateState(context, { playlistNumber })
+    // update1State(context, { playlistNumber })
+    setPlaylistNumber(playlistNumber)
     onClose()
   }
 

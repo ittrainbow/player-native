@@ -16,11 +16,14 @@ export const Tracklist = ({ navigation }) => {
   const {
     loadPreviousAudio,
     audioFiles,
-    updateState,
+    // update1State,
     isPlaying,
     currentAudioIndex,
     dataProvider,
-    currentAudio
+    currentAudio,
+    //
+    setAddToPlaylist,
+    setIsPlaylist,
   } = context
   const [currentItem, setCurrentItem] = useState({})
   const [modalVisible, setModalVisible] = useState(false)
@@ -31,7 +34,8 @@ export const Tracklist = ({ navigation }) => {
   }, [audioFiles])
 
   useEffect(() => {
-    if (focused) updateState({ ...context, addToPlaylist: null })
+    // if (focused) update1State({ ...context, addToPlaylist: null })
+    if (focused) setAddToPlaylist(null)
   }, [focused])
 
   const onModalClose = () => {
@@ -45,15 +49,18 @@ export const Tracklist = ({ navigation }) => {
   }
 
   const onAudioPressHandler = async (audio) => {
-    updateState(context, { isPlaylist: false, addToPlaylist: null })
+    // update1State(context, { isPlaylist: false, addToPlaylist: null })
+    setIsPlaylist(false)
+    setAddToPlaylist(null)
     return await playpause({ audio, context, isPlaylist: false })
   }
 
   const onPlaylistPressHandler = () => {
     navigation.navigate('Playlists')
-    const newState = { addToPlaylist: currentItem }
-    updateState(context, newState)
-    setModalVisible(false)
+    // const newState = { addToPlaylist: currentItem }
+    // update1State(context, newState)
+    setAddToPlaylist(currentItem)
+    return setModalVisible(false)
   }
 
   const rowRenderer = (type, item, index, extendedState) => {
