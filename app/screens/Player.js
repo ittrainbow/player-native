@@ -36,20 +36,17 @@ export const Player = () => {
     getMetadata,
     soundObject,
     shuffle,
-    // update1State,
     playlist,
     playlistNumber,
     getNextAudio,
     audioFiles,
-    //
     setAddToPlaylist,
     setPlaylist,
     setPlaybackPosition,
     setShuffle
   } = context
-  
+
   useEffect(() => {
-    // if (focused) update1State({ ...context, addToPlaylist: null })
     if (focused) setAddToPlaylist(null)
   }, [focused])
 
@@ -118,7 +115,6 @@ export const Player = () => {
 
   const slideChangeHandler = async (stamp) => {
     await playbackObject.setPositionAsync(stamp)
-    // return update1State(context, { playbackPosition: stamp })
     return setPlaybackPosition(stamp)
   }
 
@@ -152,13 +148,11 @@ export const Player = () => {
     }
     const newPlaylist = [...playlist]
     newPlaylist[favPlaylistNumber].tracks = newTracks
-    // update1State(context, { playlist: newPlaylist })
     setPlaylist(newPlaylist)
     return await setAsync('playlist', newPlaylist)
   }
 
   const shuffleHandler = () => {
-    // update1State(context, { shuffle: !shuffle })
     setShuffle(!shuffle)
   }
 

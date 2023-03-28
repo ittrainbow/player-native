@@ -8,8 +8,6 @@ const { width } = Dimensions.get('window')
 export const PlaylistListItem = ({ list, index, onPress, active, selector }) => {
   const [listTitle, setListTitle] = useState('')
   const [listTracks, setListTracks] = useState('')
-  
-  const { tracks, title } = list
 
   useEffect(() => {
     if (list) {

@@ -16,14 +16,12 @@ export const Tracklist = ({ navigation }) => {
   const {
     loadPreviousAudio,
     audioFiles,
-    // update1State,
     isPlaying,
     currentAudioIndex,
     dataProvider,
     currentAudio,
-    //
     setAddToPlaylist,
-    setIsPlaylist,
+    setIsPlaylist
   } = context
   const [currentItem, setCurrentItem] = useState({})
   const [modalVisible, setModalVisible] = useState(false)
@@ -34,7 +32,6 @@ export const Tracklist = ({ navigation }) => {
   }, [audioFiles])
 
   useEffect(() => {
-    // if (focused) update1State({ ...context, addToPlaylist: null })
     if (focused) setAddToPlaylist(null)
   }, [focused])
 
@@ -49,7 +46,6 @@ export const Tracklist = ({ navigation }) => {
   }
 
   const onAudioPressHandler = async (audio) => {
-    // update1State(context, { isPlaylist: false, addToPlaylist: null })
     setIsPlaylist(false)
     setAddToPlaylist(null)
     return await playpause({ audio, context, isPlaylist: false })
@@ -57,8 +53,6 @@ export const Tracklist = ({ navigation }) => {
 
   const onPlaylistPressHandler = () => {
     navigation.navigate('Playlists')
-    // const newState = { addToPlaylist: currentItem }
-    // update1State(context, newState)
     setAddToPlaylist(currentItem)
     return setModalVisible(false)
   }

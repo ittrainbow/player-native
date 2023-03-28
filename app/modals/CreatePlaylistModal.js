@@ -31,7 +31,7 @@ export const CreatePlaylistModal = ({ visible, onClose, onSubmit }) => {
   }
 
   return (
-    <Modal animationType="fade" transparent visible={visible} >
+    <Modal animationType="fade" transparent visible={visible}>
       <View style={styles.modal}>
         <View style={styles.inputContainer}>
           <Text style={styles.modalHeader}>Create new playlist</Text>

@@ -29,14 +29,12 @@ export const Playlists = () => {
   const {
     playlist,
     addToPlaylist,
-    // update1State,
     playlistNumber,
     dataProvider,
     isPlaying,
     currentAudio,
     getFiles,
     isLoading,
-    //
     setPlaylist,
     setAddToPlaylist,
     setPlaylistNumber,
@@ -52,8 +50,6 @@ export const Playlists = () => {
     const tracks = addToPlaylist ? [addToPlaylist] : []
     const playlistNumber = playlist.length
     const updatedPlaylist = [...playlist, initialPlaylist(playlistName, tracks)]
-    // const newState = { addToPlaylist: null, playlist: updatedPlaylist, playlistNumber }
-    // update1State(context, newState)
     setAddToPlaylist(null)
     setPlaylist(updatedPlaylist)
     setPlaylistNumber(playlistNumber)
@@ -76,11 +72,6 @@ export const Playlists = () => {
     const playlist = await getAsync('playlist')
     playlist.splice(playlistNumber, 1)
     await setAsync('playlist', playlist)
-    // const newState = {
-    //   playlist,
-    //   playlistNumber: 0
-    // }
-    // return update1State(context, newState)
     setPlaylist(playlist)
     setPlaylistNumber(0)
   }
@@ -99,7 +90,6 @@ export const Playlists = () => {
     const newTracks = [...playlist[playlistNumber].tracks].filter((track) => track.id !== id)
     const newPlaylist = [...playlist]
     newPlaylist[playlistNumber].tracks = newTracks
-    // update1State(context, { playlist: newPlaylist })
     setPlaylist(newPlaylist)
     setDeleteFromPlaylistModalVisible(false)
     return await setAsync('playlist', newPlaylist)
@@ -111,13 +101,9 @@ export const Playlists = () => {
       const defaultPlaylist = initialPlaylist('Favorites', [])
 
       const updatedPlaylist = [...playlist, defaultPlaylist]
-      // const newState = { playlist: [...updatedPlaylist] }
-      // update1State(context, newState)
       setPlaylist(updatedPlaylist)
       return await setAsync('playlist', updatedPlaylist)
     }
-    // const newState = { playlist: JSON.parse(response) }
-    // return update1State(context, newState)
     return setPlaylist(JSON.parse(response))
   }
 
@@ -145,10 +131,8 @@ export const Playlists = () => {
       }
 
       if (alreadyInPlaylist) {
-        // return update1State(context, { addToPlaylist: null })
         return setAddToPlaylist(null)
       }
-      // update1State(context, { addToPlaylist: null, playlist: updatedList, playlistNumber })
       setAddToPlaylist(null)
       setPlaylist(updatedList)
       setPlaylistNumber(playlistNumber)
@@ -157,7 +141,6 @@ export const Playlists = () => {
   }
 
   const onAudioPressHandler = async (audio) => {
-    // update1State(context, { isPlaylist: true })
     setIsPlaylist(true)
     return await playpause({ audio, context, isPlaylist: true })
   }
@@ -167,7 +150,6 @@ export const Playlists = () => {
       { text: 'Yes', onPress: () => getFiles({ reload: true }) },
       { text: 'No', style: 'cancel' }
     ])
-    // update1State(context, { playlistNumber: 0 })
     return setPlaylistNumber(0)
   }
 
