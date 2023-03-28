@@ -74,8 +74,8 @@ export const ContextProvider = ({ children }) => {
       'Permission needed',
       'File system access is necessary to search through your device media library',
       [
-        { text: 'Согласиться', onPress: () => getPermission() },
-        { text: 'Отменить', onPress: () => permissionAlert() }
+        { text: 'OK', onPress: () => getPermission() },
+        { text: 'Cancel', onPress: () => permissionAlert() }
       ]
     )
   }
@@ -125,19 +125,13 @@ export const ContextProvider = ({ children }) => {
 
   const getNextAudio = ({ value }) => {
     const counter = value === 'prev' ? -1 : 1
-
     const list = isPlaylist ? playlist[playlistNumber].tracks : audioFiles
-
     const numPlaylist = currentAudio
       ? list.map((track) => track.id).indexOf(currentAudio.id) + counter
       : 0
-
     const num = numPlaylist === list.length ? 0 : numPlaylist
-
     const rand = Math.floor(Math.random() * (isPlaylist ? list.length : audioFiles.length))
-
     const response = list[shuffle ? rand : num]
-
     return response
   }
 
@@ -166,8 +160,7 @@ export const ContextProvider = ({ children }) => {
     return (
       <View style={styles.audioProviderError}>
         <Text style={styles.audioProviderErrorText}>
-          Выдайте разрешение на доступ к файловой системе, может потребоваться переустановка
-          приложения
+          Grant access to file storage
         </Text>
       </View>
     )
