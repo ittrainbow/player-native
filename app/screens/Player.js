@@ -114,8 +114,6 @@ export const Player = () => {
   }
 
   const slideChangeHandler = async (stamp) => {
-    // console.log(1, stamp)
-    // console.log(2, playbackDuration)
     const newStamp = playbackDuration - Math.floor(stamp) > 2000 ? stamp : playbackDuration - 2000
     await playbackObject.setPositionAsync(newStamp)
     return setPlaybackPosition(newStamp)

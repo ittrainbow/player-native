@@ -161,18 +161,6 @@ export const ContextProvider = ({ children }) => {
       setPlaybackPosition(positionMillis)
       setPlaybackDuration(durationMillis)
     }
-
-    // if (didJustFinish) {
-    //   const maxReached = currentAudioIndex + 1 >= totalCount
-    //   const index = maxReached ? 0 : currentAudioIndex + 1
-    //   const audio = getNextAudio({ value: 'next' })
-    //   const { uri } = audio
-    //   const status = await next({ playbackObject, uri, audio, index })
-
-    //   setCurrentAudio(audio)
-    //   setSoundObject(status)
-    //   setCurrentAudioIndex(index)
-    // }
   }
 
   if (permissionError)
