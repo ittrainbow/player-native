@@ -28,10 +28,6 @@ export const Tracklist = ({ navigation }) => {
   const layoutProvider = getLayoutProvider()
 
   useEffect(() => {
-    audioFiles && loadPreviousAudio()
-  }, [audioFiles])
-
-  useEffect(() => {
     if (focused) setAddToPlaylist(null)
   }, [focused])
 

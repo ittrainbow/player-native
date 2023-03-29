@@ -180,6 +180,10 @@ export const Playlists = () => {
     )
   }
 
+  const logger = () => {
+    console.log(2, currentAudio.filename)
+  }
+
   return (
     <View style={styles.container}>
       <View style={styles.topContainer}>
@@ -204,6 +208,12 @@ export const Playlists = () => {
         <TouchableOpacity
           style={{ ...styles.add, ...styles.button }}
           onPress={onRefreshTracksHandler}
+        >
+          <MaterialIcons name="refresh" size={28} color="black" />
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={{ ...styles.add, ...styles.button }}
+          onPress={logger}
         >
           <MaterialIcons name="refresh" size={28} color="black" />
         </TouchableOpacity>

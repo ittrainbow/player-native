@@ -1,8 +1,9 @@
 import { setAsync } from './async'
 
-export const play = async ({ playbackObject, uri, audio, index, artist, title }) => {
+export const play = async ({ playbackObject, audio, index }) => {
+  const { uri } = audio
   try {
-    await setAsync('previousAudio', { audio, index, artist, title })
+    await setAsync('previousAudio', { audio, index })
     return await playbackObject.loadAsync(
       { uri },
       { shouldPlay: true, progressUpdateIntervalMillis: 1000 }
@@ -29,9 +30,9 @@ export const resume = async (playbackObject) => {
 }
 
 export const next = async (props) => {
-  const { playbackObject, audio, index, artist, title } = props
+  const { playbackObject, audio, index } = props
   try {
-    await setAsync('previousAudio', { audio, index, artist, title })
+    await setAsync('previousAudio', { audio, index })
     await playbackObject.stopAsync()
     await playbackObject.unloadAsync()
     return await play(props)
@@ -47,7 +48,7 @@ export const playpause = async ({ audio, context, isPlaylist }) => {
     currentAudio,
     audioFiles,
     onPlaybackStatusUpdate,
-    getMetadata,
+    // getMetadata,
     setCurrentAudio,
     setSoundObject,
     setIsPlaying,
@@ -55,12 +56,12 @@ export const playpause = async ({ audio, context, isPlaylist }) => {
     setPlaybackPosition
   } = context
   const { uri } = audio
-  const { artist, title } = getMetadata(uri)
+  // const { artist, title } = getMetadata(uri)
   const index = audioFiles.indexOf(audio)
 
   try {
     if (soundObject === null) {
-      const status = await play({ playbackObject, uri, audio, index, artist, title })
+      const status = await play({ playbackObject, audio, index })
 
       setCurrentAudio(audio)
       setSoundObject(status)
@@ -86,7 +87,7 @@ export const playpause = async ({ audio, context, isPlaylist }) => {
           setIsPlaying(true)
         }
       } else if (id !== audio.id) {
-        const status = await next({ playbackObject, uri, audio, index, artist, title })
+        const status = await next({ playbackObject, audio, index })
 
         setCurrentAudio(audio)
         setSoundObject(status)
@@ -106,7 +107,7 @@ export const prevnext = async ({ value, context, nextAudio }) => {
 
     onPlaybackStatusUpdate,
     totalCount,
-    getMetadata,
+    // getMetadata,
     setPlaybackObject,
     setCurrentAudio,
     setCurrentAudioIndex,
@@ -126,17 +127,20 @@ export const prevnext = async ({ value, context, nextAudio }) => {
       ? 0
       : currentAudioIndex + counter
     const audio = nextAudio
-    const { uri } = audio
-    const { artist, title } = getMetadata(uri)
+    // const { uri } = audio
+    // const { artist, title } = getMetadata(uri)
 
-    let status
-    if (!isLoaded && !endOfList) {
-      status = await play({ playbackObject, uri, audio, index, artist, title })
-    } else if (isLoaded && !endOfList) {
-      status = await next({ playbackObject, uri, audio, index, artist, title })
-    } else if (isLoaded && endOfList) {
-      status = await next({ playbackObject, uri, audio, index, artist, title })
-    }
+    // let status
+    // if (!isLoaded && !endOfList) {
+    //   status = await play({ playbackObject, uri, audio, index })
+    // } else if (isLoaded && !endOfList) {
+    //   status = await next({ playbackObject, uri, audio, index })
+    // } else if (isLoaded && endOfList) {
+    //   status = await next({ playbackObject, uri, audio, index })
+    // }
+
+    const objToPlay = { playbackObject, audio, index }
+    const status = !isLoaded ? await play(objToPlay) : await next(objToPlay)
 
     setCurrentAudio(audio)
     setCurrentAudioIndex(index)

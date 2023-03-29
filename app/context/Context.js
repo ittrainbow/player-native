@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { StyleSheet, Alert, View, Text } from 'react-native'
 import * as MediaLibrary from 'expo-media-library'
 import { DataProvider } from 'recyclerlistview'
@@ -49,12 +49,18 @@ export const ContextProvider = ({ children }) => {
     getPlaylistAndObject()
   }, [])
 
+  useEffect(() => {
+    if (audioFiles && isLoading) {
+      setIsLoading(false)
+      loadPreviousAudio()
+    }
+  }, [audioFiles])
+
   const loadPreviousAudio = async () => {
     const previousAudio = await getAsync('previousAudio')
 
     if (previousAudio) {
       const { audio } = previousAudio
-
       const currentAudioIndex = audioFiles.map((audio) => audio.id).indexOf(audio.id) || 0
       setCurrentAudio(audio)
       setCurrentAudioIndex(currentAudioIndex)
@@ -88,16 +94,13 @@ export const ContextProvider = ({ children }) => {
     if (tracks === null || tracks.length < 10 || reload) {
       let media = await MediaLibrary.getAssetsAsync({ mediaType: 'audio' })
       const { totalCount } = media
-
       media = await MediaLibrary.getAssetsAsync({ mediaType: 'audio', first: totalCount })
       tracks = [...media.assets].filter((el) => el.duration > 90)
-      
       await setAsync('tracks', tracks)
     }
 
     if (reload) {
       await setAsync('playlist', initialPlaylist)
-
       setPlaylist(initialPlaylist)
     }
 
@@ -113,9 +116,15 @@ export const ContextProvider = ({ children }) => {
     const notGrantedCanAsk = async () => {
       const { status, canAskAgain } = await MediaLibrary.requestPermissionsAsync()
 
-      if (status === 'denied' && canAskAgain) permissionAlert()
-      if (status === 'granted') getFiles({ reload: false })
-      if (status === 'denied' && !canAskAgain) setPermissionError(true)
+      // if (status === 'denied' && canAskAgain) permissionAlert()
+      // if (status === 'granted') getFiles({ reload: false })
+      // if (status === 'denied' && !canAskAgain) setPermissionError(true)
+
+      status === 'granted'
+        ? getFiles({ reload: false })
+        : canAskAgain
+        ? permissionAlert()
+        : setPermissionError(true)
     }
 
     if (granted) getFiles({ reload: false })
@@ -135,8 +144,14 @@ export const ContextProvider = ({ children }) => {
     return response
   }
 
+  // const getCurrentAudio = () => {
+  //   console.log(1, currentAudio.filename)
+  // }
+
   const onPlaybackStatusUpdate = async (playbackStatus) => {
     const { positionMillis, durationMillis, isLoaded, isPlaying, didJustFinish } = playbackStatus
+    // console.log(positionMillis)
+    // getCurrentAudio()
 
     if (isLoaded && isPlaying) {
       setPlaybackPosition(positionMillis)
@@ -159,9 +174,7 @@ export const ContextProvider = ({ children }) => {
   if (permissionError)
     return (
       <View style={styles.audioProviderError}>
-        <Text style={styles.audioProviderErrorText}>
-          Grant access to file storage
-        </Text>
+        <Text style={styles.audioProviderErrorText}>Grant access to file storage</Text>
       </View>
     )
   return (
