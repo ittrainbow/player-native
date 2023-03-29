@@ -6,10 +6,10 @@ export const play = async ({ playbackObject, audio, index }) => {
     await setAsync('previousAudio', { audio, index })
     return await playbackObject.loadAsync(
       { uri },
-      { shouldPlay: true, progressUpdateIntervalMillis: 1000 }
+      { shouldPlay: true }
     )
   } catch (error) {
-    console.error('play start error', error.message)
+    console.error('PLAY in Controller', error.message)
   }
 }
 
@@ -17,7 +17,7 @@ export const pause = async (playbackObject) => {
   try {
     return await playbackObject.setStatusAsync({ shouldPlay: false })
   } catch (error) {
-    console.error('pause error', error.message)
+    console.error('PAUSE in Controller', error.message)
   }
 }
 
@@ -25,7 +25,7 @@ export const resume = async (playbackObject) => {
   try {
     return await playbackObject.playAsync()
   } catch (error) {
-    console.error('resume error', error.message)
+    console.error('RESUME in Controller', error.message)
   }
 }
 
@@ -37,26 +37,23 @@ export const next = async (props) => {
     await playbackObject.unloadAsync()
     return await play(props)
   } catch (error) {
-    console.error('next track error', error.message)
+    console.error('NEXT TRACK in Controller', error.message)
   }
 }
 
-export const playpause = async ({ audio, context, isPlaylist }) => {
+export const playpause = async ({ audio, context }) => {
   const {
     soundObject,
     playbackObject,
     currentAudio,
     audioFiles,
     onPlaybackStatusUpdate,
-    // getMetadata,
     setCurrentAudio,
     setSoundObject,
     setIsPlaying,
     setCurrentAudioIndex,
     setPlaybackPosition
   } = context
-  const { uri } = audio
-  // const { artist, title } = getMetadata(uri)
   const index = audioFiles.indexOf(audio)
 
   try {
@@ -96,7 +93,7 @@ export const playpause = async ({ audio, context, isPlaylist }) => {
       }
     }
   } catch (error) {
-    console.error('audio controller select audio method error', error.message)
+    console.error('PLAYPAUSE in Controller', error.message)
   }
 }
 
@@ -107,7 +104,6 @@ export const prevnext = async ({ value, context, nextAudio }) => {
 
     onPlaybackStatusUpdate,
     totalCount,
-    // getMetadata,
     setPlaybackObject,
     setCurrentAudio,
     setCurrentAudioIndex,
@@ -127,17 +123,6 @@ export const prevnext = async ({ value, context, nextAudio }) => {
       ? 0
       : currentAudioIndex + counter
     const audio = nextAudio
-    // const { uri } = audio
-    // const { artist, title } = getMetadata(uri)
-
-    // let status
-    // if (!isLoaded && !endOfList) {
-    //   status = await play({ playbackObject, uri, audio, index })
-    // } else if (isLoaded && !endOfList) {
-    //   status = await next({ playbackObject, uri, audio, index })
-    // } else if (isLoaded && endOfList) {
-    //   status = await next({ playbackObject, uri, audio, index })
-    // }
 
     const objToPlay = { playbackObject, audio, index }
     const status = !isLoaded ? await play(objToPlay) : await next(objToPlay)
@@ -149,6 +134,6 @@ export const prevnext = async ({ value, context, nextAudio }) => {
     setSoundObject(status)
     return playbackObject.setOnPlaybackStatusUpdate(onPlaybackStatusUpdate)
   } catch (error) {
-    console.error('audio controller prev/next method error', error.message)
+    console.error('PREVNEXT in Controller', error.message)
   }
 }

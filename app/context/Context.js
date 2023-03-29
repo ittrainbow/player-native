@@ -35,6 +35,20 @@ export const ContextProvider = ({ children }) => {
   }, [])
 
   useEffect(() => {
+    const getNext = async () => {
+      const maxReached = currentAudioIndex + 1 >= totalCount
+      const index = maxReached ? 0 : currentAudioIndex + 1
+      const audio = getNextAudio({ value: 'next' })
+      const status = await next({ playbackObject, audio, index })
+
+      setCurrentAudio(audio)
+      setSoundObject(status)
+      setCurrentAudioIndex(index)
+    }
+    if (playbackPosition && playbackDuration - playbackPosition < 500) getNext()
+  }, [playbackDuration, playbackPosition])
+
+  useEffect(() => {
     const getPlaylistAndObject = async () => {
       if (!playbackObject) {
         const playlist = await getAsync('playlist')
@@ -116,10 +130,6 @@ export const ContextProvider = ({ children }) => {
     const notGrantedCanAsk = async () => {
       const { status, canAskAgain } = await MediaLibrary.requestPermissionsAsync()
 
-      // if (status === 'denied' && canAskAgain) permissionAlert()
-      // if (status === 'granted') getFiles({ reload: false })
-      // if (status === 'denied' && !canAskAgain) setPermissionError(true)
-
       status === 'granted'
         ? getFiles({ reload: false })
         : canAskAgain
@@ -144,31 +154,25 @@ export const ContextProvider = ({ children }) => {
     return response
   }
 
-  // const getCurrentAudio = () => {
-  //   console.log(1, currentAudio.filename)
-  // }
-
   const onPlaybackStatusUpdate = async (playbackStatus) => {
-    const { positionMillis, durationMillis, isLoaded, isPlaying, didJustFinish } = playbackStatus
-    // console.log(positionMillis)
-    // getCurrentAudio()
+    const { positionMillis, durationMillis, isLoaded, isPlaying } = playbackStatus
 
     if (isLoaded && isPlaying) {
       setPlaybackPosition(positionMillis)
       setPlaybackDuration(durationMillis)
     }
 
-    if (didJustFinish) {
-      const maxReached = currentAudioIndex + 1 >= totalCount
-      const index = maxReached ? 0 : currentAudioIndex + 1
-      const audio = getNextAudio(index)
-      const { uri } = audio
-      const status = await next({ playbackObject, uri, audio, index })
+    // if (didJustFinish) {
+    //   const maxReached = currentAudioIndex + 1 >= totalCount
+    //   const index = maxReached ? 0 : currentAudioIndex + 1
+    //   const audio = getNextAudio({ value: 'next' })
+    //   const { uri } = audio
+    //   const status = await next({ playbackObject, uri, audio, index })
 
-      setCurrentAudio(audio)
-      setSoundObject(status)
-      setCurrentAudioIndex(index)
-    }
+    //   setCurrentAudio(audio)
+    //   setSoundObject(status)
+    //   setCurrentAudioIndex(index)
+    // }
   }
 
   if (permissionError)
