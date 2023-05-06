@@ -53,6 +53,7 @@ const styles = StyleSheet.create({
     opacity: 0.35,
     padding: 3,
     fontSize: 16,
-    width: 65
+    width: 100,
+    textAlign: 'right'
   }
 })

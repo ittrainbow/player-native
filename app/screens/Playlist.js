@@ -72,8 +72,8 @@ export const Playlists = () => {
     const playlist = await getAsync('playlist')
     playlist.splice(playlistNumber, 1)
     await setAsync('playlist', playlist)
-    setPlaylist(playlist)
     setPlaylistNumber(0)
+    setPlaylist(playlist)
   }
 
   const onDeletePlaylistHandler = () => {
@@ -108,8 +108,8 @@ export const Playlists = () => {
   }
 
   const onBannerPress = async (playlist) => {
-    const { id: modifiedPlaylistID } = playlist
-    const playlistNumber = context.playlist.map((list) => list.id).indexOf(modifiedPlaylistID)
+    // const { id: modifiedPlaylistID } = playlist
+    // const playlistNumber = context.playlist.map((list) => list.id).indexOf(modifiedPlaylistID)
     if (addToPlaylist) {
       const response = await getAsync('playlist')
       let updatedList = []
@@ -135,7 +135,7 @@ export const Playlists = () => {
       }
       setAddToPlaylist(null)
       setPlaylist(updatedList)
-      setPlaylistNumber(playlistNumber)
+      // setPlaylistNumber(playlistNumber)
       await setAsync('playlist', updatedList)
     }
   }

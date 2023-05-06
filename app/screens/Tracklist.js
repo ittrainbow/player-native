@@ -68,9 +68,9 @@ export const Tracklist = ({ navigation }) => {
   }
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={styles.container}>
       <RecyclerListView
-        style={styles.container}
+        style={styles.listView}
         dataProvider={dataProvider}
         layoutProvider={layoutProvider}
         rowRenderer={rowRenderer}
@@ -91,6 +91,9 @@ export const Tracklist = ({ navigation }) => {
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1
+  },
+  listView: {
     width: Dimensions.get('window').width,
     marginBottom: 90,
     backgroundColor: BG

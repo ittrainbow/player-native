@@ -4,4 +4,4 @@ Track artist/title data is fetched from filenames (`${artist} - ${title}.mp3` fi
 
 Built with Expo SDK 48
 
-https://expo.dev/artifacts/eas/uA1sxPYJLScq5PaD9h9HPc.apk
+https://expo.dev/artifacts/eas/mgKqCJWeKJJXnngVnusASo.apk

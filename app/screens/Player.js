@@ -22,6 +22,7 @@ const { width } = Dimensions.get('window')
 export const Player = () => {
   const focused = useIsFocused()
   const [duration, setDuration] = useState(0)
+  const [sliderLocked, setSliderLocked] = useState(false)
   const [artist, setArtist] = useState('')
   const [title, setTitle] = useState('')
   const context = useContext(Context)
@@ -59,6 +60,12 @@ export const Player = () => {
       setTitle(title)
     }
   }, [currentAudio])
+
+  useEffect(() => {
+    if (sliderLocked) {
+      setTimeout(() => setSliderLocked(false), 500)
+    }
+  }, [sliderLocked])
 
   useEffect(() => {
     isPlaying ? fadeIn() : fadeOut()
@@ -108,14 +115,16 @@ export const Player = () => {
   }
 
   const slideResumeHandler = async () => {
-    if (soundObject && isPlaying) return await resume(playbackObject)
-    else return
+    if (soundObject && isPlaying) {
+      setSliderLocked(true)
+      await resume(playbackObject)
+    } else return
   }
 
   const slideChangeHandler = async (stamp) => {
     const isTrackEnd = playbackDuration - Math.floor(stamp) > 2000
     const newStamp = isTrackEnd ? stamp : playbackDuration - 2000
-    if (soundObject && playbackDuration) {
+    if (soundObject && playbackDuration && !sliderLocked) {
       await playbackObject.setPositionAsync(newStamp)
       return setPlaybackPosition(newStamp)
     }
@@ -255,7 +264,7 @@ const styles = StyleSheet.create({
   iconContainer: {
     width: width + 100,
     left: -50,
-    alignItems: 'center',
+    alignItems: 'center'
   },
   bottomContainer: {
     position: 'absolute',
